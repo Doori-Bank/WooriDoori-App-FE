@@ -20,3 +20,14 @@ body{
 ::-webkit-scrollbar {
   display: none;
 }
+
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 10px;
+}
+
+.round-10{
+  border-radius: 10px;
+}
