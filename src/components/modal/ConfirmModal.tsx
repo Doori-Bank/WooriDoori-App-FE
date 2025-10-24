@@ -21,7 +21,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-[400px] rounded-2xl bg-white shadow-lg overflow-hidden">
+      <div className="w-[350px] rounded-2xl bg-white shadow-lg overflow-hidden">
         <div className="mt-4 p-6 text-center text-gray-800 text-[1.2rem] font-semibold">
           {message}
         </div>

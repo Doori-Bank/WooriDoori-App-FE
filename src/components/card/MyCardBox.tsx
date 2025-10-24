@@ -20,7 +20,7 @@ const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEidit = false}: pr
             <span className="w-full flex justify-between">
                 <span className="flex">
                     <h1 className="font-semibold text-[1.8rem] text-[#4A4A4A] mr-2">{title}</h1>
-                    <IconButton src={img.EditIcon} alt="수정" width={15} height={15} />
+                    {isEidit ? <IconButton src={img.EditIcon} alt="수정" width={15} height={15} /> : null}
                 </span>
                 {isEidit ? <IconButton src={img.DeleteIcon} alt="삭제" width={15} height={15} /> : null}
                 

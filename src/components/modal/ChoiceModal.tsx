@@ -37,7 +37,7 @@ const ChoiceModal: React.FC<ChoiceModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-[400px] rounded-2xl bg-white shadow-lg overflow-hidden">
+      <div className="w-[350px] rounded-2xl bg-white shadow-lg overflow-hidden">
         {/* 메시지 영역 */}
         <div className="mt-4 p-6 text-center">
           <p className="text-gray-900 text-[1.1rem] font-semibold mb-1">
@@ -76,7 +76,7 @@ const ChoiceModal: React.FC<ChoiceModalProps> = ({
 
           <button
             onClick={onConfirm}
-            className={`flex-1 py-3 active:bg-gray-100 ${btnColor}`}
+            className={`flex-1 py-4 active:bg-gray-100 ${btnColor}`}
           >
             {btnTitle}
           </button>
