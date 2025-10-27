@@ -27,7 +27,7 @@ const InputBox = ({
       placeholder={placeholder}
       disabled={disabled}
       className={`
-        w-full max-w-[33rem] sm:max-w-[33.5rem] px-4 py-3 rounded-lg outline-none border 
+        w-full px-4 py-3 rounded-lg outline-none border 
         ${borderColor} ${textColor} ${bgColor} 
         ${focusColor} transition
         disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed

@@ -20,52 +20,50 @@ const HeaderBar = ({
   return (
     <header
       className={`
-        fixed top-0 left-0 right-0
+        relative
         flex items-center justify-between
         w-full h-[4.5rem]
-        px-5 bg-white
+        px-0 bg-white
         border-b border-gray-200
-        z-50
-        pt-[env(safe-area-inset-top)]
         ${className}
       `}
     >
       {/* 왼쪽: 뒤로가기 버튼 */}
-      <div className="w-10 flex justify-start">
+      <div className="flex justify-start pl-5 w-10">
         {showBack && (
           <button
             type="button"
             onClick={onBack}
             aria-label="뒤로가기"
-            className="flex items-center justify-center"
+            className="flex justify-center items-center"
           >
             <img
               src={img.Vector}
               alt="뒤로가기"
-              className="w-5 h-5 object-contain"
+              className="object-contain w-5 h-5"
             />
           </button>
         )}
       </div>
 
-      {/* 가운데: 타이틀 */}
-      <h1 className="flex-1 text-center text-[1.5rem] font-semibold text-gray-900 truncate">
+      {/* 왼쪽: 타이틀 */}
+      <h1 className="flex-1 text-left text-[1.9rem] font-semibold text-gray-900 truncate -ml-10">
         {title}
       </h1>
 
       {/* 오른쪽: 닫기 버튼 */}
-      <div className="w-10 flex justify-end">
+      <div className="flex justify-end pr-5 w-10">
         {showClose && (
           <button
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="flex items-center justify-center"
+            className="flex justify-center items-center"
           >
             <img
               src={img.BsX}
               alt="닫기"
-              className="w-7 h-7 object-contain"
+              className="object-contain w-7 h-7"
             />
           </button>
         )}
