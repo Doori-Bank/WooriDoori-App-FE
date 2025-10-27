@@ -54,20 +54,18 @@ const UserInfoView: React.FC = () => {
 
       {/* 프로필 섹션 */}
       <div className="flex flex-col items-center mb-8">
-        {/* 프로필 이미지 */}
-        <div className="flex overflow-hidden justify-center items-center w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full mb-4">
-          <img
-            src={img.doori_favicon}
-            alt="프로필"
-            className="object-contain w-16 h-16"
-          />
+        {/* 프로필 이미지 - 간단한 스마일 아이콘 */}
+        <div className="flex justify-center items-center w-20 h-20 bg-green-500 rounded-full mb-4">
+          <div className="text-white text-4xl font-bold">
+            :)
+          </div>
         </div>
         
         {/* 버튼들 */}
         <div className="flex gap-3">
           <button
             onClick={handleWithdraw}
-            className="px-6 py-2 bg-gray-500 text-white text-[1.2rem] font-medium rounded-lg hover:bg-gray-600 transition-colors"
+            className="px-6 py-2 bg-gray-600 text-white text-[1.2rem] font-medium rounded-lg hover:bg-gray-700 transition-colors"
           >
             회원 탈퇴
           </button>
@@ -81,69 +79,69 @@ const UserInfoView: React.FC = () => {
       </div>
 
       {/* 사용자 정보 입력 폼 */}
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* 아이디 */}
         <div>
-          <label className="block text-[1.4rem] font-medium text-gray-700 mb-2">
+          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
             아이디
           </label>
           <input
             type="email"
             value={userInfo.id}
             onChange={(e) => handleInputChange('id', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 rounded-lg text-[1.3rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         {/* 비밀번호 */}
         <div>
-          <label className="block text-[1.4rem] font-medium text-gray-700 mb-2">
+          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
             비밀번호
           </label>
           <input
             type="password"
             value={userInfo.password}
             onChange={(e) => handleInputChange('password', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 rounded-lg text-[1.3rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         {/* 이름 */}
         <div>
-          <label className="block text-[1.4rem] font-medium text-gray-700 mb-2">
+          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
             이름
           </label>
           <input
             type="text"
             value={userInfo.name}
             onChange={(e) => handleInputChange('name', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 rounded-lg text-[1.3rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         {/* 전화번호 */}
         <div>
-          <label className="block text-[1.4rem] font-medium text-gray-700 mb-2">
+          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
             전화번호
           </label>
           <input
             type="tel"
             value={userInfo.phone}
             onChange={(e) => handleInputChange('phone', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 rounded-lg text-[1.3rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 focus:outline-none focus:bg-white transition-colors"
           />
         </div>
 
         {/* 생년월일 */}
         <div>
-          <label className="block text-[1.4rem] font-medium text-gray-700 mb-2">
+          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
             생년월일
           </label>
           <input
             type="text"
             value={userInfo.birth}
             onChange={(e) => handleInputChange('birth', e.target.value)}
-            className="w-full px-4 py-3 bg-gray-100 rounded-lg text-[1.3rem] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-colors"
+            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 focus:outline-none focus:bg-white transition-colors"
           />
         </div>
       </div>
