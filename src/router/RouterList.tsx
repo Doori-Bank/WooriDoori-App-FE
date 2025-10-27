@@ -8,6 +8,7 @@
 import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
 import MyPageView from "@/pages/MyPageView";
+import UserInfoView from "@/pages/UserInfoView";
 
 // 메인 route list
 const mainList : Array<any> = [ 
@@ -16,7 +17,8 @@ const mainList : Array<any> = [
 
 // 유저 정보 route list
 const authList : Array<any> = [
-    {path : '/mypage', element :<MyPageView />}
+    {path : '/mypage', element :<MyPageView />},
+    {path : '/userinfo', element :<UserInfoView />}
 ];
 
 
