@@ -99,16 +99,16 @@ const CalendarView = () => {
     }
   }, [detail]);
 
-  // DutchPayModal 완료 시 데이터 업데이트 (더치페이 인원만 업데이트, 원본 금액은 유지)
+  // DutchPayModal 완료 시 데이터 업데이트 (더치페이 인원과 수정된 금액 업데이트)
   React.useEffect(() => {
-    if (dutchPayModal && dutchPayModal.id) {
+    if (dutchPayModal && dutchPayModal.id && dutchPayModal.dutchPay) {
       setPaymentDataState(prev => {
         return prev.map(p => {
           if (p.id === dutchPayModal.id) {
             return {
               ...p,
               dutchPay: dutchPayModal.dutchPay || p.dutchPay,
-              // 원본 금액은 유지, 더치페이 인원만 업데이트
+              amount: dutchPayModal.amount,
             };
           }
           return p;
