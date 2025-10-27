@@ -20,9 +20,9 @@ const HeaderBar = ({
   return (
     <header
       className={`
-        fixed top-0 left-0 right-0
+        fixed top-0 left-1/2 transform -translate-x-1/2
         flex items-center justify-between
-        w-full h-[4.5rem]
+        w-full h-[4.5rem] max-w-[400px]
         px-5 bg-white
         border-b border-gray-200
         z-50

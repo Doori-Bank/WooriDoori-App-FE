@@ -23,11 +23,11 @@ const BottomNav = () => {
   return (
     <nav
       className="
-        fixed bottom-0 left-0 right-0
-        w-[100vw] bg-white border-t border-gray-200
+        fixed bottom-0 left-1/2 transform -translate-x-1/2
+        w-[100vw] max-w-[400px] bg-white border-t border-gray-200
         z-50
         flex justify-around items-center
-        py-4
+        py-6
         px-[max(env(safe-area-inset-left),1rem)]
         pb-[calc(env(safe-area-inset-bottom)+1.25rem)]
       "
