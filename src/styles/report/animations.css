@@ -1,0 +1,88 @@
+
+/*  =================리포트 돌 애니메이션  표시==================== */
+@keyframes rockDrop {
+  0% {
+    transform: translateY(-300px);
+    opacity: 0;
+  }
+
+  80% {
+    transform: translateY(10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.rock-fall {
+  position: relative;
+  animation: rockDrop 1.2s ease-out forwards;
+}
+
+.rock-landed {
+  transform: translateY(0);
+}
+
+
+/*  =================카테고리 전체 표시==================== */
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 기본적으로 사용할 수 있는 공용 클래스 */
+.animate-fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+
+.category-item {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.category-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============== 카테고리 별 사용 금액 표시 =================== */
+.category-fade {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.category-fade.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* =============== 카드추천 =================== */
+.card-rotate-3d {
+  transform-style: preserve-3d;
+  transform: rotateX(-20deg) rotateZ(10deg); /* X, Z축 기울기 추가 */
+  transform-origin: center; /* 회전 중심 */
+  perspective: 800px; /* 원근감 */
+  animation: rotate-card-y 3s linear infinite;
+}
+
+@keyframes rotate-card-y {
+  0% { transform: rotateX(-20deg) rotateZ(10deg) rotateY(0deg); }
+  100% { transform: rotateX(-20deg) rotateZ(10deg) rotateY(360deg); }
+}
+
+
