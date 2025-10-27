@@ -189,7 +189,7 @@ const CardRecommendView: React.FC = () => {
                   <button className="flex items-center gap-1 text-[1.1rem] text-gray-600 hover:text-gray-800 transition-colors">
                     상세보기
                     <img
-                      src={img.arrowRightIcon}
+                      src={img.grayCheckRightIcon}
                       alt="화살표"
                       className="w-4 h-4"
                     />
