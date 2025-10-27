@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import DefaultButton from '@/components/button/DefaultButton';
 import BottomNav from '@/components/default/NavBar';
+import ChoiceModal from '@/components/modal/ChoiceModal';
 import { img } from '@/assets/img';
 
 const UserInfoView: React.FC = () => {
@@ -16,6 +17,10 @@ const UserInfoView: React.FC = () => {
     birth: '040207'
   });
 
+  // 모달 상태
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+
   const handleInputChange = (field: string, value: string) => {
     setUserInfo(prev => ({
       ...prev,
@@ -24,13 +29,31 @@ const UserInfoView: React.FC = () => {
   };
 
   const handleLogout = () => {
-    console.log('로그아웃');
-    // 로그아웃 로직 구현
+    setIsLogoutModalOpen(true);
   };
 
   const handleWithdraw = () => {
-    console.log('회원 탈퇴');
+    setIsWithdrawModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    console.log('로그아웃 실행');
+    setIsLogoutModalOpen(false);
+    // 로그아웃 로직 구현
+  };
+
+  const confirmWithdraw = () => {
+    console.log('회원 탈퇴 실행');
+    setIsWithdrawModalOpen(false);
     // 회원 탈퇴 로직 구현
+  };
+
+  const cancelLogout = () => {
+    setIsLogoutModalOpen(false);
+  };
+
+  const cancelWithdraw = () => {
+    setIsWithdrawModalOpen(false);
   };
 
   return (
@@ -148,7 +171,7 @@ const UserInfoView: React.FC = () => {
       </div>
 
       {/* 저장 버튼 */}
-      <div className="mt-24">
+      <div className="mt-52">
         <DefaultButton
           text="저장"
           onClick={() => console.log('저장')}
@@ -160,6 +183,26 @@ const UserInfoView: React.FC = () => {
       <div className="mt-auto">
         <BottomNav />
       </div>
+
+      {/* 로그아웃 확인 모달 */}
+      <ChoiceModal
+        message="정말 로그아웃 할 것인가요?"
+        isOpen={isLogoutModalOpen}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+        btnTitle="로그아웃"
+        btnColor="text-red-500"
+      />
+
+      {/* 회원탈퇴 확인 모달 */}
+      <ChoiceModal
+        message="정말 회원탈퇴를 하시겠습니까?"
+        isOpen={isWithdrawModalOpen}
+        onConfirm={confirmWithdraw}
+        onCancel={cancelWithdraw}
+        btnTitle="탈퇴"
+        btnColor="text-red-500"
+      />
     </DefaultDiv>
   );
 };
