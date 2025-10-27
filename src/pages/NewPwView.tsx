@@ -86,10 +86,9 @@ const NewPwView = () => {
           }}
         />
 
-        {/* ✅ 에러 메시지 출력 */}
         {errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
 
-        <div className="h-28" />
+        <div className="h-32" />
 
         <div className="flex justify-center pt-4 gap-8">
           <DefaultButton
