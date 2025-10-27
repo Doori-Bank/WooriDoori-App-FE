@@ -148,7 +148,7 @@ const UserInfoView: React.FC = () => {
       </div>
 
       {/* 저장 버튼 */}
-      <div className="mt-12">
+      <div className="mt-24">
         <DefaultButton
           text="저장"
           onClick={() => console.log('저장')}
