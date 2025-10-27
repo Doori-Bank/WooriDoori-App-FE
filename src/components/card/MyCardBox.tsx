@@ -49,11 +49,11 @@ const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEidit = false, isE
                     ) : (
                         <div className="flex gap-2 items-center">
                             <h1 className="font-semibold text-[1.8rem] text-[#4A4A4A]">{title}</h1>
-                            {isEditMode && isEidit ? <IconButton src={img.EditIcon} alt="수정" width={18} height={18} onClick={onEditNickname} /> : null}
+                            {isEditMode ? <IconButton src={img.EditIcon} alt="수정" width={18} height={18} onClick={onEditNickname} /> : null}
                         </div>
                     )}
                 </div>
-                {isEditMode && isEidit && (
+                {isEditMode && (
                     <div className="flex items-center -mr-10">
                         <IconButton src={img.DeleteIcon} alt="삭제" width={15} height={15} onClick={onDelete} />
                     </div>

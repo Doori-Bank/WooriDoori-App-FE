@@ -59,11 +59,12 @@ const CardManagement: React.FC = () => {
 
   // 편집 모드 토글
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    const newEditMode = !isEditMode;
+    setIsEditMode(newEditMode);
     setCards(prevCards => 
       prevCards.map(card => ({
         ...card,
-        isEdit: !isEditMode
+        isEdit: newEditMode
       }))
     );
     setIsSettingsModalOpen(false);
