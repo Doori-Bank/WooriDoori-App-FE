@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import DefaultButton from '@/components/button/DefaultButton';
+import BottomNav from '@/components/default/NavBar';
 import { img } from '@/assets/img';
 
 const UserInfoView: React.FC = () => {
@@ -35,7 +36,7 @@ const UserInfoView: React.FC = () => {
   return (
     <DefaultDiv>
       {/* 헤더 - 뒤로가기 버튼 */}
-      <div className="flex items-center justify-between w-full pt-4 pb-2">
+      <div className="flex justify-between items-center pt-4 pb-2 w-full">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center"
@@ -53,10 +54,10 @@ const UserInfoView: React.FC = () => {
       </div>
 
       {/* 프로필 섹션 */}
-      <div className="flex items-center justify-between mb-8 mt-8">
+      <div className="flex justify-between items-center mt-20 mb-10">
         {/* 프로필 이미지 - 간단한 스마일 아이콘 */}
-        <div className="flex justify-center items-center w-20 h-20 bg-green-500 rounded-full">
-          <div className="text-white text-4xl font-bold">
+        <div className="flex justify-center items-center w-32 h-32 bg-green-500 rounded-full">
+          <div className="text-4xl font-bold text-white">
             :)
           </div>
         </div>
@@ -65,7 +66,7 @@ const UserInfoView: React.FC = () => {
         <div className="flex gap-3">
           <button
             onClick={handleWithdraw}
-            className="px-6 py-2 bg-gray-600 text-white text-[1.2rem] font-medium rounded-lg hover:bg-gray-700 transition-colors"
+            className="px-6 py-1 bg-gray-600 text-white text-[1.2rem] font-medium rounded-lg hover:bg-gray-700 transition-colors"
           >
             회원 탈퇴
           </button>
@@ -79,7 +80,7 @@ const UserInfoView: React.FC = () => {
       </div>
 
       {/* 사용자 정보 입력 폼 */}
-      <div className="space-y-4">
+      <div className="space-y-20">
         {/* 아이디 */}
         <div>
           <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
@@ -153,6 +154,11 @@ const UserInfoView: React.FC = () => {
           onClick={() => console.log('저장')}
           className="w-full bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
         />
+      </div>
+
+      {/* 네비게이션 바 */}
+      <div className="mt-auto">
+        <BottomNav />
       </div>
     </DefaultDiv>
   );
