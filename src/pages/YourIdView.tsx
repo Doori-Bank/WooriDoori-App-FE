@@ -7,11 +7,13 @@ const YourIdView = () => {
   // 예시: 백엔드에서 받아오는 이메일
   const email = "hongseok@gmail.com";
 
-  // 이메일 마스킹 함수
+  // 이메일 마스킹 함수 (처음 3자리만 보여주고 나머지 * 처리)
   const maskEmail = (email: string) => {
     const [name, domain] = email.split("@");
     if (name.length <= 3) return `${name[0]}***@${domain}`;
-    return `${name.slice(0, 3)}***@${domain}`;
+    const visible = name.slice(0, 3); // 처음 3자리
+    const masked = "*".repeat(name.length - 3); // 나머지 마스킹
+    return `${visible}${masked}@${domain}`;
   };
 
   return (
