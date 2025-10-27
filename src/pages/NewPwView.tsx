@@ -11,26 +11,41 @@ const NewPwView = () => {
   const [tempPw, setTempPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+
+  // 각 입력창별 오류 메시지
+  const [newPwError, setNewPwError] = useState("");
+  const [confirmPwError, setConfirmPwError] = useState("");
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showChoiceModal, setShowChoiceModal] = useState(false);
 
-  // ✅ 비밀번호 유효성 검사 (영문 또는 숫자, 10자 이상)
+  // 비밀번호 유효성 검사 (영문 또는 숫자, 10자 이상)
   const isValidPassword = (pw: string) => /^[A-Za-z0-9]{10,}$/.test(pw);
 
+  
   // 확인 버튼
   const handleConfirm = () => {
+    let hasError = false;
+
+    // 새 비밀번호 유효성 체크
     if (!isValidPassword(newPw)) {
-      setErrorMsg("비밀번호는 숫자 또는 영문 10자 이상으로 설정해야 합니다.");
-      return;
+      setNewPwError("비밀번호는 숫자 또는 영문 10자 이상으로 설정해야 합니다.");
+      hasError = true;
+    } else {
+      setNewPwError("");
     }
 
+    // 새 비밀번호와 확인 입력 일치 여부 체크
     if (newPw !== confirmPw) {
-      setErrorMsg("비밀번호가 일치하지 않습니다!");
-      return;
+      setConfirmPwError("비밀번호가 일치하지 않습니다!");
+      hasError = true;
+    } else {
+      setConfirmPwError("");
     }
 
-    setErrorMsg("");
+    if (hasError) return;
+
+    // 오류 없으면 모달 표시
     setShowConfirmModal(true);
   };
 
@@ -52,7 +67,6 @@ const NewPwView = () => {
     <DefaultDiv>
       <div className="h-16" />
 
-      {/* 로고 */}
       <img src={img.wooridoorilogo} alt="" className="w-60 mx-auto" />
       <div className="h-8" />
 
@@ -65,39 +79,46 @@ const NewPwView = () => {
           <h3 className="font-bold text-left">임시비밀번호</h3>
           <div className="h-2" />
           <InputBox
+            type="password"
             placeholder="임시비밀번호를 입력해주세요"
             value={tempPw}
             onChange={(e) => setTempPw(e.target.value)}
           />
         </div>
+        <div className="h-4" />
 
         {/* 새 비밀번호 */}
         <div>
           <h3 className="font-bold text-left">새 비밀번호</h3>
           <div className="h-2" />
           <InputBox
+            type="password"
             placeholder="새로 설정할 비밀번호를 입력해주세요"
             value={newPw}
-            onChange={(e) => setNewPw(e.target.value)}
+            onChange={(e) => {
+              setNewPw(e.target.value);
+              setNewPwError("");
+            }}
           />
+          {newPwError && <p className="text-red-500 mt-2">{newPwError}</p>}
         </div>
+        <div className="h-4" />
 
         {/* 새 비밀번호 확인 */}
         <div>
           <h3 className="font-bold text-left">새 비밀번호 확인</h3>
           <div className="h-2" />
           <InputBox
+            type="password"
             placeholder="새로 설정할 비밀번호를 재입력해주세요"
             value={confirmPw}
             onChange={(e) => {
               setConfirmPw(e.target.value);
-              setErrorMsg("");
+              setConfirmPwError("");
             }}
           />
+          {confirmPwError && <p className="text-red-500 mt-2">{confirmPwError}</p>}
         </div>
-
-        {/* 에러 메시지 */}
-        {errorMsg && <p className="text-red-500 mt-2">{errorMsg}</p>}
 
         <div className="h-32" />
         <div className="flex justify-center pt-4 gap-8">
