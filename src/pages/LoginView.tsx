@@ -10,14 +10,14 @@ const LoginView = () => {
   const navigate = useNavigate();
   const formRef = useRef<LoginFormRef>(null);
 
-  const handleLoginClick = () => {
-    const success = formRef.current?.handleLogin();
+  const handleLoginClick = async () => {
+    const success = await formRef.current?.handleLogin();
 
     if (success) {
-      navigate("/home");
+      navigate("/home"); // 홈 화면으로 이동
     } else {
-      // 로그인 실패 시, 현재 화면 유지 + 입력 리셋
-      navigate("/login"); // 현재 페이지 다시 로드
+      // 로그인 실패 시, 현재 화면 유지
+      console.log("로그인 실패");
     }
   };
 
@@ -44,7 +44,7 @@ const LoginView = () => {
           아직 회원이 아니신가요?{" "}
           <Link
             to="/signup/agreement"
-            className="text-green-600 font-medium hover:text-green-700 hover:underline transition"
+            className="font-medium text-green-600 transition hover:text-green-700 hover:underline"
           >
             회원가입하기
           </Link>

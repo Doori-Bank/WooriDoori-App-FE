@@ -8,13 +8,29 @@ import { img } from '@/assets/img';
 const UserInfoView: React.FC = () => {
   const navigate = useNavigate();
   
-  const [userInfo, setUserInfo] = useState({
-    id: 'test@test.com',
-    password: '*************',
-    name: '홍길동',
-    phone: '010-0000-0000',
-    birth: '040207'
-  });
+  // localStorage에서 사용자 정보 가져오기
+  const getUserInfo = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      return {
+        id: user.memberId || 'test@test.com',
+        password: '*************',
+        name: user.name || '홍길동',
+        phone: user.phone || '010-0000-0000',
+        birth: user.birth || '040207'
+      };
+    }
+    return {
+      id: 'test@test.com',
+      password: '*************',
+      name: '홍길동',
+      phone: '010-0000-0000',
+      birth: '040207'
+    };
+  };
+  
+  const [userInfo, setUserInfo] = useState(getUserInfo());
 
   // 모달 상태
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -30,9 +46,17 @@ const UserInfoView: React.FC = () => {
   };
 
   const confirmLogout = () => {
-    console.log('로그아웃 실행');
+    // localStorage에서 사용자 정보 제거
+    localStorage.removeItem('userInfo');
+    
+    // 로그인 페이지로 이동
+    navigate('/');
+    
+    // 모달 닫기
     setIsLogoutModalOpen(false);
-    // 로그아웃 로직 구현
+    
+    // 로그아웃 성공 알림
+    alert('로그아웃되었습니다.');
   };
 
   const confirmWithdraw = () => {

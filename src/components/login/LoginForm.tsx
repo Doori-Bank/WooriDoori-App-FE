@@ -1,7 +1,8 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
+import { loginUser } from "../../api/userApi";
 
 export interface LoginFormRef {
-  handleLogin: () => boolean;
+  handleLogin: () => Promise<boolean>;
 }
 
 const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
@@ -40,7 +41,7 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
 
   // 외부에서 실행할 수 있는 로그인 검증 로직
   useImperativeHandle(ref, () => ({
-    handleLogin: () => {
+    handleLogin: async () => {
       // 이메일 검증
       if (!email) {
         setEmailError("이메일을 입력해주세요.");
@@ -61,12 +62,21 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
         return false;
       }
 
-      // 테스트용 계정
-      if (email === "123@test.com" && password === "123456") {
-        alert("로그인 성공! (테스트 계정)");
-        return true;
-      } else {
-        alert("로그인 실패: 이메일 또는 비밀번호를 확인해주세요.");
+      try {
+        // API 호출
+        const result = await loginUser(email, password);
+        
+        if (result.success) {
+          // 로그인 성공 시 사용자 정보를 localStorage에 저장
+          localStorage.setItem('userInfo', JSON.stringify(result.data));
+          alert(`로그인 성공! 환영합니다, ${result.data.name}님!`);
+          return true;
+        } else {
+          alert(result.message || "로그인 실패: 이메일 또는 비밀번호를 확인해주세요.");
+          return false;
+        }
+      } catch (error) {
+        alert("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
         return false;
       }
     },
@@ -111,14 +121,14 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
         <div className="absolute right-0 bottom-[-2.8rem] flex gap-[1.6rem] text-[1.2rem] text-gray-500">
           <a
             href="/find-id"
-            className="hover:text-green-600 hover:underline transition"
+            className="transition hover:text-green-600 hover:underline"
           >
             아이디 찾기
           </a>
           <span>|</span>
           <a
             href="/find-password"
-            className="hover:text-green-600 hover:underline transition"
+            className="transition hover:text-green-600 hover:underline"
           >
             비밀번호 찾기
           </a>

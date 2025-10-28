@@ -8,9 +8,22 @@ import BottomNav from "@/components/default/NavBar";
 import MainBanner from "@/components/home/MainBanner";
 import ProgressDonet from "@/components/Progress/ProgressDonet";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const HomeView = () => {
-  const name: string = '석기';
+  const navigate = useNavigate();
+  
+  // localStorage에서 사용자 정보 가져오기
+  const getUserName = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      return user.name || '사용자';
+    }
+    return '석기'; // 기본값
+  };
+  
+  const name: string = getUserName();
   const target: string = '10000만원 쓰기';
   const dooriTaget = { src: img.doori_basic, title: '흠...어디 한번 볼까?' };
   const totalPrice = 1080000;
@@ -51,7 +64,9 @@ const HomeView = () => {
       {/* 해더 */}
       <header className="flex items-center justify-between">
         <img src={img.logoIcon} alt="우리두리" width={60} />
-        <IconButton src={img.alarmIcon} alt="알람" />
+        <div onClick={() => navigate('/notification')} className="cursor-pointer">
+          <IconButton src={img.alarmIcon} alt="알람" />
+        </div>
       </header>
 
       {/* 인사 타이툴 */}
@@ -75,7 +90,7 @@ const HomeView = () => {
         <div className="flex gap-3 mt-8">
           {/* 목표 */}
           <BorderBox>
-            <a href="#" className="flex flex-col items-center justify-start h-full relative">
+            <div onClick={() => navigate('/goal/setGoal')} className="flex flex-col items-center justify-start h-full relative cursor-pointer">
               <h3 className="text-[1.6rem] font-semibold mt-3">이번달 목표</h3>
               <p className="mt-5 text-[1.3rem] font-semibold text-center">{target}</p>
 
@@ -83,21 +98,20 @@ const HomeView = () => {
                 <span className="w-full text-[#B6B6B6]  animate-slide -mb-3 pr-2">{messages[index]}</span>
                 <img src={dooriTaget.src} alt="두리이미지" className=" object-cover" width={80} style={{ transform: "scaleX(1)" }} />
               </div>
-            </a>
+            </div>
           </BorderBox>
           {/* 지출 */}
           <BorderBox flex="flex-2">
-            <a href="#">
+            <div onClick={() => navigate('/calendar')} className="cursor-pointer">
               <ProgressDonet total={totalPrice} categories={categories} month="5월" size={100} isCategoryShow={false} isTotalPostionCenter={false} />
-            </a>
+            </div>
           </BorderBox>
         </div>
 
         {/* 카테고리 TOP 5 */}
         <div className="mt-10">
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8">
             <h3 className="font-bold text-[1.6rem]">카테고리별 사용 금액 TOP 5</h3>
-            <a href="#"><img src={img.grayCheckRightIcon} alt=">" width={15} /></a>
           </div>
           <BorderBox>
             {
@@ -118,15 +132,17 @@ const HomeView = () => {
         <div className="mt-10">
           <div className="mb-8 flex items-center justify-between">
             <h3 className="font-bold text-[1.6rem]">{name}님에게 딱 맞춘 카드</h3>
-            <a href="#"><img src={img.grayCheckRightIcon} alt=">" width={15} /></a>
+            <div onClick={() => navigate('/card-recommend')} className="cursor-pointer">
+              <img src={img.grayCheckRightIcon} alt=">" width={15} />
+            </div>
           </div>
 
           <div>
             {cardBannerList.map((element, index) => {
               return (
-                <a key={index} href={element.url} className="block mt-6">
+                <div key={index} onClick={() => navigate('/card-recommend')} className="block mt-6 cursor-pointer">
                   <img src={element.src} alt={`카드배너${index + 1}`} height={88} />
-                </a>
+                </div>
               )
             })}
           </div>

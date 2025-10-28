@@ -14,10 +14,10 @@ const BottomNav = () => {
   const currentPath = location.pathname;
 
   const navList: NavItem[] = [
-    { name: "홈", path: "/testtitle", iconActive: img.homeB, iconInactive: img.homeW },
+    { name: "홈", path: "/home", iconActive: img.homeB, iconInactive: img.homeW },
     { name: "카드 관리", path: "/card", iconActive: img.cardB, iconInactive: img.cardW },
     { name: "소비내역", path: "/calendar", iconActive: img.calendarB, iconInactive: img.calendarW },
-    { name: "더보기", path: "/more", iconActive: img.menuB, iconInactive: img.menuW },
+    { name: "더보기", path: "/mypage", iconActive: img.menuB, iconInactive: img.menuW },
   ];
 
   return (
