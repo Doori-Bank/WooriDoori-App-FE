@@ -7,6 +7,8 @@
 
 // import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
+import MyPageView from "@/pages/MyPageView";
+import UserInfoView from "@/pages/UserInfoView";
 import LoginView from "@/pages/LoginView";
 import SignUpAgreementView from "@/pages/SignUpAgreementView";
 import SignUpView from "@/pages/SignUpView";
@@ -23,6 +25,9 @@ const mainList : Array<any> = [
 ];
 
 // 유저 정보 route list
+const authList : Array<any> = [
+    {path : '/mypage', element :<MyPageView />},
+    {path : '/userinfo', element :<UserInfoView />}
 const authList : Array<any> = [ 
     { path: '/login', element: <LoginView /> },
     { path: '/signUp/signUp', element: <SignUpView /> },
