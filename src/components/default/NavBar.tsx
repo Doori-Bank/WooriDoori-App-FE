@@ -22,7 +22,15 @@ const BottomNav = () => {
 
   return (
     <nav
-      className="flex absolute right-0 bottom-0 left-0 z-50 justify-around items-center px-4 py-4 w-full bg-white border-t border-gray-200"
+      className="
+        fixed bottom-0 left-1/2 transform -translate-x-1/2
+        w-[100vw] max-w-[400px] bg-white border-t border-gray-200
+        z-50
+        flex justify-around items-center
+        py-6
+        px-[max(env(safe-area-inset-left),1rem)]
+        pb-[calc(env(safe-area-inset-bottom)+1.25rem)]
+      "
     >
       {navList.map((item) => {
         // "/" 는 정확히 일치해야만 활성화되도록 처리

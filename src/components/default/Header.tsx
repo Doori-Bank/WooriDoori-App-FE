@@ -20,16 +20,18 @@ const HeaderBar = ({
   return (
     <header
       className={`
-        relative
+        fixed top-0 left-1/2 transform -translate-x-1/2
         flex items-center justify-between
-        w-full h-[4.5rem]
-        px-0 bg-white
+        w-full h-[4.5rem] max-w-[400px]
+        px-5 bg-white
         border-b border-gray-200
+        z-50
+        pt-[env(safe-area-inset-top)]
         ${className}
       `}
     >
       {/* 왼쪽: 뒤로가기 버튼 */}
-      <div className="flex justify-start pl-5 w-10">
+      <div className="flex justify-start w-10">
         {showBack && (
           <button
             type="button"
@@ -46,13 +48,13 @@ const HeaderBar = ({
         )}
       </div>
 
-      {/* 왼쪽: 타이틀 */}
-      <h1 className="flex-1 text-left text-[1.9rem] font-semibold text-gray-900 truncate -ml-10">
+      {/* 가운데: 타이틀 */}
+      <h1 className="flex-1 text-center text-[1.5rem] font-semibold text-gray-900 truncate">
         {title}
       </h1>
 
       {/* 오른쪽: 닫기 버튼 */}
-      <div className="flex justify-end pr-5 w-10">
+      <div className="flex justify-end w-10">
         {showClose && (
           <button
             type="button"
