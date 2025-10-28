@@ -33,7 +33,7 @@ export default function AchievementHistoryView() {
 
   return (
     <DefaultDiv>
-      <Header title="달성도" onClose={goHome} />
+      <Header title="달성도" showBack={true} onBack={() => navigate(-1)} onClose={goHome} />
 
       <div className="flex flex-col gap-6 px-6 pt-20 pb-10 h-full">
         {/* 달성도 카드 목록 */}

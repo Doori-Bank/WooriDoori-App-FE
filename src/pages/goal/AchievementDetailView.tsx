@@ -84,6 +84,14 @@ export default function AchievementDetailView() {
     // ✅ percent → 시침 각도 변환 함수 (-90° ~ +90°)
     const percentToDeg = (p: number) => -90 + p * 1.8;
 
+    // 유저 이름 로드
+    const getUserName = () => {
+        const info = localStorage.getItem('userInfo');
+        if (!info) return '사용자';
+        try { return JSON.parse(info).name || '사용자'; } catch { return '사용자'; }
+    };
+    const userName = getUserName();
+
     return (
         <DefaultDiv>
             <Header
@@ -95,11 +103,9 @@ export default function AchievementDetailView() {
             />
 
 
-            <div className="flex flex-col gap-8 px-6 pt-20 pb-10 h-full">
-                {/* 제목 */}
-                <div className="text-left">
-                    <SubText text="석기님의 현재 달성도에 대해 알려드릴게요" />
-                </div>
+            <div className="flex flex-col gap-6 px-6 pt-8 pb-60 h-full">
+                {/* 제목 영역 제거 (아래 점수 폼 하단으로 이동) */}
+                <div className="h-0" />
 
                 {/* ✅ 월 선택 + 점수 */}
                 <div className="flex flex-col items-center">
@@ -114,7 +120,7 @@ export default function AchievementDetailView() {
                         >
                             ◀
                         </button>
-                        <span>{currentData.month}</span>
+                        <span className="text-[2rem] font-bold text-gray-800">{currentData.month}</span>
                         <button
                             onClick={handleNext}
                             disabled={currentIndex === mockHistory.length - 1}
@@ -157,8 +163,15 @@ export default function AchievementDetailView() {
                     </div>
                 </div>
 
+                {/* 점수 폼 하단 안내 문구 (가운데 정렬) */}
+                <div className="flex justify-center">
+                    <p className="mt-0 text-[1.2rem] text-gray-700 text-center">
+                        {`${userName}님의 현재 달성도에 대해 알려드릴게요`}
+                    </p>
+                </div>
+
                 {/* ✅ 소비 요약 */}
-                <div className="flex justify-around mt-2 text-center">
+                <div className="flex justify-around mt-5 text-center">
                     <div>
                         <p className="text-gray-500 text-[1.3rem]">이번달 소비</p>
                         <p className="font-bold text-[1.4rem]">
@@ -185,7 +198,7 @@ export default function AchievementDetailView() {
                 </div>
 
                 {/* ✅ 초과 소비 TOP5 + 위험도 + 두리 */}
-                <div className="grid grid-cols-2 gap-4 items-start">
+                <div className="grid grid-cols-2 gap-5 items-start">
                     {/* ✅ 왼쪽: 한달 소비 TOP5 */}
                     <div className="p-5 bg-white rounded-2xl border border-gray-200 shadow-sm">
                         <p className="font-semibold text-gray-800 mb-4 text-[1.2rem]">한달 소비 TOP 5</p>
