@@ -93,43 +93,46 @@ const DiaryView = () => {
   
   return (
     <DefaultDiv isPadding={false}>
-      <div className="relative dark:bg-gray-700 min-h-screen">
-        {/* 헤더 */}
-        <div className="py-all px-5 flex items-center justify-between">
-          <div className="block items-center gap-2">
-            <div className="flex items-center text-center text-3xl font-semibold border-b border-gray-100 dark:border-gray-600 relative">소비 일기</div>
-            <div className="text-3xl text-gray-500 font-bold">(전체)</div>
+      <div className="flex relative flex-col h-screen dark:bg-gray-700">
+        {/* 헤더 (상단 고정) */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[100vw] max-w-[400px] z-[60] bg-white border-b border-gray-200">
+          <div className="flex justify-between items-center px-5 py-all">
+            <div className="block gap-2 items-center">
+              <div className="flex relative items-center text-3xl font-semibold text-center border-b border-gray-100 dark:border-gray-600">소비 일기</div>          </div>
+            <button onClick={() => navigate('/calendar')}>
+              <IconButton
+                src={img.BsX}
+                alt="닫기"
+                height={33}
+              />
+            </button>
           </div>
-          <button onClick={() => navigate('/calendar')}>
-            <IconButton
-              src={img.BsX}
-              alt="닫기"
-              height={33}
-            />
-          </button>
-        </div>
-        
-        {/* 캘린더 */}
-        <div className="p-5 dark:bg-gray-700">
-          {/* 월 선택 */}
-          <div className="flex justify-center items-center mb-5 gap-5">
+          
+          {/* 월 선택 (헤더에 포함) */}
+          <div className="flex gap-5 justify-center items-center px-5 mb-5">
             <div 
               onClick={() => changeMonth(-1)} 
-              className="cursor-pointer text-gray-600 dark:text-gray-300 text-2xl select-none hover:text-gray-800 dark:hover:text-white transition-colors"
+              className="text-2xl text-gray-600 transition-colors cursor-pointer select-none dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
             >
               ◀
             </div>
             <span className="text-2xl font-400 dark:text-white">{month + 1}월</span>
             <div 
               onClick={() => changeMonth(1)} 
-              className="cursor-pointer text-gray-600 dark:text-gray-300 text-2xl select-none hover:text-gray-800 dark:hover:text-white transition-colors"
+              className="text-2xl text-gray-600 transition-colors cursor-pointer select-none dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
             >
               ▶
             </div>
           </div>
-          
+        </div>
+
+        {/* 헤더 공간 확보 */}
+        <div className="h-[12rem]"></div>
+
+        {/* 캘린더 (고정) */}
+        <div className="flex-shrink-0 px-5 pt-2 pb-5 dark:bg-gray-700">
           {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 mb-3 gap-1">
+          <div className="grid grid-cols-7 gap-1 mb-3">
             {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
               <div 
                 key={idx} 
@@ -172,7 +175,7 @@ const DiaryView = () => {
                           <img 
                             src={emotionIcons[entry?.emotion || 2]} 
                             alt="일기 있음"
-                            className="w-20 h-20 object-contain"
+                            className="object-contain w-20 h-20"
                           />
                         </div>
                       )}
@@ -184,10 +187,10 @@ const DiaryView = () => {
           </div>
         </div>
         
-        {/* 일기 표시 영역 */}
-        <div className="px-5 pb-8 pt-4">
-          <div className="bg-white dark:bg-gray-600 rounded-3xl p-6 shadow-sm">
-            <div className="flex items-center gap-4 mb-4">
+        {/* 일기 표시 영역 (스크롤 가능) */}
+        <div className="overflow-y-auto flex-1 px-5 pt-4 pb-50">
+          <div className="p-6 bg-white rounded-3xl shadow-sm dark:bg-gray-600">
+            <div className="flex gap-4 items-center mb-4">
               {/* 두리 큰 아이콘 */}
               <img 
                 src={diaryEntry ? emotionIcons[diaryEntry.emotion] : img.doori_face1} 
@@ -196,7 +199,7 @@ const DiaryView = () => {
               />
               
               {/* 날짜 필드 + 수정 아이콘 */}
-              <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3 flex items-center justify-between">
+              <div className="flex flex-1 justify-between items-center px-4 py-3 bg-gray-100 rounded-2xl dark:bg-gray-700">
                 <span className="text-xl text-gray-700 dark:text-gray-300">
                   {selectedDate}일 {selectedDayOfWeek}요일
                 </span>
@@ -213,13 +216,13 @@ const DiaryView = () => {
             </div>
             
             {!diaryEntry && (
-              <div className="text-center py-12">
-                <p className="text-xl text-gray-500 dark:text-gray-400 mb-6">
+              <div className="py-12 text-center">
+                <p className="mb-6 text-xl text-gray-500 dark:text-gray-400">
                   일기가 없어요! 일기를 작성해볼까요?
                 </p>
                 <button
                   onClick={handleWriteClick}
-                  className="bg-blue-600  text-white px-8 py-3 rounded-2xl text-xl font-bold hover:bg-blue-70 transition-colors"
+                  className="px-8 py-3 text-xl font-bold text-white bg-blue-600 rounded-2xl transition-colors hover:bg-blue-70"
                         style={{ backgroundColor: 'rgb(139, 195, 75)' }}
                 >
                   작성하기
@@ -229,18 +232,30 @@ const DiaryView = () => {
             
             {diaryEntry && (
               <div>
-                {/* 일기 내용 - 큰 녹색 테두리 영역 */}
-                <div className="border-2 border-green-500 rounded-2xl p-4 min-h-[200px] bg-white dark:bg-gray-600">
-                  <p className="text-lg text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
+                {/* 일기 내용 - 일기 스타일 표시 영역 */}
+                <div
+                  className="rounded-2xl border border-gray-200 shadow-sm bg-[#FFFEFB] min-h-[100px] dark:bg-gray-700"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(transparent, transparent 30px, rgba(16,24,40,0.06) 31px)',
+                    backgroundSize: '100% 31px',
+                    backgroundPositionY: '12px',
+                  }}
+                >
+                  <p className="p-6 text-[1.1rem] leading-7 font-serif italic text-gray-800 whitespace-pre-wrap break-words bg-transparent dark:text-gray-100">
                     {diaryEntry.content}
                   </p>
                 </div>
-                
               </div>
             )}
           </div>
         </div>
         
+        {/* 하단 네비게이션 (고정) */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[100vw] max-w-[400px] z-50">
+          <NavBar />
+        </div>
+
         {/* 확인 모달 */}
         <DiaryConfirmModal
           isOpen={confirmModal.isOpen}
@@ -249,7 +264,6 @@ const DiaryView = () => {
           onCancel={handleModalCancel}
         />
       </div>
-      <NavBar />
     </DefaultDiv>
   );
 };

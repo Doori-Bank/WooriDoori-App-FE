@@ -64,9 +64,9 @@ const DiaryWriteView = () => {
   
   return (
     <DefaultDiv isPadding={false}>
-      <div className="w-full h-screen bg-white dark:bg-gray-700 flex flex-col">
+      <div className="flex flex-col w-full h-screen bg-white dark:bg-gray-700">
         {/* 헤더 */}
-        <div className="py-all px-5 flex items-center justify-between">
+        <div className="flex justify-between items-center px-5 py-all">
           <div className="w-10"></div>
           <div className="text-3xl font-bold dark:text-white">소비 일기</div>
           <button onClick={handleCancel}>
@@ -78,7 +78,7 @@ const DiaryWriteView = () => {
         <div className="flex-1 px-6 pb-[112px] flex flex-col">
           {/* 날짜 필드 */}
           <div className="mb-6">
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3">
+            <div className="px-4 py-3 bg-gray-100 rounded-2xl dark:bg-gray-700">
               <span className="text-xl text-gray-700 dark:text-gray-300">
                 {day}일 {dayOfWeek}요일
               </span>
@@ -99,20 +99,31 @@ const DiaryWriteView = () => {
             </button>
           </div>
           
-          {/* 텍스트 입력 영역 */}
-          <div className="flex-1 flex flex-col">
-            <textarea
-              value={content}
-              onChange={(e) => {
-                const text = e.target.value;
-                if (text.length <= maxLength) {
-                  setContent(text);
-                }
-              }}
-              placeholder="오늘의 소비 일기를 써봐요. (50자 이내)"
-              className="flex-1 w-full border-2 border-green-500 rounded-2xl p-4 text-lg text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
-              autoFocus
-            />
+          {/* 텍스트 입력 영역 (일기 스타일) */}
+          <div className="flex relative flex-col">
+            <div className="rounded-2xl border border-gray-200 shadow-sm bg-[#FFFEFB] transition-colors focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-300">
+              <textarea
+                value={content}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  if (text.length <= maxLength) {
+                    setContent(text);
+                  }
+                }}
+                placeholder="오늘의 소비 일기를 써봐요. (50자 이내)"
+                className="p-7 w-full h-44 text-[1.25rem] leading-8 text-gray-800 rounded-2xl bg-transparent resize-none font-serif italic dark:text-gray-100 focus:outline-none"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(transparent, transparent 30px, rgba(16,24,40,0.06) 31px)',
+                  backgroundSize: '100% 31px',
+                  backgroundPositionY: '12px',
+                }}
+                autoFocus
+              />
+            </div>
+            <div className="absolute right-1 -bottom-6 text-sm text-gray-400">
+              {content.length}/{maxLength}
+            </div>
           </div>
         </div>
         
