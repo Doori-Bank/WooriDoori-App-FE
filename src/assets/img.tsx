@@ -74,6 +74,13 @@ import testCard from './report/test_card.png';
 import cardBanner from './home/card_banner.png';
 import cardBanner2 from './home/card_banner2.png';
 
+import diaryIcon from './diary.svg';
+import storeIcon from './store.png';
+import homeIcon from './home.png';
+import hospitalIcon from './hospital.png';
+import drinkIcon from './drink.png';
+import phoneIcon from './phone.png';
+
 
 export const img ={
     cardIcon, BsX, Vector, calendarB, calendarW, cardB, cardW, homeB, homeW, menuB, menuW, education, traffic, etc, 
@@ -81,9 +88,11 @@ export const img ={
     doori_card, doori_celebrating, doori_cheering, doori_coffee, doori_coin_warning, doori_cool, doori_counting_coins, doori_crying,
     doori_drawing, doori_face1, doori_face2, doori_face3, doori_face4, doori_face5, doori_facepalm, doori_frustrated, doori_ghost,
     doori_heart, doori_normal, doori_pouting, doori_question, doori_report, doori_thinking, doori_wallet, doori_writing,
-    doori_basic, doori_favicon,
+    doori_basic, 
     
-    DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, alarmIcon, check, fireworkLeft, fireworkRight, scale, gauge, needle
+    DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, alarmIcon, diaryIcon, storeIcon, homeIcon, hospitalIcon, drinkIcon, phoneIcon
+    doori_basic, doori_favicon,
+    check, fireworkLeft, fireworkRight, scale, gauge, needle
 
 
     logoIcon, bgImg, 
