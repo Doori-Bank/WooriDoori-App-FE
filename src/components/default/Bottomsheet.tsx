@@ -7,7 +7,7 @@ interface BottomsheetProps {
   onSelect?: (activity: string) => void;
 }
 
-const activities = ["무직", "학생", "프리랜서", "자영업", "회사원"];
+const activities = ["무직", "학생", "프리랜서", "자영업", "회사원", "기타"];
 
 const Bottomsheet: React.FC<BottomsheetProps> = ({
   title = "활동 형태를 선택해주세요",

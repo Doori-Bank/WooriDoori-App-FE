@@ -1,0 +1,39 @@
+@keyframes diagonalShake {
+  0% { transform: rotate(0deg); }
+  10% { transform: rotate(10deg); }
+  20% { transform: rotate(-10deg); }
+  30% { transform: rotate(15deg); }
+  40% { transform: rotate(-15deg); }
+  50% { transform: rotate(20deg); }
+  60% { transform: rotate(-20deg); }
+  70% { transform: rotate(15deg); }
+  80% { transform: rotate(-15deg); }
+  90% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.diagonal-shake {
+  display: inline-block;
+  animation: diagonalShake 1s linear;
+}
+
+
+/* 홈 두리 이미지  */
+@keyframes slideText {
+  0% {
+    transform: translateY(20px);
+    opacity: 0; /* 처음부터 보이게 변경 */
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+}
+
+.animate-slide {
+  animation: slideText 3s ease-in-out infinite;
+}

@@ -21,20 +21,20 @@ const CardRankItem: React.FC<CardRankItemProps> = ({
     return (
         <div
             onClick={onClick}
-            className="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm transition cursor-pointer"
+            className="flex items-center justify-between p-3 bg-white rounded-xl transition cursor-pointer"
         >
             {/* 왼쪽 이미지 */}
             <img
                 src={imageSrc}
                 alt={title}
-                className="w-[5rem] h-[8.5rem] object-cover bg-black"
+                className="w-[5rem] h-[8.5rem] object-fill"
             />
 
             {/* 오른쪽 텍스트 */}
-            <div className="flex-1 ml-4">
+            <div className="flex-1 ml-4 text-start">
                 <div className="text-[1.6rem] font-semibold text-gray-800">{rank}위</div>
-                <div className="text-[1.4rem] font-medium text-gray-900">{title}</div>
-                <div className="text-[1.4rem] font-medium text-gray-900">{subtitle}</div>
+                <div className="text-[1.4rem] font-medium text-gray-900 whitespace-pre-line">{title}</div>
+                <div className="text-[1.4rem] font-medium text-gray-900 whitespace-pre-line">{subtitle}</div>
                 {description && (
                     <div className="text-[1.2rem] text-[#A39C9C] mt-3">{description}</div>
                 )}
