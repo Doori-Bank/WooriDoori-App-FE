@@ -5,6 +5,7 @@ import calendarB from './calendar(B).png';
 import calendarW from './calendar(W).png';
 import cardB from './card(B).png';
 import cardW from './card(W).png';
+import cardExample from './card_example.png';
 import homeB from './home(B).png';
 import homeW from './home(W).png';
 import menuB from './menu(B).png';
@@ -56,6 +57,7 @@ import EditIcon from './edit.png';
 import grayCheckRightIcon from './gray_chec_right.png';
 import settingIcon from './setting.png';
 import alarmIcon from './alarm.png';
+import wooriDooriLogo from './woori_doori_logo.png';
 import check from './check2.png';
 import fireworkLeft from './fireworkL.png';
 import fireworkRight from './fireworkR.png';
@@ -88,7 +90,8 @@ export const img ={
     doori_card, doori_celebrating, doori_cheering, doori_coffee, doori_coin_warning, doori_cool, doori_counting_coins, doori_crying,
     doori_drawing, doori_face1, doori_face2, doori_face3, doori_face4, doori_face5, doori_facepalm, doori_frustrated, doori_ghost,
     doori_heart, doori_normal, doori_pouting, doori_question, doori_report, doori_thinking, doori_wallet, doori_writing,
-    doori_basic, 
+    doori_basic, cardExample,
+    wooriDooriLogo,
     
     DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, alarmIcon, diaryIcon, storeIcon, homeIcon, hospitalIcon, drinkIcon, phoneIcon
     doori_basic, doori_favicon,

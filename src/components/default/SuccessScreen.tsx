@@ -26,16 +26,16 @@ const SuccessScreen = ({
       "
     >
       {/* ✅ 상단 콘텐츠 (이미지 + 타이틀) */}
-      <div className="flex flex-col items-center flex-1 justify-center gap-8">
+      <div className="flex flex-col flex-1 gap-8 justify-center items-center">
         {imageSrc ? (
           <img
             src={imageSrc}
             alt="성공 이미지"
-            className="w-40 h-40 object-contain"
+            className="object-contain w-40 h-40"
           />
         ) : (
-          <div className="w-40 h-40 rounded-full bg-gray-100 flex items-center justify-center">
-            <span className="text-gray-400 text-base">이미지 없음</span>
+          <div className="flex justify-center items-center w-40 h-40 bg-gray-100 rounded-full">
+            <span className="text-base text-gray-400">이미지 없음</span>
           </div>
         )}
 
@@ -50,10 +50,10 @@ const SuccessScreen = ({
       </div>
 
       {/* ✅ 하단 정보 + 버튼 */}
-      <div className="w-full flex flex-col gap-6">
+      <div className="flex flex-col gap-6 w-full">
         {/* 하단 정보 */}
         {infoList && infoList.length > 0 && (
-          <div className="w-full text-gray-600 bg-white px-4">
+          <div className="px-4 w-full text-gray-600 bg-white">
             {infoList.map((item, index) => (
               <div
                 key={index}
@@ -66,7 +66,7 @@ const SuccessScreen = ({
           </div>
         )}
 
-        <div className="w-full flex justify-center">
+        <div className="flex justify-center w-full">
           <div className="w-full max-w-[30rem]">
             <DefaultButton text={buttonText} onClick={onButtonClick} />
           </div>

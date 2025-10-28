@@ -31,18 +31,18 @@ const HeaderBar = ({
       `}
     >
       {/* 왼쪽: 뒤로가기 버튼 */}
-      <div className="w-10 flex justify-start">
+      <div className="flex justify-start w-10">
         {showBack && (
           <button
             type="button"
             onClick={onBack}
             aria-label="뒤로가기"
-            className="flex items-center justify-center"
+            className="flex justify-center items-center"
           >
             <img
               src={img.Vector}
               alt="뒤로가기"
-              className="w-5 h-5 object-contain"
+              className="object-contain w-5 h-5"
             />
           </button>
         )}
@@ -54,18 +54,18 @@ const HeaderBar = ({
       </h1>
 
       {/* 오른쪽: 닫기 버튼 */}
-      <div className="w-10 flex justify-end">
+      <div className="flex justify-end w-10">
         {showClose && (
           <button
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="flex items-center justify-center"
+            className="flex justify-center items-center"
           >
             <img
               src={img.BsX}
               alt="닫기"
-              className="w-7 h-7 object-contain"
+              className="object-contain w-7 h-7"
             />
           </button>
         )}

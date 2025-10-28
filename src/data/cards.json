@@ -1,0 +1,31 @@
+{
+  "cards": [
+    {
+      "id": "1",
+      "title": "석기의 메인카드",
+      "cardName": "[우리] PAYCO 우리체크카드",
+      "cardNum": "3333",
+      "cardImage": "cardExample",
+      "benefits": "가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인",
+      "isEdit": false
+    },
+    {
+      "id": "2",
+      "title": "석기의 메인카드",
+      "cardName": "[우리] PAYCO 우리체크카드",
+      "cardNum": "3333",
+      "cardImage": "cardExample",
+      "benefits": "가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인",
+      "isEdit": false
+    },
+    {
+      "id": "3",
+      "title": "석기의 메인카드",
+      "cardName": "[우리] PAYCO 우리체크카드",
+      "cardNum": "3333",
+      "cardImage": "cardExample",
+      "benefits": "가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인, 가맹점 0.1% 할인",
+      "isEdit": false
+    }
+  ]
+}

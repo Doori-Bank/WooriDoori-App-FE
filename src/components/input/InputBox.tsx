@@ -26,12 +26,7 @@ const InputBox = ({
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
-      className={`
-        w-full flex-1 px-4 py-3 rounded-lg outline-none border 
-        ${borderColor} ${textColor} ${bgColor} 
-        ${focusColor} transition
-        disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
-      `}
+      className={`flex-1 px-4 py-3 w-full rounded-lg border transition outline-none ${borderColor} ${textColor} ${bgColor} ${focusColor} disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed`}
     />
   );
 };

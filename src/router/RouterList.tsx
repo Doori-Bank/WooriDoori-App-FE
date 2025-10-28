@@ -7,6 +7,9 @@
 
 // import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
+import CardManagementView from "@/pages/CardManagementView";
+import AddCardView from "@/pages/AddCardView";
+import CardAddCompleteView from "@/pages/CardAddCompleteView";
 import DiaryView from "@/pages/DiaryView";
 import DiaryEmotionView from "@/pages/DiaryEmotionView";
 import DiaryWriteView from "@/pages/DiaryWriteView";
@@ -53,7 +56,11 @@ const calendarList : Array<any> = [
 
 
 // 카드 route list
-const cardList : Array<any> = [];
+const cardList : Array<any> = [
+    {path : '/card', element :<CardManagementView />},
+    {path : '/card/cards', element :<AddCardView />},
+    {path : '/card/cards/complete', element :<CardAddCompleteView />}
+];
 
 
 // 달성도 route list
