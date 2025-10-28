@@ -5,12 +5,16 @@
  * 
  */
 
-import Test from "@/components/Test";
+// import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
+import CardRecomView from "@/pages/CardRecomViews/CardRecomView";
+import HomeView from "@/pages/HomeView";
+import ReportView from "@/pages/reportViews/reportView";
 
 // 메인 route list
 const mainList : Array<any> = [ 
-    {path : '/', element :<Test />}
+    // {path : '/', element :<Test />},
+    {path : '/', element :<HomeView />},
 ];
 
 // 유저 정보 route list
@@ -26,6 +30,13 @@ const calendarList : Array<any> = [{path : '/calendar', element :<CalendarView /
 const cardList : Array<any> = [];
 
 
+// 레포트 route list
+const reportList : Array<any> = [
+    {path: '/report' , element : <ReportView /> },
+    {path : 'report-card', element : <CardRecomView /> },
+];
+
+
 
 
 export const routerList = [
@@ -33,4 +44,5 @@ export const routerList = [
     ...authList,
     ...calendarList,
     ...cardList,
+    ...reportList,
 ];

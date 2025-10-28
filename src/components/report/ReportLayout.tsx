@@ -10,6 +10,11 @@ interface ReportLayoutProps {
     onButtonClick?: () => void; // 버튼 클릭 동작
     showClose?: boolean;
     showBack?: boolean;
+    isMainTextCenter? : boolean;
+
+    onBack?: () => void;
+    onClose?: () => void;
+
 }
 
 const ReportLayout = ({
@@ -20,14 +25,16 @@ const ReportLayout = ({
     onButtonClick,
     showClose = true,
     showBack = true,
+    isMainTextCenter = true,
+    onBack, onClose,
 }: ReportLayoutProps) => {
     return (
         <DefaultDiv>
             {/* ✅ 상단 헤더 */}
-            <Header title={title} showBack={showBack} showClose={showClose} />
+            <Header title={title} showBack={showBack} showClose={showClose} onBack={onBack} onClose={onClose} />
 
             {/* ✅ 본문 */}
-            <main className="flex flex-col items-center justify-end min-h-[calc(100vh-8rem)] px-6 py-6 text-center">
+            <main className={`flex flex-col justify-end  px-6 py-6 ${isMainTextCenter? 'text-center items-center' : 'text-left'}`}>
                 {/* 메인 문구 */}
                 <div className="mt-20 mb-7">
                     <h1 className="text-[1.9rem] font-semibold text-gray-900 leading-snug whitespace-pre-line">
@@ -41,7 +48,7 @@ const ReportLayout = ({
                 </div>
 
                 {/* 하단 버튼 */}
-                <div className="fixed bottom-[2rem] w-full max-w-[32rem]">
+                <div className="fixed bottom-0 py-10 w-full max-w-[32rem] bg-white">
                     <DefaultButton text={buttonText} onClick={onButtonClick} />
                 </div>
 

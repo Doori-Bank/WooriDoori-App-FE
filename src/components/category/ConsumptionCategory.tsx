@@ -4,6 +4,7 @@ interface ConsumptionCategoryProps {
     percentage: string;
     amount: string;
     bgColor?: string;
+    isBorder? : boolean;
 }
 
 const ConsumptionCategory = ({
@@ -12,9 +13,10 @@ const ConsumptionCategory = ({
     percentage,
     amount,
     bgColor = "bg-gray-100", // 기본 배경
+    isBorder = true,
 }: ConsumptionCategoryProps) => {
     return (
-        <div className="flex items-center justify-between w-full px-5 py-4 border-b border-gray-100">
+        <div className={`flex items-center justify-between flex-1 w-full px-5 py-4 ${isBorder ? 'border-b border-gray-100' : ''}`}>
             {/* 왼쪽: 아이콘 + 텍스트 */}
             <div className="flex items-center gap-6">
                 {/* ✅ 아이콘 영역 */}

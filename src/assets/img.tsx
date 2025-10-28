@@ -57,6 +57,17 @@ import settingIcon from './setting.png';
 import alarmIcon from './alarm.png';
 
 
+
+import logoIcon from './logo.png';
+import bgImg from './home/main_banner.png';
+
+import stomIcon from './report/stome.png';
+import scaleIcon from './report/scale_icon.png';
+import testCard from './report/test_card.png';
+import cardBanner from './home/card_banner.png';
+import cardBanner2 from './home/card_banner2.png';
+
+
 export const img ={
     cardIcon, BsX, Vector, calendarB, calendarW, cardB, cardW, homeB, homeW, menuB, menuW, education, traffic, etc, 
     hospital, shopping, entertainment, food, travel, transfer, residence, communication, mart, doori_angry, doori_annoyed,
@@ -66,4 +77,8 @@ export const img ={
     doori_basic,
     
     DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, alarmIcon,
+
+
+    logoIcon, bgImg, 
+    stomIcon, scaleIcon, testCard, cardBanner,cardBanner2
 }

@@ -27,7 +27,12 @@ body{
   box-sizing: border-box;
   font-size: 10px;
 }
-
+.default-img{
+  background: url('./assets/background.jpg') center center;
+}
 .round-10{
   border-radius: 10px;
+}
+.flex-2{
+  flex: 2;
 }
