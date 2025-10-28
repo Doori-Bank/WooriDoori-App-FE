@@ -12,7 +12,18 @@ import { useNavigate } from "react-router-dom";
 
 const HomeView = () => {
   const navigate = useNavigate();
-  const name: string = '석기';
+  
+  // localStorage에서 사용자 정보 가져오기
+  const getUserName = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      return user.name || '사용자';
+    }
+    return '석기'; // 기본값
+  };
+  
+  const name: string = getUserName();
   const target: string = '10000만원 쓰기';
   const dooriTaget = { src: img.doori_basic, title: '흠...어디 한번 볼까?' };
   const totalPrice = 1080000;
@@ -53,7 +64,9 @@ const HomeView = () => {
       {/* 해더 */}
       <header className="flex items-center justify-between">
         <img src={img.logoIcon} alt="우리두리" width={60} />
-        <IconButton src={img.alarmIcon} alt="알람" />
+        <div onClick={() => navigate('/notification')} className="cursor-pointer">
+          <IconButton src={img.alarmIcon} alt="알람" />
+        </div>
       </header>
 
       {/* 인사 타이툴 */}
