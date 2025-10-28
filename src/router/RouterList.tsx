@@ -7,6 +7,10 @@
 
 // import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
+import GoalSetupView from "@/pages/goal/GoalSetupView";
+import GoalEditView from "@/pages/goal/GoalEditView";
+import AchievementHistoryView from "@/pages/goal/AchievementHistoryView";
+import AchievementDetailView from "@/pages/goal/AchievementDetailView";
 import MyPageView from "@/pages/MyPageView";
 import UserInfoView from "@/pages/UserInfoView";
 import LoginView from "@/pages/LoginView";
@@ -25,10 +29,9 @@ const mainList : Array<any> = [
 ];
 
 // 유저 정보 route list
-const authList : Array<any> = [
-    {path : '/mypage', element :<MyPageView />},
-    {path : '/userinfo', element :<UserInfoView />}
 const authList : Array<any> = [ 
+    {path : '/mypage', element :<MyPageView />},
+    {path : '/userinfo', element :<UserInfoView />},
     { path: '/login', element: <LoginView /> },
     { path: '/signUp/signUp', element: <SignUpView /> },
     { path: '/signUp/agreement', element: <SignUpAgreementView />},
@@ -45,6 +48,14 @@ const calendarList : Array<any> = [{path : '/calendar', element :<CalendarView /
 const cardList : Array<any> = [];
 
 
+// 달성도 route list
+const goalList : Array<any> = [
+    {path : '/goal/setGoal', element :<GoalSetupView />},
+    {path : '/goal/editGoal', element :<GoalEditView />},
+    {path : '/goal/achievementHistory', element :<AchievementHistoryView />},
+    {path: "/achievement/detail", element: <AchievementDetailView /> },
+];
+
 // 레포트 route list
 const reportList : Array<any> = [
     {path: '/report' , element : <ReportView /> },
@@ -59,5 +70,6 @@ export const routerList = [
     ...authList,
     ...calendarList,
     ...cardList,
+    ...goalList,
     ...reportList,
 ];
