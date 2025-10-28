@@ -7,6 +7,10 @@
 
 // import Test from "@/components/Test";
 import CalendarView from "@/pages/CalendarView";
+import SearchIdView from "@/pages/SearchIdView";
+import YourIdView from "@/pages/YourIdView";
+import ResetPwView from "@/pages/ResetPwView";
+import NewPwView from "@/pages/NewPwView";
 import CardRecommendView from "@/pages/CardRecommendView";
 import CardManagementView from "@/pages/CardManagementView";
 import AddCardView from "@/pages/AddCardView";
@@ -35,6 +39,15 @@ const mainList : Array<any> = [
     {path : '/', element :<HomeView />},
 ];
 
+
+
+const accountList = [
+  { path: "/searchid", element: <SearchIdView /> },
+  { path: "/yourid", element: <YourIdView /> },
+  { path: "/resetpw", element: <ResetPwView /> },
+  { path: "/newpw", element: <NewPwView /> },
+];
+
 // 유저 정보 route list
 const authList : Array<any> = [ 
     {path : '/mypage', element :<MyPageView />},
@@ -58,7 +71,7 @@ const calendarList : Array<any> = [
 
 // 카드 route list
 const cardList : Array<any> = [
-    {path : '/card-recommend', element :<CardRecommendView />}
+    {path : '/card-recommend', element :<CardRecommendView />},
     {path : '/card', element :<CardManagementView />},
     {path : '/card/cards', element :<AddCardView />},
     {path : '/card/cards/complete', element :<CardAddCompleteView />}
@@ -84,6 +97,7 @@ const reportList : Array<any> = [
 
 export const routerList = [
     ...mainList,
+    ...accountList,
     ...authList,
     ...calendarList,
     ...cardList,
