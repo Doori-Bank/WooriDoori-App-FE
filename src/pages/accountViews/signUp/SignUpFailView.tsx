@@ -1,5 +1,5 @@
-import DefaultDiv from "../components/default/DefaultDiv";
-import DefaultButton from "../components/button/DefaultButton";
+import DefaultDiv from "../../../components/default/DefaultDiv";
+import DefaultButton from "../../../components/button/DefaultButton";
 import image from "../assets/doori/doori_crying.png";
 
 const SignUpSuccessView = () => {

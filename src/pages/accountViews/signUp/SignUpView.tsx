@@ -1,12 +1,12 @@
 import { useState } from "react";
-import DefaultDiv from "../components/default/DefaultDiv";
-import Header from "../components/default/Header";
-import InputBox from "../components/input/InputBox";
-import DefaultButton from "../components/button/DefaultButton";
-import EmailVerification from "../components/signUp/EmailVerification";
-import PasswordFields from "../components/signUp/PasswordFields";
-import BirthInput from "../components/signUp/BirthInput";
-import SuccessModal from "../components/modal/SuccessModal";
+import DefaultDiv from "../../../components/default/DefaultDiv";
+import Header from "../../../components/default/Header";
+import InputBox from "../../../components/input/InputBox";
+import DefaultButton from "../../../components/button/DefaultButton";
+import EmailVerification from "../../../components/signUp/EmailVerification";
+import PasswordFields from "../../../components/signUp/PasswordFields";
+import BirthInput from "../../../components/signUp/BirthInput";
+import SuccessModal from "../../../components/modal/SuccessModal";
 import { useNavigate } from "react-router-dom";
 
 const SignUpFormView = () => {

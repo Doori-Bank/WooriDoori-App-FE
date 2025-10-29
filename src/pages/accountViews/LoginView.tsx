@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-import Title1 from "../components/title/Title1";
-import DefaultButton from "../components/button/DefaultButton";
+import Title1 from "@/components/title/Title1";
+import DefaultButton from "@/components/button/DefaultButton";
 import logo from "../assets/login/logo_login.png";
-import DefaultDiv from "../components/default/DefaultDiv";
+import DefaultDiv from "@/components/default/DefaultDiv";
 import SuccessModal from "@/components/modal/SuccessModal";
-import LoginForm, { LoginFormRef } from "../components/login/LoginForm";
+import LoginForm, { LoginFormRef } from "@/components/login/LoginForm";
 
 const LoginView = () => {
   const navigate = useNavigate();

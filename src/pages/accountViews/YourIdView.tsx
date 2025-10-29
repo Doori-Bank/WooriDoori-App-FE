@@ -7,7 +7,7 @@ const YourIdView = () => {
   return (
     <DefaultDiv>
       <div className="h-16" />
-      <img src={img.wooridoorilogo} alt="" className="w-60 mx-auto" />
+      <img src={img.woori_logo} alt="" className="w-60 mx-auto" />
       <div className="h-8" />
 
       <div>

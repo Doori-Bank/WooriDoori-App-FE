@@ -1,9 +1,9 @@
 import { useState } from "react";
-import DefaultDiv from "../components/default/DefaultDiv";
-import DefaultButton from "../components/button/DefaultButton";
-import Header from "../components/default/Header";
+import DefaultDiv from "../../../components/default/DefaultDiv";
+import DefaultButton from "../../../components/button/DefaultButton";
+import Header from "../../../components/default/Header";
 import image from "../assets/login/signUp.png";
-import AgreementForm from "../components/signUp/AgreementForm";
+import AgreementForm from "../../../components/signUp/AgreementForm";
 import { useNavigate } from "react-router-dom";
 
 const SignUpAgreementView = () => {
