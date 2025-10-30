@@ -6,7 +6,7 @@ interface FallingRockScoreViewProps {
   rockImg? : string; // 돌 이미지
 }
 
-const FallingRockScoreView: React.FC<FallingRockScoreViewProps> = ({ score, rockImg = img.stomIcon }) => {
+const FallingRockScoreView: React.FC<FallingRockScoreViewProps> = ({ score, rockImg = img.stoneIcon }) => {
   const [displayScore, setDisplayScore] = useState(0);
   const [isRockDown, setIsRockDown] = useState(false);
 

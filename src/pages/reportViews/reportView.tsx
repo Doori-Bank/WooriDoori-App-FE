@@ -38,18 +38,18 @@ const ReportView = () => {
 
   // 카테고리 리스트
   const categoriesByMonthList = [
-    { src: img.entertainment, title: "술/유흥" },
-    { src: img.traffic, title: "교통/자동차" },
-    { src: img.food, title: "식비" },
-    { src: img.shopping, title: "쇼핑/마트" },
-    { src: img.education, title: "교육" },
-    { src: img.travel, title: "여행" },
-    { src: img.hospital, title: "병원" },
-    { src: img.transfer, title: "이체" },
-    { src: img.communication, title: "통신" },
-    { src: img.mart, title: "편의점/마트" },
-    { src: img.residence, title: "주거" },
-    { src: img.etc, title: "기타" },
+    { src: img.entertainmentIcon, title: "술/유흥" },
+    { src: img.trafficIcon, title: "교통/자동차" },
+    { src: img.foodIcon, title: "식비" },
+    { src: img.shoppingIcon, title: "쇼핑/마트" },
+    { src: img.educationIcon, title: "교육" },
+    { src: img.travelIcon, title: "여행" },
+    { src: img.hospitalIcon, title: "병원" },
+    { src: img.transferIcon, title: "이체" },
+    { src: img.phoneIcon, title: "통신" },
+    { src: img.martIcon, title: "편의점/마트" },
+    { src: img.residenceIcon, title: "주거" },
+    { src: img.etcIcon, title: "기타" },
   ];
 
 
