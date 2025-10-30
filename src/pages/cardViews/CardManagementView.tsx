@@ -3,11 +3,10 @@ import MyCardBox from '@/components/card/MyCardBox';
 import DefaultButton from '@/components/button/DefaultButton';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import SubText from '@/components/text/SubText';
-import { img } from '@/assets/img';
 import { updateCardTitle } from '@/utils/card/CardUtils';
 import { useCardStore } from '@/stores/useCardStore';
 import { CardModals } from '../CardRecomViews/CardModals';
-import HeaderBar from '@/components/default/Header';
+import BottomButtonWrapper from '@/components/button/BottomButtonWrapper';
 
 const CardManagement: React.FC = () => {
   const {
@@ -44,7 +43,7 @@ const CardManagement: React.FC = () => {
       <DefaultDiv
         className={`transition-all duration-200 ${isEditNicknameModalOpen ? 'bg-black/40' : ''
           }`}
-        isBottomNav={true}
+        isBottomNav={!isEditMode}
         isHeader={true}
         title='카드 관리' isMainTitle={true} isShowClose={isEditMode} isShowSetting={!isEditMode} onClickSetting={toggleSettingsModal} onClose={toggleEditMode}
       >
@@ -72,8 +71,9 @@ const CardManagement: React.FC = () => {
           ))}
         </div>
 
+
         {isEditMode && (
-          <div className="fixed left-1/2 -translate-x-1/2 bottom-[5rem] w-[100vw] max-w-[400px] z-[100] px-[1.2rem] py-4 bg-white border-t border-gray-200">
+          <BottomButtonWrapper>
             <DefaultButton
               text="변경사항 저장"
               onClick={!isEditNicknameModalOpen ? handleSaveChanges : undefined}
@@ -82,10 +82,10 @@ const CardManagement: React.FC = () => {
                 : 'bg-red-500 hover:bg-red-600 active:bg-red-700'
                 }`}
             />
-          </div>
+          </BottomButtonWrapper>
         )}
 
-        
+
         {/* modal 페이지 */}
         <CardModals />
 
