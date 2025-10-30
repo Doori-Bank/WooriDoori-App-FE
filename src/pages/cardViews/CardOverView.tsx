@@ -110,7 +110,7 @@ const CardRecommendView: React.FC = () => {
   );
 
   return (
-    <DefaultDiv>
+    <DefaultDiv isBottomNav={true}>
       <div className="flex flex-col h-screen">
         {/* 상단 고정 영역 */}
         <div className="flex-shrink-0 pb-6 bg-white">
@@ -219,9 +219,6 @@ const CardRecommendView: React.FC = () => {
           ))}
         </div>
       </div>
-
-      {/* 하단 고정 네비게이션 */}
-      <BottomNav />
     </DefaultDiv>
   );
 };

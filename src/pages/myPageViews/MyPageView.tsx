@@ -31,7 +31,7 @@ const MyPageView: React.FC = () => {
   ];
 
   return (
-    <DefaultDiv isHome={true}>
+    <DefaultDiv isHome={true} isBottomNav={true}>
       {/* 헤더 - 설정 아이콘 */}
       <div className="flex justify-end pt-4 pb-2 w-full">
         <button
@@ -91,11 +91,6 @@ const MyPageView: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* 네비게이션 바 */}
-      <div className="mt-auto">
-        <BottomNav />
       </div>
     </DefaultDiv>
   );

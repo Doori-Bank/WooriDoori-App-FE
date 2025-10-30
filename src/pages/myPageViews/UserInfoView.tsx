@@ -73,7 +73,7 @@ const UserInfoView: React.FC = () => {
   };
 
   return (
-    <DefaultDiv isHome={true}>
+    <DefaultDiv isHome={true} isBottomNav={true}>
       {/* 모달이 열릴 때 어두운 오버레이 */}
       <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 z-10 ${(isLogoutModalOpen || isWithdrawModalOpen) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}></div>
       
@@ -189,12 +189,6 @@ const UserInfoView: React.FC = () => {
             className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
           />
         </div>
-      </div>
-
-
-      {/* 네비게이션 바 */}
-      <div className={`mt-auto transition-opacity duration-200 ${(isLogoutModalOpen || isWithdrawModalOpen) ? 'opacity-50 pointer-events-none' : ''}`}>
-        <BottomNav />
       </div>
 
       {/* 로그아웃 확인 모달 */}
