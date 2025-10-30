@@ -61,9 +61,8 @@ const HomeView = () => {
     return () => clearInterval(interval);
   }, []);
 
-//isBottomNav={true}
   return (
-    <DefaultDiv isHome={true} >
+    <DefaultDiv isHome={true} isBottomNav={true}>
       {/* 해더 */}
       <header className="flex justify-between items-center">
         <img src={img.wooridoori_logo} alt="우리두리" width={100} />
