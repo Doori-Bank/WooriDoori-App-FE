@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
+import { img } from "@/assets/img";
 import Title1 from "@/components/title/Title1";
 import DefaultButton from "@/components/button/DefaultButton";
-import logo from "@/assets/login/logo_login.png";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import SuccessModal from "@/components/modal/SuccessModal";
 import LoginForm, { LoginFormRef } from "@/components/login/LoginForm";
@@ -29,7 +30,7 @@ const LoginView = () => {
       <div className="pt-[1rem] flex flex-col items-center">
         {/* 로고 */}
         <img
-          src={logo}
+          src={img.woori_logo}
           alt="login logo"
           className="w-[18rem] mb-[8rem] select-none"
         />
@@ -54,22 +55,21 @@ const LoginView = () => {
         </p>
 
         {/* 로그인 버튼 */}
-        <div className="w-full max-w-[33.5rem] mx-auto">
+        <BottomButtonWrapper>
           <DefaultButton
             text="로그인"
-            className="max-w-[33.5rem] w-full"
             onClick={handleLoginClick}
           />
-        </div>
+        </BottomButtonWrapper>
 
-      {/* 로그인 성공 모달 */}
-      <SuccessModal
-        isOpen={showSuccess}
-        title="로그인 성공"
-        message={`두리와 함께 즐거운 소비 관리 시작해볼까요?`}
-        confirmText="시작하기"
-        onConfirm={() => navigate('/home')}
-      />
+        {/* 로그인 성공 모달 */}
+        <SuccessModal
+          isOpen={showSuccess}
+          title="로그인 성공"
+          message={`두리와 함께 즐거운 소비 관리 시작해볼까요?`}
+          confirmText="시작하기"
+          onConfirm={() => navigate('/home')}
+        />
       </div>
     </DefaultDiv>
   );

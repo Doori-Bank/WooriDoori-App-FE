@@ -6,6 +6,7 @@ import Title2 from "@/components/title/Title2";
 import SubText from "@/components/text/SubText";
 import GoalInput from "@/components/input/GoalInput";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import Bottomsheet from "@/components/default/Bottomsheet";
 import check from "@/assets/check2.png";
 
@@ -101,9 +102,9 @@ export default function GoalSetupView({
             <span className="text-gray-400">▾</span>
           </button>
 
-          <div className="flex justify-center mt-auto w-full">
+          <BottomButtonWrapper>
             <DefaultButton text="다음" disabled={!isValidStep} onClick={handleNext} />
-          </div>
+          </BottomButtonWrapper>
 
           <Bottomsheet
             isOpen={isBottomsheetOpen}
@@ -136,9 +137,9 @@ export default function GoalSetupView({
             />
           </div>
 
-          <div className="flex justify-center mt-auto w-full">
+          <BottomButtonWrapper>
             <DefaultButton text="다음" disabled={!isValidStep} onClick={handleNext} />
-          </div>
+          </BottomButtonWrapper>
         </div>
       )}
 
@@ -166,10 +167,9 @@ export default function GoalSetupView({
             )}
           </div>
 
-          <div className="flex justify-center mt-auto w-full">
+          <BottomButtonWrapper>
             <DefaultButton text="다음" disabled={!isValidStep} onClick={handleNext} />
-          </div>
-
+          </BottomButtonWrapper>
         </div>
       )}
 
@@ -191,25 +191,24 @@ export default function GoalSetupView({
           </h2>
 
           {/* 수입 / 목표 요약 */}
-          <div className="w-[80%] mt-[23rem] flex flex-col gap-[1rem] mx-auto">
+          <div className="w-[85%] mt-[30rem] flex flex-col gap-[1rem] mx-auto">
             <div className="flex justify-between">
-              <span className="text-[#A1A1A1] text-[1.2rem]">한달 내 수입</span>
+              <span className="text-[#A1A1A1] text-[1.3rem]">한달 내 수입</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">
                 {incomeNum.toLocaleString()} 만원
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#A1A1A1] text-[1.2rem]">목표 금액</span>
+              <span className="text-[#A1A1A1] text-[1.3rem]">목표 금액</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">
                 {goalNum.toLocaleString()} 만원
               </span>
             </div>
           </div>
 
-          <div className="flex justify-center mt-auto w-full">
+          <BottomButtonWrapper>
             <DefaultButton text="확인" onClick={handleRestart} />
-          </div>
-
+          </BottomButtonWrapper>
         </div>
       )}
 

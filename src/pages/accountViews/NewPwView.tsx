@@ -22,7 +22,7 @@ const NewPwView = () => {
   // 비밀번호 유효성 검사 (영문 또는 숫자, 10자 이상)
   const isValidPassword = (pw: string) => /^[A-Za-z0-9]{10,}$/.test(pw);
 
-  
+
   // 확인 버튼
   const handleConfirm = () => {
     let hasError = false;
@@ -118,43 +118,44 @@ const NewPwView = () => {
           />
           {confirmPwError && <p className="text-red-500 mt-2">{confirmPwError}</p>}
         </div>
-
-        <div className="h-32" />
-        <div className="flex justify-center pt-4 gap-8">
-          <DefaultButton
-            text="SKIP"
-            className="bg-gray-300 text-gray-600 hover:bg-gray-400 active:scale-[0.98] flex-[0.6]"
-            onClick={() => setShowChoiceModal(true)}
-          />
-          <DefaultButton
-            text="확인"
-            className="flex-[1.5]"
-            onClick={handleConfirm}
-          />
-        </div>
       </div>
 
-      {/* Confirm Modal */}
-      {showConfirmModal && (
-        <ConfirmModal
-          isOpen
-          message="비밀번호 재설정이 완료되었습니다."
-          onConfirm={handleConfirmModalConfirm}
-        />
-      )}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[32rem] bg-white py-10 pb-[4rem]">
+          <div className="flex justify-center pt-4 gap-8">
+            <DefaultButton
+              text="SKIP"
+              className="bg-gray-300 text-gray-600 hover:bg-gray-400 active:scale-[0.98] flex-[0.6]"
+              onClick={() => setShowChoiceModal(true)}
+            />
+            <DefaultButton
+              text="확인"
+              className="flex-[1.5]"
+              onClick={handleConfirm}
+            />
+          </div>
+        </div>
 
-      {/* Choice Modal */}
-      {showChoiceModal && (
-        <ChoiceModal
-          isOpen
-          message="비밀번호 재설정을 건너뛰시겠습니까?"
-          subMessage="확인하면 로그인 페이지로 돌아갑니다."
-          onConfirm={handleChoiceModalConfirm}
-          onCancel={handleChoiceModalCancel}
-          btnTitle="확인"
-          btnColor="text-blue-500"
-        />
-      )}
+        {/* Confirm Modal */}
+        {showConfirmModal && (
+          <ConfirmModal
+            isOpen
+            message="비밀번호 재설정이 완료되었습니다."
+            onConfirm={handleConfirmModalConfirm}
+          />
+        )}
+
+        {/* Choice Modal */}
+        {showChoiceModal && (
+          <ChoiceModal
+            isOpen
+            message="비밀번호 재설정을 건너뛰시겠습니까?"
+            subMessage="확인하면 로그인 페이지로 돌아갑니다."
+            onConfirm={handleChoiceModalConfirm}
+            onCancel={handleChoiceModalCancel}
+            btnTitle="확인"
+            btnColor="text-blue-500"
+          />
+        )}
     </DefaultDiv>
   );
 };

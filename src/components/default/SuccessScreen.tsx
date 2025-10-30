@@ -1,4 +1,5 @@
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 
 interface SuccessScreentProps {
   imageSrc?: string;
@@ -66,11 +67,9 @@ const SuccessScreen = ({
           </div>
         )}
 
-        <div className="flex justify-center w-full">
-          <div className="w-full max-w-[30rem]">
-            <DefaultButton text={buttonText} onClick={onButtonClick} />
-          </div>
-        </div>
+        <BottomButtonWrapper>
+          <DefaultButton text={buttonText} onClick={onButtonClick} />
+        </BottomButtonWrapper>
       </div>
     </section>
   );

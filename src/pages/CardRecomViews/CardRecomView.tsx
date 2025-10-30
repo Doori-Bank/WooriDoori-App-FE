@@ -43,7 +43,7 @@ const CardRecomView = () => {
 
 
   return (
-    <ReportLayout mainText={`${name}님 소비에 딱 맞는 카드`} onButtonClick={()=>{window.location.href = "/home";}} onBack={()=>window.history.back()}>
+    <ReportLayout mainText={`${name}님 소비에 딱 맞는 카드`} onButtonClick={()=>{window.location.href = "/home";}} onBack={()=>window.history.back()} buttonText={"확인"}>
       <div className='w-full'>
         <p className="text-[1.2rem] text-[#A39C9C] -mt-5">소비패턴에 맞는카드{cardList.length}개를 가져와봤어요</p>
         <CardTabs onChange={(value) => { console.log(value) }} />

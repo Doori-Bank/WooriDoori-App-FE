@@ -1,5 +1,6 @@
 import { img } from "@/assets/img";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import IconButton from "@/components/button/IconButton";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import InputBox from "@/components/input/InputBox";
@@ -64,13 +65,13 @@ const SearchIdView = () => {
         <div className="h-40" />
 
         {/* 확인 버튼 */}
-        <div className="w-full max-w-[30rem]">
-          <DefaultButton
+        <BottomButtonWrapper>
+          <DefaultButton 
             text="확인"
             disabled={!isFormValid}
-            onClick={() => (window.location.href = "/yourid")}
+            onClick={() => (window.location.href = "/yourid")} 
           />
-        </div>
+        </BottomButtonWrapper>
       </div>
     </DefaultDiv>
   );

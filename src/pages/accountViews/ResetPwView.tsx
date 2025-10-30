@@ -1,5 +1,6 @@
 import { img } from "@/assets/img";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import IconButton from "@/components/button/IconButton";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import InputBox from "@/components/input/InputBox";
@@ -77,11 +78,13 @@ const ResetPwView = () => {
         {errorMsg && <p className="text-red-500 mt-2 text-center">{errorMsg}</p>}
       <div className="h-48" />
         {/* 확인 버튼 */}
-        <DefaultButton
-          text="확인"
-          disabled={!isFormValid}
-          onClick={handleConfirm}
-        />
+        <BottomButtonWrapper>
+            <DefaultButton 
+              text="확인"
+              disabled={!isFormValid}
+              onClick={handleConfirm} 
+            />
+        </BottomButtonWrapper>
       </div>
     </DefaultDiv>
   );

@@ -3,6 +3,7 @@ import DefaultDiv from "../../../components/default/DefaultDiv";
 import Header from "../../../components/default/Header";
 import InputBox from "../../../components/input/InputBox";
 import DefaultButton from "../../../components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import EmailVerification from "../../../components/signUp/EmailVerification";
 import PasswordFields from "../../../components/signUp/PasswordFields";
 import BirthInput from "../../../components/signUp/BirthInput";
@@ -149,17 +150,13 @@ const SignUpFormView = () => {
           <BirthInput onValidChange={setBirthValid} />
 
           {/* 완료 버튼 */}
-          <div className="mt-[3rem] w-full">
+          <BottomButtonWrapper>
             <DefaultButton
               text="완료"
-              className={`max-w-[33.5rem] w-full py-[1.4rem] text-[1.3rem] rounded-2xl transition ${isFormValid
-                  ? "bg-green-600 text-white hover:bg-green-700"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
               disabled={!isFormValid}
               onClick={handleSubmitClick}
             />
-          </div>
+          </BottomButtonWrapper>
         </form>
 
         {/* 회원가입 성공 모달 */}

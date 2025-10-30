@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import Header from "@/components/default/Header";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 
 type Achievement = {
   month: string;
@@ -72,12 +73,12 @@ export default function AchievementHistoryView() {
         {/* 선택 시 다음 버튼 */}
         {selected !== null && (
           <div className="mt-auto">
-            <DefaultButton
-              text="달성도 확인하기"
+            <BottomButtonWrapper>
+              <DefaultButton text="달성도 확인하기"
               onClick={() =>
                 navigate("/achievement/detail", { state: { data: historyList[selected] } })
-              }
-            />
+              } />
+            </BottomButtonWrapper>
           </div>
         )}
       </div>

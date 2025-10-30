@@ -1,5 +1,6 @@
 import { img } from "@/assets/img";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import Title1 from "@/components/title/Title1";
 
@@ -29,13 +30,12 @@ const YourIdView = () => {
           </p>
         </div>
 
-        <div className="h-24" />
-        <div className="flex justify-center pt-4">
+        <BottomButtonWrapper>
           <DefaultButton
             text="확인"
             onClick={() => (window.location.href = "/login")}
           />
-        </div>
+        </BottomButtonWrapper>
       </div>
     </DefaultDiv>
   );

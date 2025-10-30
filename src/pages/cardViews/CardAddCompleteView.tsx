@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DefaultButton from '@/components/button/DefaultButton';
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import DefaultDiv from '@/components/default/DefaultDiv';
 import { img } from '@/assets/img';
 import { addCard } from '@/utils/cardData';
@@ -85,13 +86,12 @@ const CardAddComplete: React.FC = () => {
         </div>
 
         {/* 완료 버튼 - 하단 고정 */}
-        <div className="px-8 pb-20">
-          <DefaultButton
-            text="완료"
-            onClick={handleComplete}
-            className="py-4 w-full text-lg font-semibold"
-          />
-        </div>
+        <BottomButtonWrapper>
+            <DefaultButton  
+              text="완료"
+              onClick={handleComplete} 
+            />
+          </BottomButtonWrapper>
       </div>
     </DefaultDiv>
   );

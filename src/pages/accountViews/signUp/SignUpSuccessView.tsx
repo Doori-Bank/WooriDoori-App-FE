@@ -1,5 +1,6 @@
 import DefaultDiv from "@/components/default/DefaultDiv";
 import DefaultButton from "@/components/button/DefaultButton";
+import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import image from "@/assets/doori/doori_celebrating.png";
 
 const SignUpSuccessView = () => {
@@ -24,13 +25,12 @@ const SignUpSuccessView = () => {
         </p>
 
         {/* 완료 버튼 */}
-        <div className="w-full max-w-[33.5rem] flex justify-center mt-[8rem]">
-          <DefaultButton
+        <BottomButtonWrapper>
+            <DefaultButton
             text="로그인으로"
             onClick={() => (window.location.href = "/login")}
-            className="w-full max-w-[33.5rem]"
           />
-        </div>
+        </BottomButtonWrapper>
       </div>
     </DefaultDiv>
   );
