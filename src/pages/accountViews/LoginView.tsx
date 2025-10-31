@@ -27,17 +27,18 @@ const LoginView = () => {
 
   return (
     <DefaultDiv>
-      <div className="pt-[1rem] flex flex-col items-center">
-        {/* 로고 */}
-        <img
-          src={img.woori_logo}
-          alt="login logo"
-          className="w-[18rem] mb-[8rem] select-none"
-        />
+      <div className="h-full flex flex-col items-center justify-center gap-14 pb-5">
+        <div>
+          
+          {/* 로고 */}
+          <img
+            src={img.woori_logo}
+            alt="login logo"
+            className="w-[18rem] mb-[5rem] select-none"
+          />
 
-        {/* 타이틀 */}
-        <div className="mb-[8rem]">
-          <Title1 text="로그인" />
+          {/* 타이틀 */}
+            <Title1 text="로그인" />
         </div>
 
         {/* 로그인 입력 영역 */}

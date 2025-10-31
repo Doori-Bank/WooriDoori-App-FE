@@ -58,6 +58,7 @@ const SearchIdView = () => {
           <InputBox
             placeholder="'-'를 제외한 숫자만 입력해주세요"
             value={phone}
+            maxLength={11}
             onChange={(e) => setPhone(e.target.value)}
           />
         </div>
