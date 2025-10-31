@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import DefaultDiv from '@/components/default/DefaultDiv';
-import BottomNav from '@/components/default/NavBar';
+import { useNavigate } from 'react-router-dom';
 import { img } from '@/assets/img';
 
 const CardRecommendView: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('체크카드');
 
@@ -110,7 +111,15 @@ const CardRecommendView: React.FC = () => {
   );
 
   return (
-    <DefaultDiv isBottomNav={true}>
+    <DefaultDiv
+      isHeader={true}
+      title="카드 살펴보기"
+      isShowBack={true}
+      isShowClose={false}
+      isShowSetting={false}
+      onBack={() => navigate(-1)}
+      isMainTitle={false}
+    >
       <div className="flex flex-col h-screen">
         {/* 상단 고정 영역 */}
         <div className="flex-shrink-0 pb-6 bg-white">
