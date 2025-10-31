@@ -15,7 +15,7 @@ function parseAmountToNumber(v: string | number | null) {
   if (v === null || v === undefined) return 0;
   const s = String(v).replace(/,/g, "").trim();
   const n = Number(s);
-  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;s
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0; s
 }
 
 type Props = {
@@ -186,22 +186,24 @@ export default function GoalSetupView({
       {/* STEP 4: 완료 화면 */}
       {step === 4 && (
         <div className="flex flex-col items-center px-4 pt-20 pb-10 h-full">
-          {/* 체크 아이콘 */}
-          <div className="w-[10rem] h-[10rem] flex items-center translate-y-[11rem]">
-            <img
-              src={check}
-              alt="완료 체크"
-              className="w-[10rem] h-[10rem] object-contain"
-            />
+          <div className="flex flex-col items-center justify-center h-[50%]">
+            {/* 체크 아이콘 */}
+            <div className="w-[10rem] h-[10rem] flex items-center translate-y-[11rem]">
+              <img
+                src={check}
+                alt="완료 체크"
+                className="w-[10rem] h-[10rem] object-contain"
+              />
+            </div>
+
+            {/* 완료 텍스트 */}
+            <h2 className="mt-[13rem]">
+              <Title2 text="목표 금액을 설정했어요" />
+            </h2>
           </div>
 
-          {/* 완료 텍스트 */}
-          <h2 className="mt-[13rem]">
-            <Title2 text="목표 금액을 설정했어요" />
-          </h2>
-
           {/* 수입 / 목표 요약 */}
-          <div className="w-[85%] mt-[27rem] flex flex-col gap-[1rem] mx-auto">
+          <div className="w-[85%] mt-[27rem] flex flex-col gap-[1rem] mx-auto fixed bottom-[12.5rem]">
             <div className="flex justify-between">
               <span className="text-[#A1A1A1] text-[1.3rem]">한달 내 수입</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">

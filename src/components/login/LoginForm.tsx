@@ -1,11 +1,12 @@
-import { useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef } from "react";
 import { Link } from "react-router-dom";
 
-export interface LoginFormRef {
-  handleLogin: () => Promise<boolean>;
-}
+// export interface LoginFormRef {
+//   handleLogin: () => Promise<boolean>;
+//   isError?: boolean,
+// }
 
-const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
+const LoginForm = ({isError = false}:{ isError?: boolean })  => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -89,15 +90,9 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
           onChange={handleEmailChange}
           placeholder="이메일 주소를 입력해주세요"
           className={`w-full px-6 py-4 rounded-lg outline-none border text-gray-800 bg-white transition text-[1.3rem] ${
-            emailError ? "border-red-400" : "border-gray-300"
+            emailError || isError ? "border-red-400" : "border-gray-300"
           }`}
         />
-        {/* {emailError && (
-          <p className="text-[1.2rem] text-red-500 mt-[0.4rem]">
-            {emailError}
-          </p>
-        )}
-      </div> */}
               <p
           className={`text-[1.2rem] mt-[0.4rem] h-[1.6rem] transition-colors duration-200 ${
             emailError ? "text-red-500" : "text-transparent"
@@ -105,6 +100,7 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
         >
           {emailError || "placeholder"}
         </p>
+
       </div>
 
       {/* 비밀번호 입력 */}
@@ -115,12 +111,9 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
           onChange={handlePasswordChange}
           placeholder="비밀번호를 입력해주세요"
           className={`w-full px-6 py-4 rounded-lg outline-none border text-gray-800 bg-white transition text-[1.3rem] ${
-            pwError ? "border-red-400" : "border-gray-300"
+            pwError || isError  ? "border-red-400" : "border-gray-300"
           }`}
         />
-        {/* {pwError && (
-          <p className="text-[1.2rem] text-red-500 mt-[0.4rem]">{pwError}</p>
-        )} */}
 
          <p
           className={`text-[1.2rem] mt-[0.4rem] h-[1.6rem] transition-colors duration-200 ${
@@ -149,6 +142,6 @@ const LoginForm = forwardRef<LoginFormRef>((_, ref) => {
       </div>
     </div>
   );
-});
+}
 
 export default LoginForm;

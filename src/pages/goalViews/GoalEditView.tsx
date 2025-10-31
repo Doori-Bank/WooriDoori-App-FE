@@ -123,25 +123,27 @@ export default function GoalEditView() {
 
       {/* STEP 3: 완료 화면 */}
       {step === 3 && (
-        <div className="flex flex-col items-center px-4 pt-20 pb-10 h-full">
-          {/* 체크 아이콘 */}
-          <div className="w-[10rem] h-[10rem] flex items-center translate-y-[11rem]">
-            <img
-              src={check}
-              alt="완료 체크"
-              className="w-[10rem] h-[10rem] object-contain"
-            />
-          </div>
+        <div className="flex flex-col items-center px-4 h-full">
+          <div className="flex flex-col items-center justify-center h-[50%]">
+            {/* 체크 아이콘 */}
+            <div className="w-[10rem] h-[10rem] flex items-center translate-y-[11rem]">
+              <img
+                src={check}
+                alt="완료 체크"
+                className="w-[10rem] h-[10rem] object-contain"
+              />
+            </div>
 
-          {/* 완료 텍스트 */}
-          <div className="mt-[13rem] text-center">
-            <Title2 text="목표 금액을 수정했어요" />
-            <SubText text="수정된 목표 금액은 다음 달부터 적용됩니다." className="mt-[1.2rem]" />
+            {/* 완료 텍스트 */}
+            <div className="mt-[13rem] text-center">
+              <Title2 text="목표 금액을 수정했어요" />
+              <SubText text="수정된 목표 금액은 다음 달부터 적용됩니다." className="mt-[1.2rem]" />
+            </div>
           </div>
 
 
           {/* 수입 / 목표 요약 */}
-          <div className="w-[85%] mt-[24rem] flex flex-col gap-[1rem] mx-auto">
+          <div className="w-[85%] mt-[24rem] flex flex-col gap-[1rem] mx-auto fixed bottom-[12.5rem]">
             <div className="flex justify-between">
               <span className="text-[#A1A1A1] text-[1.3rem]">한달 내 수입</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">

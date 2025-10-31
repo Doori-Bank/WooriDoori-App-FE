@@ -39,7 +39,7 @@ const AgreementForm = ({ onValidChange }: AgreementFormProps) => {
   };
 
   return (
-    <div className="w-[34rem] text-left flex flex-col gap-[2rem] text-[1.5rem] text-gray-700 mb-[6rem]">
+    <div className="w-[34rem] text-left flex flex-col gap-[2rem] text-[1.5rem] text-gray-700">
       {/* 전체 동의 */}
       <div className="flex justify-between items-center cursor-pointer" onClick={handleAllCheck}>
         <div className="flex items-center gap-[1rem]">
