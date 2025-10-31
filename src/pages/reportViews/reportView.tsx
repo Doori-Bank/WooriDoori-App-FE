@@ -40,7 +40,7 @@ const ReportView = () => {
 
         // 🔹 지금은 더미 데이터
         setMonth(10);
-        setScore(20);
+        setScore(0);
       } catch (error) {
         console.error("월 데이터 불러오기 실패:", error);
         setMonth(new Date().getMonth() + 1); // 실패 시 현재 달로 대체
