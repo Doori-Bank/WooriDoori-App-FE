@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
-import Header from "@/components/default/Header";
 import { img } from "@/assets/img";
 
 // ✅ 두리 상태별 이미지
@@ -13,14 +12,13 @@ import doori_angry from "@/assets/doori/doori_angry.png";
 export default function AchievementDetailView() {
     const location = useLocation();
     const data = location.state?.data;
+    const from = location.state?.from || "home";
     const navigate = useNavigate();
 
-    const handleBack = () => {
-        navigate(-1);
-    };
-
+    const handleBack = () => navigate(-1);
     const handleClose = () => {
-        navigate("/home");
+    if (from === "mypage") navigate("/mypage");
+    else navigate("/home");
     };
 
     // ✅ 더미 히스토리 데이터 (나중에 백엔드 연동)
@@ -92,16 +90,16 @@ export default function AchievementDetailView() {
     const userName = getUserName();
 
     return (
-        <DefaultDiv>
-            <Header
-                title="달성도"
-                showBack={true}
-                showClose={true}
-                onBack={handleBack}
-                onClose={handleClose}
-            />
-
-
+        <DefaultDiv
+            isHeader={true}
+            title="달성도"
+            isShowBack={true}      
+            isShowClose={true}     
+            isShowSetting={false}
+            onBack={handleBack}    
+            onClose={handleClose}  
+            isMainTitle={false}
+        >
             <div className="flex flex-col gap-6 px-6 pt-8 pb-60 h-full">
                 {/* 제목 영역 제거 (아래 점수 폼 하단으로 이동) */}
                 <div className="h-0" />

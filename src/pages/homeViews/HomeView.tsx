@@ -80,7 +80,7 @@ const HomeView = () => {
 
         {/* 메인 배너 (달성도 배너 → 달성도 페이지 이동) */}
         <div
-          onClick={() => navigate('/goal/achievementHistory')}
+          onClick={() => navigate('/goal/achievementHistory', { state: { from: "home" } })}
           className="mt-10 cursor-pointer"
           role="button"
           aria-label="달성도 보기"

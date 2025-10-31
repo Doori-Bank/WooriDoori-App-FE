@@ -46,30 +46,36 @@ export default function GoalEditView() {
     navigate("/");
   };
 
+  const handleBack = () => {
+    if (step > 1) {
+      setStep((prev) => (prev - 1) as 1 | 2 | 3);
+    } else {
+      // 첫 단계일 경우 뒤로가기 버튼이 안보이므로 여기 안들어옴
+    }
+  };
+
   const handleClose = () => {
     navigate("/home");
   };
 
   return (
-    <DefaultDiv>
-      <Header
-        title="목표 금액 수정"
-        showBack={true}
-        onClose={handleClose}
-        onBack={() => {
-          if (step > 1) {
-            setStep((prev) => (prev - 1) as 1 | 2 | 3);
-          } else {
-            navigate('/mypage');
-          }
-        }}
-      />
-
+    <DefaultDiv
+      isHeader={true}
+      title="목표 금액 수정"
+      // ✅ 첫 페이지(step === 1)에서는 뒤로가기 버튼 숨김
+      isShowBack={step !== 1}
+      isShowClose={true}
+      isShowSetting={false}
+      onBack={handleBack}
+      onClose={handleClose}
+      isMainTitle={false}
+    >
       {/* STEP 1: 수입 수정 */}
       {step === 1 && (
         <div className="flex flex-col px-6 pt-16 pb-10 h-full">
           <div className="text-left mt-[3rem]">
-            <Title2 text="석기시대님의 수입은 어느정도이신가요?" />
+            <Title2 text="석기시대님의 수입은" />
+            <Title2 text="어느정도이신가요?" />
             <div className="mt-[2rem]">
               <SubText text="실제 수령하는 금액 기준으로 입력 부탁드려요." />
             </div>
@@ -131,7 +137,7 @@ export default function GoalEditView() {
           </h2>
 
           {/* 수입 / 목표 요약 */}
-          <div className="w-[85%] mt-[30rem] flex flex-col gap-[1rem] mx-auto">
+          <div className="w-[85%] mt-[27rem] flex flex-col gap-[1rem] mx-auto">
             <div className="flex justify-between">
               <span className="text-[#A1A1A1] text-[1.3rem]">한달 내 수입</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">

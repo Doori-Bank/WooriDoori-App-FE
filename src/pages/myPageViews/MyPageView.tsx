@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
-import BottomNav from '@/components/default/NavBar';
 import { img } from '@/assets/img';
 
 const MyPageView: React.FC = () => {
@@ -79,7 +78,7 @@ const MyPageView: React.FC = () => {
           {menuItems.map((item, index) => (
             <div
               key={index}
-              onClick={() => navigate(item.path)}
+              onClick={() => navigate(item.path, { state: { from: "mypage" } })}
               className="flex justify-between items-center px-6 py-5 transition-all duration-200 cursor-pointer hover:bg-blue-50"
             >
               <span className="text-[1.4rem] font-medium text-gray-800">

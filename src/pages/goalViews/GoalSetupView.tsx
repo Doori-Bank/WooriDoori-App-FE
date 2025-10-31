@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
-import Header from "@/components/default/Header";
 import Title2 from "@/components/title/Title2";
 import SubText from "@/components/text/SubText";
 import GoalInput from "@/components/input/GoalInput";
@@ -16,7 +15,7 @@ function parseAmountToNumber(v: string | number | null) {
   if (v === null || v === undefined) return 0;
   const s = String(v).replace(/,/g, "").trim();
   const n = Number(s);
-  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0;s
 }
 
 type Props = {
@@ -62,21 +61,32 @@ export default function GoalSetupView({
     navigate("/home");
   };
 
+  const handleBack = () => {
+    if (step > 1) {
+      setStep((prev) => (prev - 1) as 1 | 2 | 3 | 4);
+    } else {
+      // step === 1 인 상태에서 뒤로가기 눌렀을 때의 정책:
+      // 아무 것도 안 하거나, 나가거나 중 하나인데
+      // 기존 코드상 else 로직 없었으니 아무 것도 안 함
+      // 필요하면 navigate(-1) 같은 거 넣어도 됨.
+    }
+  };
+
   const handleClose = () => {
     navigate("/home");
   };
 
   return (
-    <DefaultDiv>
-      <Header
-        title="목표 금액 설정"
-        showBack={true}
-        onClose={handleClose}
-        onBack={() => {
-          if (step > 1) setStep((prev) => (prev - 1) as 1 | 2 | 3 | 4);
-        }}
-      />
-
+    <DefaultDiv
+      isHeader={true}
+      title="목표 금액 설정"
+      isShowBack={step !== 1}
+      isShowClose={true}
+      isShowSetting={false}
+      onBack={handleBack}
+      onClose={handleClose}
+      isMainTitle={false}
+    >
       {/* STEP 1: 직업 선택 */}
       {step === 1 && (
         <div className="flex flex-col px-6 pt-16 pb-10 h-full">
@@ -129,7 +139,7 @@ export default function GoalSetupView({
             </div>
           </div>
 
-          <div className="mt-[3rem]">
+          <div className="mt-[5rem]">
             <GoalInput
               value={incomeText}
               onChange={setIncomeText}
@@ -191,7 +201,7 @@ export default function GoalSetupView({
           </h2>
 
           {/* 수입 / 목표 요약 */}
-          <div className="w-[85%] mt-[30rem] flex flex-col gap-[1rem] mx-auto">
+          <div className="w-[85%] mt-[27rem] flex flex-col gap-[1rem] mx-auto">
             <div className="flex justify-between">
               <span className="text-[#A1A1A1] text-[1.3rem]">한달 내 수입</span>
               <span className="text-[#4D4D4D] font-semibold text-[1.5rem]">

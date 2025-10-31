@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
-import Header from "@/components/default/Header";
 import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 
@@ -14,7 +13,14 @@ type Achievement = {
 
 export default function AchievementHistoryView() {
   const navigate = useNavigate();
-  const goHome = () => navigate("/home");
+  const location = useLocation();
+
+  const from = location.state?.from || "home";
+
+  const handleClose = () => {
+    if (from === "mypage") navigate("/mypage");
+    else navigate("/home");
+  };
 
   // ✅ 더미 데이터 (임시 테스트용)
   const mockHistory: Achievement[] = [
@@ -33,9 +39,15 @@ export default function AchievementHistoryView() {
   }, []);
 
   return (
-    <DefaultDiv>
-      <Header title="달성도" showBack={true} onBack={() => navigate(-1)} onClose={goHome} />
-
+    <DefaultDiv
+      isHeader={true}
+      title="달성도"
+      isShowBack={false}
+      isShowClose={true}
+      isShowSetting={false}
+      onClose={handleClose}
+      isMainTitle={false}
+    >
       <div className="flex flex-col gap-6 px-6 pt-20 pb-10 h-full">
         {/* 달성도 카드 목록 */}
         {historyList.map((a, i) => (
@@ -76,7 +88,7 @@ export default function AchievementHistoryView() {
             <BottomButtonWrapper>
               <DefaultButton text="달성도 확인하기"
               onClick={() =>
-                navigate("/achievement/detail", { state: { data: historyList[selected] } })
+                navigate("/achievement/detail", { state: { data: historyList[selected], from: from } })
               } />
             </BottomButtonWrapper>
           </div>

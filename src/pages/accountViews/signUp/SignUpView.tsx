@@ -1,6 +1,5 @@
 import { useState } from "react";
 import DefaultDiv from "../../../components/default/DefaultDiv";
-import Header from "../../../components/default/Header";
 import InputBox from "../../../components/input/InputBox";
 import DefaultButton from "../../../components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
@@ -91,14 +90,16 @@ const SignUpFormView = () => {
   };
 
   return (
-    <DefaultDiv>
-      <Header
-        title="회원가입"
-        showBack
-        showClose
-        onBack={() => navigate(-1)}
-        onClose={() => navigate("/login")}
-      />
+    <DefaultDiv
+      isHeader={true}
+      title="회원가입"
+      isShowBack={true}               
+      isShowClose={true}               
+      isShowSetting={false}
+      onBack={() => navigate(-1)}      
+      onClose={() => navigate("/login")} 
+      isMainTitle={false}
+    >
 
       <div className="pt-[4rem] flex flex-col items-center">
         <form className="w-full max-w-[34rem] flex flex-col gap-[2rem]">

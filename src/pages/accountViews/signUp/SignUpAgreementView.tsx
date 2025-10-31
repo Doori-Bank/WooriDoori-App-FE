@@ -2,7 +2,6 @@ import { useState } from "react";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
-import Header from "@/components/default/Header";
 import image from "@/assets/login/signUp.png";
 import AgreementForm from "@/components/signUp/AgreementForm";
 import { useNavigate } from "react-router-dom";
@@ -11,15 +10,18 @@ const SignUpAgreementView = () => {
   const navigate = useNavigate();
   const [isAgreed, setIsAgreed] = useState(false);
 
+  const handleClose = () => navigate("/login");
+
   return (
-    <DefaultDiv>
-      <Header
-        title="회원가입"
-        showBack
-        showClose
-        onBack={() => navigate(-1)}
-        onClose={() => navigate("/login")}
-      />
+    <DefaultDiv
+      isHeader={true}
+      title="회원가입"
+      isShowBack={false}
+      isShowClose={true}
+      isShowSetting={false}
+      onClose={handleClose}
+      isMainTitle={false}
+    >
 
       {/* 본문 */}
       <div className="h-full pt-[8rem] flex flex-col items-center justify-between">

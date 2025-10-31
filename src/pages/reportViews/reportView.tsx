@@ -75,11 +75,10 @@ const ReportView = () => {
       return;
     }
 
-    const num = type == "back" ? pageNum - 1 : pageNum + 1
-    setTitle(titleMap[num] || "");
-    setPageNum(num);
+    const nextPage = type === "back" ? pageNum - 1 : pageNum + 1;
+    setPageNum(nextPage);
+    setTitle(titleMap[nextPage] || "");
   }
-
 
   const renderPage = () => {
     // 점수
@@ -87,33 +86,36 @@ const ReportView = () => {
       return <FallingRockScoreView score={43} />
     }
     // 총 지출 카테고리별
-    else if (pageNum == 2) {
+    if (pageNum == 2) {
       return (
         <div className="w-full">
           <p className="text-[#4A4A4A] font-semibold">카테고리별 소비</p>
           <ProgressDonet total={totalPrice} categories={categoriesList} month="5월" size={300} />
         </div>
-      )
+      );
     }
-    // 한달 소비 카테고리
-    else if (pageNum == 3) {
+    if (pageNum === 3)
       return <MonthCategoryListView categoriesByMonthList={categoriesByMonthList} />;
-    }
-    // 카테고리별 소비 금액
-    else if (pageNum == 4) {
+    if (pageNum === 4)
       return <ProgressCategoryView categoriesList={categoriesList} totalPrice={totalPrice} />;
-    }
-  }
+  };
 
   return (
-    <ReportLayout mainText={title} isMainTextCenter={false}
-      onButtonClick={onClick} onBack={() => { navigate('/mypage'); }} onClose={() => { navigate('/home'); }}
+    <ReportLayout
+      mainText={title}
+      isMainTextCenter={false}
+      // ✅ 뒤로가기 버튼 표시 여부 (1페이지면 숨김)
+      showBack={pageNum !== 1}
+      // ✅ 뒤로가기 동작: 이전 페이지 이동
+      onBack={() => onClick("back")}
+      // ✅ 닫기 버튼 누르면 홈으로 이동
+      onClose={() => navigate('/home')}
+      // ✅ 다음 버튼 클릭
+      onButtonClick={onClick}
     >
-      {
-        renderPage()
-      }
+      {renderPage()}
     </ReportLayout>
-  )
-}
+  );
+};
 
 export default ReportView;

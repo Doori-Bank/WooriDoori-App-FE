@@ -51,43 +51,54 @@ const HeaderBar = ({
         </button>
       )}
 
-      {/* 가운데: 타이틀 */}
-      <h1 className={`
-        flex-2 ${isMainTitle ? 'text-[2rem] text-start' : 'text-[1.7rem] text-center'}  font-semibold text-gray-900 truncate
-        `}>
-        {title}
-      </h1>
-
-      {/* 오른쪽: 닫기 버튼 */}
-      {isShowClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="닫기"
-          className="flex justify-end max-w-10 pr-1"
+      {/* 가운데 타이틀 (항상 중앙 고정) */}
+      <div className={` ${isMainTitle  ? 'left-10' : 'left-1/2 -translate-x-1/2'} absolute max-w-[60%] text-center`}>
+        <h1
+          className={`
+            font-semibold text-gray-900 truncate
+            ${isMainTitle ? "text-[2rem]" : "text-[1.7rem]"}
+          `}
         >
-          <img src={img.BsX} alt="닫기" className="object-contain w-10 h-10" />
-        </button>
-      )}
+          {title}
+        </h1>
+      </div>
 
+      {/* 오른쪽 영역 (닫기/설정 자리) */}
+      <div className="ml-auto flex items-center gap-2">
+        {isShowSetting && (
+          <button
+            type="button"
+            onClick={onClickSetting}
+            aria-label="설정"
+            className="flex items-center justify-center w-[2.5rem] h-[2.5rem]"
+          >
+            <img
+              src={img.settingIcon}
+              alt="설정"
+              className="object-contain w-[1.75rem] h-[1.75rem]"
+            />
+          </button>
+        )}
 
-      {/* 오른쪽: 닫기 버튼 */}
-      {isShowSetting && (
-        <button
-          type="button"
-          onClick={onClickSetting}
-          aria-label="설정"
-          className="flex-1 flex justify-center max-w-10 pr-2"
-        >
-          <img src={img.settingIcon} alt="설정" className="object-contain w-7 h-7" />
-        </button>
-      )}
+        {isShowClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+            className="flex items-center justify-center w-[2.5rem] h-[2.5rem]"
+          >
+            <img
+              src={img.BsX}
+              alt="닫기"
+              className="object-contain w-[2rem] h-[2rem]"
+            />
+          </button>
+        )}
+      </div> 
       
       {
         children
       }
-
-
 
     </header>
   );
