@@ -107,7 +107,7 @@ export default function GoalEditView() {
             </div>
           </div>
 
-          <div className="mt-[5rem]">
+          <div className="mt-[7rem]">
             <GoalInput
               value={goalText}
               onChange={setGoalText}
