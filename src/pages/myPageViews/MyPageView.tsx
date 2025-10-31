@@ -23,7 +23,7 @@ const MyPageView: React.FC = () => {
     { title: '소비 일기', icon: '>', path: '/calendar/diary' },
     { title: '소비 내역', icon: '>', path: '/calendar' },
     { title: '카드 관리', icon: '>', path: '/card' },
-    { title: '카드 추천', icon: '>', path: '/card-recommend' },
+    { title: '카드 살펴보기', icon: '>', path: '/card-recommend' },
     { title: '달성도', icon: '>', path: '/goal/achievementHistory' },
     { title: '목표 수정', icon: '>', path: '/goal/editGoal' },
     { title: '카테고리별 사용 금액 상세', icon: '>', path: '/report' },
@@ -62,7 +62,7 @@ const MyPageView: React.FC = () => {
             {userName}님
           </h1>
           <p className="text-[1.2rem] text-gray-600">
-            안녕하세요 오늘도 이용해주셔서 감사해요
+            안녕하세요. 오늘도 이용해주셔서 감사해요.
           </p>
         </div>
       </div>

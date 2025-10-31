@@ -117,7 +117,7 @@ const CardRecommendView: React.FC = () => {
           {/* 헤더 */}
           <div className="pt-4 pb-6">
             <h1 className="text-[2rem] font-bold text-black text-center">
-              카드 추천
+              카드 살펴보기
             </h1>
           </div>
           {/* 검색바 */}
