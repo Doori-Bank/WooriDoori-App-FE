@@ -16,17 +16,17 @@ export type Payment = {
 
 // 카테고리 정보 타입
 const categoryInfo: Record<string, { color: string; icon: string }> = {
-  '식비': { color: 'FF715B', icon: img.food },
-  '교통/자동차': { color: '34D1BF', icon: img.traffic },
-  '편의점': { color: 'FFC456', icon: img.storeIcon },
-  '쇼핑': { color: '345BD1', icon: img.shopping },
-  '주거': { color: 'FFF1D6', icon: img.homeIcon },
-  '병원': { color: 'FF715B', icon: img.hospitalIcon },
-  '이체': { color: 'FFF495', icon: img.transfer },
-  '술/유흥': { color: 'FF715B', icon: img.drinkIcon },
+  '식비': { color: 'FF715B', icon: img.foodIcon },
+  '교통/자동차': { color: '34D1BF', icon: img.trafficIcon },
+  '편의점': { color: 'FFC456', icon: img.martIcon },
+  '쇼핑': { color: '345BD1', icon: img.shoppingIcon },
+  '주거': { color: 'FFF1D6', icon: img.residenceIcon },
+  '병원': { color: '31BB66', icon: img.hospitalIcon },
+  '이체': { color: 'FFF495', icon: img.transferIcon },
+  '술/유흥': { color: 'FF715B', icon: img.entertainmentIcon },
   '통신': { color: 'FFF', icon: img.phoneIcon },
-  '교육': { color: 'FF715B', icon: img.education },
-  '기타': { color: 'FFF', icon: img.etc },
+  '교육': { color: '969191', icon: img.educationIcon },
+  '기타': { color: 'E4EAF0', icon: img.etcIcon },
 };
 
 // 카테고리 목록
@@ -56,185 +56,6 @@ const Toggle: React.FC<{ value: boolean; onChange: (value: boolean) => void }> =
   );
 };
 
-// 더치페이 모달
-export const DutchPayModal: React.FC = () => {
-  const dutchPayModal = useCalendarStore((state) => state.dutchPayModal);
-  const setDutchPayModal = useCalendarStore((state) => state.setDutchPayModal);
-  const setDetail = useCalendarStore((state) => state.setDetail);
-  const [open, setOpen] = React.useState(false);
-  const [participants, setParticipants] = React.useState(dutchPayModal?.dutchPay || 1);
-  const [isEditingAmount, setIsEditingAmount] = React.useState(false);
-  const [editedAmount, setEditedAmount] = React.useState(Math.abs(dutchPayModal?.amount || 0));
-  
-  React.useEffect(() => {
-    if (dutchPayModal) {
-      const id = requestAnimationFrame(() => setOpen(true));
-      setParticipants(dutchPayModal.dutchPay || 1);
-      setIsEditingAmount(false); // 금액 수정 모드 초기화
-      return () => cancelAnimationFrame(id);
-    }
-  }, [dutchPayModal]);
-
-  React.useEffect(() => {
-    if (dutchPayModal) {
-      setParticipants(dutchPayModal.dutchPay || 1);
-      setIsEditingAmount(false); // 금액 수정 모드 초기화
-    }
-  }, [dutchPayModal]);
-
-  const handleClose = () => {
-    setOpen(false);
-    setTimeout(() => {
-      setDutchPayModal(null);
-      // 원래 detail 모달 다시 열기
-      if (dutchPayModal) {
-        setDetail({ day: new Date(dutchPayModal.date).getDate().toString(), data: dutchPayModal });
-      }
-    }, 200);
-  };
-
-  const handleComplete = () => {
-    if (dutchPayModal) {
-      // 원본 데이터는 수정하지 않고, 더치페이 인원과 금액만 UI 표시용으로 저장
-      const updatedAmount = isEditingAmount ? -editedAmount : dutchPayModal.amount;
-      const updatedData = {
-        ...dutchPayModal,
-        dutchPay: participants,
-        amount: updatedAmount,
-      };
-      
-      // 업데이트된 데이터를 전달 (UI에 표시되도록)
-      setDutchPayModal(updatedData);
-      
-      // 모달 닫기
-      setOpen(false);
-      
-      // detail 모달을 열고 더치페이 모달을 닫음
-      setTimeout(() => {
-        setDutchPayModal(null);
-        setDetail({ 
-          day: new Date(updatedData.date).getDate().toString(), 
-          data: updatedData 
-        });
-      }, 100);
-    }
-  };
-
-  React.useEffect(() => {
-    if (dutchPayModal) {
-      setEditedAmount(Math.abs(dutchPayModal.amount));
-    }
-  }, [dutchPayModal]);
-
-  if (!dutchPayModal) return null;
-
-  const totalAmount = isEditingAmount ? editedAmount : Math.abs(dutchPayModal.amount);
-  const perPersonAmount = Math.ceil(totalAmount / participants);
-
-  return (
-    <div 
-      onClick={handleClose} 
-      className={`fixed inset-0 bg-black transition-colors duration-200 flex items-end justify-center z-[60] ${
-        open ? 'bg-opacity-35' : 'bg-opacity-0'
-      }`}
-    >
-      <div 
-        onClick={(e) => e.stopPropagation()} 
-        className={`w-full max-w-full bg-white dark:bg-gray-700 rounded-t-3xl shadow-xl transform transition-all duration-200 ${
-          open ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-        }`}
-        style={{ width: '402px', zIndex: 60 }}
-      >
-        <div className="px-6 pt-8 pb-6">
-          <div className="flex items-center justify-between mb-8">
-            <div className="w-10"></div>
-            <div className="text-3xl font-bold dark:text-white">더치페이 설정</div>
-            <button onClick={handleClose} className="border-none bg-transparent text-xl cursor-pointer dark:text-white">
-              취소
-            </button>
-          </div>
-
-          <div className="mb-8">
-            <div className="mb-4">
-              {isEditingAmount ? (
-                <div className="flex items-center justify-center gap-3">
-                  <input
-                    type="number"
-                    value={editedAmount}
-                    onChange={(e) => setEditedAmount(parseInt(e.target.value) || 0)}
-                    className="text-2xl font-bold dark:text-white text-center border-b-2 border-blue-600 dark:border-blue-400 outline-none w-40 bg-transparent"
-                    autoFocus
-                  />
-                  <span className="text-2xl font-bold dark:text-white">원</span>
-                  <button
-                    onClick={() => setIsEditingAmount(false)}
-                    className="text-blue-600 dark:text-blue-400 text-lg px-3 py-1"
-                  >
-                    ✓
-                  </button>
-                </div>
-              ) : (
-                <div className="text-2xl font-bold mb-2 dark:text-white text-center">
-                  {totalAmount.toLocaleString()}원
-                </div>
-              )}
-              <div className="text-xl text-gray-600 dark:text-gray-400 text-center">
-                {dutchPayModal.company}
-              </div>
-            </div>
-          </div>
-
-          {!isEditingAmount && (
-            <div className="mb-8">
-              <div className="mb-3">
-                <div className="text-2xl text-gray-600 dark:text-gray-300 mb-2">인원 수</div>
-                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 text-center mt-3">{participants}명</div>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                value={participants}
-                onChange={(e) => setParticipants(parseInt(e.target.value))}
-                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600"
-                style={{
-                  background: `linear-gradient(to right, #2563eb 0%, #2563eb ${(participants - 1) * 11.11}%, #d1d5db ${(participants - 1) * 11.11}%, #d1d5db 100%)`
-                }}
-              />
-              <div className="flex justify-between mt-2">
-                <span className="text-base text-gray-500">1명</span>
-                <span className="text-base text-gray-500">10명</span>
-              </div>
-            </div>
-          )}
-
-          <div className="mb-8 bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-5">
-            <div className="text-xl text-gray-600 dark:text-gray-300 mb-2">1인당 금액</div>
-            <div className="text-3xl font-bold dark:text-white">
-              {perPersonAmount.toLocaleString()}원
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsEditingAmount(!isEditingAmount)}
-              className="flex-1 py-5 bg-gray-300 dark:bg-gray-600 rounded-2xl border-none text-2xl text-gray-700 dark:text-white font-bold cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
-            >
-              {isEditingAmount ? '인원수로 수정' : '금액 직접수정'}
-            </button>
-            <button 
-              onClick={handleComplete}
-              className="flex-1 py-5 bg-blue-600 dark:bg-blue-500 rounded-2xl border-none text-2xl text-white font-bold cursor-pointer hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-            >
-              설정 완료
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // 애니메이션 모달(슬라이드 업)
 export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
   const detail = useCalendarStore((state) => state.detail);
@@ -243,6 +64,7 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState(detail?.data.category || '식비');
   const [showCategoryDropdown, setShowCategoryDropdown] = React.useState(false);
+  const [showExcludeModal, setShowExcludeModal] = React.useState(false);
   
   React.useEffect(() => {
     const id = requestAnimationFrame(() => setOpen(true));
@@ -278,6 +100,13 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
   };
 
   const handleToggleChange = (value: boolean) => {
+    // 이체 카테고리이고 제외(false)로 변경하려는 경우 모달 표시
+    if (selectedCategory === '이체' && !value) {
+      setShowExcludeModal(true);
+      return;
+    }
+    
+    // 일반 카테고리 또는 포함(true)으로 변경하는 경우 바로 적용
     if (detail) {
       setDetail({
         ...detail,
@@ -287,6 +116,35 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
         }
       });
     }
+  };
+
+  // 제외 모달에서 "이번만" 선택
+  const handleExcludeOnce = () => {
+    if (detail) {
+      setDetail({
+        ...detail,
+        data: {
+          ...detail.data,
+          includeInTotal: false,
+        }
+      });
+    }
+    setShowExcludeModal(false);
+  };
+
+  // 제외 모달에서 "전체" 선택
+  const handleExcludeAll = () => {
+    // TODO: 같은 회사명의 모든 이체 내역 제외 기능
+    if (detail) {
+      setDetail({
+        ...detail,
+        data: {
+          ...detail.data,
+          includeInTotal: false,
+        }
+      });
+    }
+    setShowExcludeModal(false);
   };
 
   if (!detail) return null;
@@ -433,6 +291,46 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
           </button>
         </div>
       </div>
+
+      {/* 제외 확인 모달 */}
+      {showExcludeModal && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50"
+          onClick={() => setShowExcludeModal(false)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-700 rounded-3xl p-8 mx-6 w-full max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              지출 합계 제외
+            </h3>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              앞으로 이와 같은 건은 미포함할까요?
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={handleExcludeOnce}
+                className="w-full py-4 bg-gray-100 dark:bg-gray-600 rounded-2xl text-xl text-gray-900 dark:text-white font-medium hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+              >
+                이번만 제외
+              </button>
+              <button
+                onClick={handleExcludeAll}
+                className="w-full py-4 bg-blue-500 dark:bg-blue-600 rounded-2xl text-xl text-white font-bold hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
+              >
+                같은 이체 모두 제외
+              </button>
+              <button
+                onClick={() => setShowExcludeModal(false)}
+                className="w-full py-4 bg-transparent rounded-2xl text-xl text-gray-500 dark:text-gray-400 font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import DefaultDiv from '@/components/default/DefaultDiv';
-import IconButton from '@/components/button/IconButton';
 import DiaryConfirmModal from '@/components/modal/DiaryConfirmModal';
 import { img } from '@/assets/img';
 import { useCalendarStore } from '@/stores/calendarStore';
 import { useNavigate } from 'react-router-dom';
 import "@/styles/calendar/calendar.styles.css";
-import NavBar from '@/components/default/NavBar';
+import MonthCalendarSection from '@/components/calender/MonthCalendarSection';
+import DiaryHeader from '@/components/calender/DiaryHeader';
+import DiaryEmptyState from '@/components/calender/DiaryEmptyState';
+import DiaryContent from '@/components/calender/DiaryContent';
 
 const DiaryView = () => {
   const navigate = useNavigate();
@@ -20,6 +22,13 @@ const DiaryView = () => {
     type: 'edit',
     isOpen: false,
   });
+  
+  // 캘린더 접기/펼치기 상태
+  const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false);
+  const calendarTouchStartY = React.useRef(0);
+  const calendarRef = React.useRef<HTMLDivElement | null>(null);
+  const diaryAreaRef = React.useRef<HTMLDivElement | null>(null);
+  const diaryTouchStartY = React.useRef(0);
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -37,6 +46,95 @@ const DiaryView = () => {
     calendarDays.push(day);
   }
   
+  // 선택된 날짜가 속한 주의 날짜들을 계산
+  const getWeekDays = (day: number): number[] => {
+    const date = new Date(year, month, day);
+    const dayOfWeek = date.getDay();
+    const weekStart = day - dayOfWeek;
+    const weekDays: number[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = weekStart + i;
+      if (d >= 1 && d <= daysInMonth) {
+        weekDays.push(d);
+      }
+    }
+    return weekDays;
+  };
+  
+  const currentWeekDays = getWeekDays(selectedDate);
+  
+  // 캘린더 영역에서 접기/펼치기
+  React.useEffect(() => {
+    const calendarEl = calendarRef.current;
+    if (!calendarEl) return;
+
+    const handleCalendarTouchStart = (e: TouchEvent) => {
+      calendarTouchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleCalendarTouchMove = (e: TouchEvent) => {
+      e.preventDefault(); // 캘린더 영역에서는 스크롤 막기
+      
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - calendarTouchStartY.current;
+      
+      if (Math.abs(deltaY) < 30) return; // 30px 이상만 반응
+      
+      const swipeDown = deltaY < 0;
+      
+      if (swipeDown && !isCalendarCollapsed) {
+        setIsCalendarCollapsed(true);
+        calendarTouchStartY.current = currentY;
+      } else if (!swipeDown && isCalendarCollapsed) {
+        setIsCalendarCollapsed(false);
+        calendarTouchStartY.current = currentY;
+      }
+    };
+
+    calendarEl.addEventListener('touchstart', handleCalendarTouchStart, { passive: true });
+    calendarEl.addEventListener('touchmove', handleCalendarTouchMove, { passive: false });
+    
+    return () => {
+      calendarEl.removeEventListener('touchstart', handleCalendarTouchStart);
+      calendarEl.removeEventListener('touchmove', handleCalendarTouchMove);
+    };
+  }, [isCalendarCollapsed]);
+
+  // 일기 영역에서도 접기/펼치기
+  React.useEffect(() => {
+    const diaryEl = diaryAreaRef.current;
+    if (!diaryEl) return;
+
+    const handleDiaryTouchStart = (e: TouchEvent) => {
+      diaryTouchStartY.current = e.touches[0].clientY;
+    };
+
+    const handleDiaryTouchMove = (e: TouchEvent) => {
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - diaryTouchStartY.current;
+      
+      if (Math.abs(deltaY) < 50) return; // 50px 이상만 반응 (스크롤과 구분)
+      
+      const swipeDown = deltaY < 0;
+      
+      if (swipeDown && !isCalendarCollapsed) {
+        setIsCalendarCollapsed(true);
+        diaryTouchStartY.current = currentY;
+      } else if (!swipeDown && isCalendarCollapsed) {
+        setIsCalendarCollapsed(false);
+        diaryTouchStartY.current = currentY;
+      }
+    };
+
+    diaryEl.addEventListener('touchstart', handleDiaryTouchStart, { passive: true });
+    diaryEl.addEventListener('touchmove', handleDiaryTouchMove, { passive: true });
+    
+    return () => {
+      diaryEl.removeEventListener('touchstart', handleDiaryTouchStart);
+      diaryEl.removeEventListener('touchmove', handleDiaryTouchMove);
+    };
+  }, [isCalendarCollapsed]);
+  
   // 선택된 날짜의 일기 가져오기
   const selectedDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
   const diaryEntry = getDiaryEntry(selectedDateStr);
@@ -45,22 +143,17 @@ const DiaryView = () => {
   const handleDateClick = (day: number | null) => {
     if (day) {
       setSelectedDate(day);
+      
+      // 캘린더가 열려있으면 닫기
+      if (!isCalendarCollapsed) {
+        setIsCalendarCollapsed(true);
+      }
     }
   };
   
   // 작성하기 버튼 클릭 - 감정 선택 페이지로 이동
   const handleWriteClick = () => {
     navigate(`/calendar/diary/emotion?date=${selectedDateStr}`);
-  };
-  
-  // 수정하기 버튼 클릭 - 수정 확인
-  const handleEditClick = () => {
-    setConfirmModal({ type: 'edit', isOpen: true });
-  };
-  
-  // 삭제하기 버튼 클릭 - 삭제 확인
-  const handleDeleteClick = () => {
-    setConfirmModal({ type: 'delete', isOpen: true });
   };
   
   // 확인 버튼 핸들러
@@ -92,169 +185,60 @@ const DiaryView = () => {
   ];
   
   return (
-    <DefaultDiv isPadding={false}>
-      <div className="flex relative flex-col h-screen dark:bg-gray-700">
-        {/* 헤더 (상단 고정) */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[100vw] max-w-[400px] z-[60] bg-white border-b border-gray-200">
-          <div className="flex justify-between items-center px-5 py-all">
-            <div className="block gap-2 items-center">
-              <div className="flex relative items-center text-3xl font-semibold text-center border-b border-gray-100 dark:border-gray-600">소비 일기</div>          </div>
-            <button onClick={() => navigate('/calendar')}>
-              <IconButton
-                src={img.BsX}
-                alt="닫기"
-                height={33}
-              />
-            </button>
-          </div>
-          
-          {/* 월 선택 (헤더에 포함) */}
-          <div className="flex gap-5 justify-center items-center px-5 mb-5">
-            <div 
-              onClick={() => changeMonth(-1)} 
-              className="text-2xl text-gray-600 transition-colors cursor-pointer select-none dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-            >
-              ◀
-            </div>
-            <span className="text-2xl font-400 dark:text-white">{month + 1}월</span>
-            <div 
-              onClick={() => changeMonth(1)} 
-              className="text-2xl text-gray-600 transition-colors cursor-pointer select-none dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-            >
-              ▶
-            </div>
-          </div>
-        </div>
-
-        {/* 헤더 공간 확보 */}
-        <div className="h-[12rem]"></div>
-
-        {/* 캘린더 (고정) */}
-        <div className="flex-shrink-0 px-5 pt-2 pb-5 dark:bg-gray-700">
-          {/* 요일 헤더 */}
-          <div className="grid grid-cols-7 gap-1 mb-3">
-            {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
-              <div 
-                key={idx} 
-                className={`text-center text-5lg font-medium py-2 ${
-                  idx === 0 ? 'text-red-500 dark:text-red-400' : 
-                  idx === 6 ? 'text-blue-500 dark:text-blue-400' : 
-                  'text-gray-600 dark:text-gray-300'
-                }`}
-              >
-                {day}
+    <DefaultDiv 
+      isPadding={false} 
+      isBottomNav={true} 
+      title='소비일기' 
+      isHeader={true}
+      isShowClose={true}
+      onClose={() => navigate('/calendar')}
+    >
+      <div className="flex relative flex-col h-full " style={{ height: '    height: calc(-12rem + 100vh);' }}>
+        {/* 월 선택 + 캘린더 영역 */}
+        <MonthCalendarSection
+          month={month}
+          changeMonth={changeMonth}
+          calendarStickyRef={calendarRef}
+          calendarDays={calendarDays}
+          selectedDate={selectedDate}
+          onDateClick={handleDateClick}
+          isCalendarCollapsed={isCalendarCollapsed}
+          currentWeekDays={currentWeekDays}
+          dateHeight="h-24"
+          renderDateContent={(day) => {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const entry = getDiaryEntry(dateStr);
+            const hasDiary = entry !== null;
+            
+            return hasDiary ? (
+              <div className="-mt-[0.6rem]">
+                <img 
+                  src={emotionIcons[entry?.emotion || 2]} 
+                  alt="일기 있음"
+                  className="object-contain w-20 h-20"
+                />
               </div>
-            ))}
-          </div>
-          
-          {/* 날짜 그리드 */}
-          <div className="grid grid-cols-7 gap-0.5">
-            {calendarDays.map((day, idx) => {
-              const isSelected = day === selectedDate;
-              const dateStr = day ? `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
-              const entry = dateStr ? getDiaryEntry(dateStr) : null;
-              const hasDiary = entry !== null;
-              
-              return (
-                <div
-                  key={idx}
-                  onClick={() => handleDateClick(day)}
-                  className={`h-24 flex flex-col items-center justify-start pt-2 rounded-3xl relative cursor-${day ? 'pointer' : 'default'} ${
-                    isSelected ? 'shadow-[0_4px_10px_rgba(0,0,0,0.3)]' : ''
-                  }`}
-                >
-                  {day && (
-                    <>
-                      <div className={`text-5lg text-base mb-1 h-5 leading-5 text-gray-900 ${
-                        isSelected ? 'font-semibold' : 'font-normal'
-                      }`}>
-                        {day}
-                      </div>
-                      {hasDiary && (
-                        <div className="-mt-[0.6rem]">
-                          <img 
-                            src={emotionIcons[entry?.emotion || 2]} 
-                            alt="일기 있음"
-                            className="object-contain w-20 h-20"
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+            ) : null;
+          }}
+        />
         
         {/* 일기 표시 영역 (스크롤 가능) */}
-        <div className="overflow-y-auto flex-1 px-5 pt-4 pb-50">
-          <div className="p-6 bg-white rounded-3xl shadow-sm dark:bg-gray-600">
-            <div className="flex gap-4 items-center mb-4">
-              {/* 두리 큰 아이콘 */}
-              <img 
-                src={diaryEntry ? emotionIcons[diaryEntry.emotion] : img.doori_face1} 
-                alt="두리"
-                className={`w-20 h-20 ${!diaryEntry ? 'opacity-50' : ''}`}
-              />
-              
-              {/* 날짜 필드 + 수정 아이콘 */}
-              <div className="flex flex-1 justify-between items-center px-4 py-3 bg-gray-100 rounded-2xl dark:bg-gray-700">
-                <span className="text-xl text-gray-700 dark:text-gray-300">
-                  {selectedDate}일 {selectedDayOfWeek}요일
-                </span>
-                {diaryEntry && (
-                  <button onClick={() => navigate(`/calendar/diary/emotion?date=${selectedDateStr}&edit=true`)}>
-                    <img 
-                      src={img.EditIcon} 
-                      alt="수정" 
-                      className="w-6 h-6"
-                    />
-                  </button>
-                )}
-              </div>
-            </div>
+        <div ref={diaryAreaRef} className="overflow-y-auto flex-1 px-5 pt-4 pb-50">
+          <div className="px-6 bg-white rounded-3xl shadow-sm">
+            <DiaryHeader
+              diaryEntry={diaryEntry}
+              selectedDate={selectedDate}
+              selectedDayOfWeek={selectedDayOfWeek}
+              emotionIcons={emotionIcons}
+              onEditClick={() => navigate(`/calendar/diary/emotion?date=${selectedDateStr}&edit=true`)}
+            />
             
-            {!diaryEntry && (
-              <div className="py-12 text-center">
-                <p className="mb-6 text-xl text-gray-500 dark:text-gray-400">
-                  일기가 없어요! 일기를 작성해볼까요?
-                </p>
-                <button
-                  onClick={handleWriteClick}
-                  className="px-8 py-3 text-xl font-bold text-white bg-blue-600 rounded-2xl transition-colors hover:bg-blue-70"
-                        style={{ backgroundColor: 'rgb(139, 195, 75)' }}
-                >
-                  작성하기
-                </button>
-              </div>
-            )}
+            {!diaryEntry && <DiaryEmptyState onWriteClick={handleWriteClick} />}
             
-            {diaryEntry && (
-              <div>
-                {/* 일기 내용 - 일기 스타일 표시 영역 */}
-                <div
-                  className="rounded-2xl border border-gray-200 shadow-sm bg-[#FFFEFB] min-h-[100px] dark:bg-gray-700"
-                  style={{
-                    backgroundImage:
-                      'repeating-linear-gradient(transparent, transparent 30px, rgba(16,24,40,0.06) 31px)',
-                    backgroundSize: '100% 31px',
-                    backgroundPositionY: '12px',
-                  }}
-                >
-                  <p className="p-6 text-[1.1rem] leading-7 font-serif italic text-gray-800 whitespace-pre-wrap break-words bg-transparent dark:text-gray-100">
-                    {diaryEntry.content}
-                  </p>
-                </div>
-              </div>
-            )}
+            {diaryEntry && <DiaryContent content={diaryEntry.content} />}
           </div>
         </div>
         
-        {/* 하단 네비게이션 (고정) */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-[100vw] max-w-[400px] z-50">
-          <NavBar />
-        </div>
 
         {/* 확인 모달 */}
         <DiaryConfirmModal

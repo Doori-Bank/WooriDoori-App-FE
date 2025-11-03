@@ -6,6 +6,7 @@ import ConfirmModal from '@/components/modal/ConfirmModal';
 import { useCalendarStore } from '@/stores/calendarStore';
 import NavBar from '@/components/default/NavBar';
 import DefaultDiv from '@/components/default/DefaultDiv';
+import BottomButtonWrapper from '@/components/button/BottomButtonWrapper';
 
 const DiaryWriteView = () => {
   const navigate = useNavigate();
@@ -64,11 +65,11 @@ const DiaryWriteView = () => {
   
   return (
     <DefaultDiv isPadding={false}>
-      <div className="flex flex-col w-full h-screen bg-white dark:bg-gray-700">
+      <div className="flex flex-col w-full h-screen bg-white">
         {/* 헤더 */}
         <div className="flex justify-between items-center px-5 py-all">
           <div className="w-10"></div>
-          <div className="text-3xl font-bold dark:text-white">소비 일기</div>
+          <div className="text-3xl font-bold">소비 일기</div>
           <button onClick={handleCancel}>
             <IconButton src={img.BsX} alt="닫기" height={33} />
           </button>
@@ -78,8 +79,8 @@ const DiaryWriteView = () => {
         <div className="flex-1 px-6 pb-[112px] flex flex-col">
           {/* 날짜 필드 */}
           <div className="mb-6">
-            <div className="px-4 py-3 bg-gray-100 rounded-2xl dark:bg-gray-700">
-              <span className="text-xl text-gray-700 dark:text-gray-300">
+            <div className="px-4 py-3 bg-gray-100 rounded-2xl">
+              <span className="text-xl text-gray-700">
                 {day}일 {dayOfWeek}요일
               </span>
             </div>
@@ -111,7 +112,7 @@ const DiaryWriteView = () => {
                   }
                 }}
                 placeholder="오늘의 소비 일기를 써봐요. (50자 이내)"
-                className="p-7 w-full h-44 text-[1.25rem] leading-8 text-gray-800 rounded-2xl bg-transparent resize-none font-serif italic dark:text-gray-100 focus:outline-none"
+                className="p-7 w-full h-44 text-[1.25rem] leading-8 text-gray-800 rounded-2xl bg-transparent resize-none font-serif italic focus:outline-none"
                 style={{
                   backgroundImage:
                     'repeating-linear-gradient(transparent, transparent 30px, rgba(16,24,40,0.06) 31px)',
@@ -128,7 +129,7 @@ const DiaryWriteView = () => {
         </div>
         
         {/* 완료 버튼 - 하단 고정 */}
-        <div className="w-full px-6 py-4 fixed bottom-[50px] left-0 right-0 bg-white dark:bg-gray-700 z-40">
+        <BottomButtonWrapper paddingBottom="pb-[7rem]">
           <button
             onClick={handleComplete}
             disabled={!content.trim()}
@@ -141,7 +142,7 @@ const DiaryWriteView = () => {
           >
             완료
           </button>
-        </div>
+        </BottomButtonWrapper>
         
         {/* 저장 확인 모달 */}
         <ConfirmModal

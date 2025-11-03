@@ -8,6 +8,7 @@ const DefaultDiv = ({
     className = '',
     isBottomNav = false,
     isHeader = false,
+    
     // header props
     title = "",
     isShowBack = false,
