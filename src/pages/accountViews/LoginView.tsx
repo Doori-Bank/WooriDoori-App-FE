@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { img } from "@/assets/img";
 import Title1 from "@/components/title/Title1";
 import DefaultButton from "@/components/button/DefaultButton";
@@ -12,7 +12,7 @@ const LoginView = () => {
   const navigate = useNavigate();
 
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [isError] = useState(false);
 
 
   const submit = () => {

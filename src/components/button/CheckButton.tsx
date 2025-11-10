@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface CheckButtonProps {
   defaultChecked?: boolean; // 비제어 초기값
