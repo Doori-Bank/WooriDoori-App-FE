@@ -4,7 +4,6 @@ import { img } from "@/assets/img";
 interface ConsumptionGradeGaugeProps {
   userName: string;
   grade: number;   // 1~5 등급
-  percent?: number; // 0~100 (향후 확장)
   className?: string;
 }
 
@@ -43,7 +42,6 @@ function ringSegmentPath(
 const ConsumptionGradeGauge: React.FC<ConsumptionGradeGaugeProps> = ({
   userName,
   grade,
-  percent,
   className,
 }) => {
   const segments = [1, 2, 3, 4, 5];

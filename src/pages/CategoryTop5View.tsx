@@ -32,7 +32,6 @@ const Bubble: React.FC<BubbleProps> = ({ src, size, top, left, delay = 0 }) => {
 const CategoryTop5View: React.FC = () => {
   const { id } = useParams<{ id: string }>();
 
-  const category = '식비';
   const categoryList = [
     {
       src: `${img.doori_face1}`,

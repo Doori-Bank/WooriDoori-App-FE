@@ -28,7 +28,7 @@ import SignUpAgreementView from "@/pages/accountViews/signUp/SignUpAgreementView
 import SignUpView from "@/pages/accountViews/signUp/SignUpView";
 import SignUpSuccessView from "@/pages/accountViews/signUp/SignUpSuccessView";
 import SignUpFailView from "@/pages/accountViews/signUp/SignUpFailView";
-import CardRecomView from "@/pages/cardRecomViews/CardRecomView";
+import CardRecomView from "@/pages/CardRecomViews/CardRecomView";
 import HomeView from "@/pages/homeViews/HomeView";
 import ReportView from "@/pages/reportViews/reportView";
 import NotificationView from "@/pages/noticationViews/NotificationView";

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import NotificationItem from '@/components/noti/Notification';
 import { img } from '@/assets/img';

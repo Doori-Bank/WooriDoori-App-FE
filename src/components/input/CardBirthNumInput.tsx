@@ -1,5 +1,4 @@
 import { CardValidationErrors } from "@/utils/card/cardValidation";
-import SubText from "../text/SubText";
 import InputBox from "./InputBox";
 
 export const CardBirthNumInput = (

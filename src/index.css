@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* react-day-picker 기본 스타일 일부 초기화/조정 (Tailwind 프리플라이트 충돌 방지) */
 .rdp {
   --rdp-accent-color: #111111;

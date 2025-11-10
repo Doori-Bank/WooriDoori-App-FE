@@ -5,7 +5,7 @@ import DefaultDiv from '@/components/default/DefaultDiv';
 import SubText from '@/components/text/SubText';
 import { updateCardTitle } from '@/utils/card/CardUtils';
 import { useCardStore } from '@/stores/useCardStore';
-import { CardModals } from '../cardRecomViews/CardModals';
+import { CardModals } from '../CardRecomViews/CardModals';
 import BottomButtonWrapper from '@/components/button/BottomButtonWrapper';
 
 const CardManagement: React.FC = () => {

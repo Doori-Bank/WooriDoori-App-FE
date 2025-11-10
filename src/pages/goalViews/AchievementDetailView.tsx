@@ -142,7 +142,7 @@ export default function AchievementDetailView() {
           </div>
 
         {/* ✅ 신용등급 그래프 (공통 컴포넌트 사용) */}
-        <ConsumptionGradeGauge key={`${currentIndex}-${grade}`} userName={userName} grade={grade} percent={percent} />
+        <ConsumptionGradeGauge key={`${currentIndex}-${grade}`} userName={userName} grade={grade} />
 
         {/* ✅ 한달 소비 TOP 4 (2x2 그리드) */}
         <div className="mt-6 mb-8">

@@ -19,7 +19,7 @@ interface props {
     onEditNickname?: () => void,
 }
 
-const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEidit = false, isEditMode = false, onEdit, onDelete, onEditTitle, isEditingTitle = false, onSaveTitle, onCancelEdit, onEditNickname}: props) => {
+const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEditMode = false, onDelete, isEditingTitle = false, onSaveTitle, onCancelEdit, onEditNickname}: props) => {
 
     return (
         <div className="border-b border-[#F2F2F2] w-full my-4 pt-3 pb-6 border-box flex flex-col gap-3 items-start">
