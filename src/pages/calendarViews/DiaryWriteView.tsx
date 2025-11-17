@@ -64,7 +64,7 @@ const DiaryWriteView = () => {
   };
   
   return (
-    <DefaultDiv isPadding={false}>
+    <DefaultDiv isPadding={false} style={{ backgroundColor: '#FBFBFB' }}>
       <div className="flex flex-col w-full h-screen bg-white">
         {/* 헤더 */}
         <div className="flex justify-between items-center px-5 py-all">

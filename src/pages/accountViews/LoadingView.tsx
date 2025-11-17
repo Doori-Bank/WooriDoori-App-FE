@@ -10,7 +10,7 @@ const LoadingView = () => {
     // 2초 후 로그인 페이지로 이동
     const timer = setTimeout(() => {
       navigate('/login');
-    }, 33000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
@@ -39,8 +39,8 @@ const LoadingView = () => {
         
         {/* 텍스트 */}
         <div className="flex flex-col justify-center items-center" style={{ fontFamily: 'nanosanskr', letterSpacing: '-0rem' }}>
-            <p className="text-[2rem] text-[#4A4A4A] mb-1">두리와 함께하는</p>
-            <p className="text-[2rem] text-[#4A4A4A] mb-2">똑똑한 소비습관 키우기</p>
+            <p className="text-[1.5rem] text-[#4A4A4A] mb-1">두리와 함께하는</p>
+            <p className="text-[1.5rem] text-[#4A4A4A] mb-2">똑똑한 소비습관 키우기</p>
         </div>
         <div className="flex flex-col justify-center items-center" style={{ fontFamily: 'OngleipRyudung', letterSpacing: '-0.05em' }}>
           <p className="text-[5rem] font-bold text-[#000000]">우리두리</p>

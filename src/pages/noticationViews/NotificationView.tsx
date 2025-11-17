@@ -6,39 +6,68 @@ import IconButton from '@/components/button/IconButton';
 import NotificationTab from './NotificationTabs';
 import { OneBtnModal } from '@/components/modal/OneBtnModal';
 import ToggleSwiitchBtn from '@/components/button/ToggleSwitchBtn';
-import { useNotificationStore } from '@/stores/useNotificationStore';
-import { useNavigate } from 'react-router-dom';
-import { getNotificationSettings, saveNotificationSettings, NotificationSettings } from '@/utils/notificationSettings';
 
-type TabType = '시스템 알림' | '일기 알림';
+interface Notification {
+  id: number;
+  type: 'warning' | 'alert' | 'report';
+  icon: string;
+  mainMessage: string;
+  subMessage: string;
+  date: string;
+  isNew?: boolean;
+}
 
 const NotificationView: React.FC = () => {
-  const navigate = useNavigate();
-  const { notifications, removeNotification, markAsRead, clearAllNotifications } = useNotificationStore();
+
   const [isAlarmOn, setIsAlarmOn] = useState(true);
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<TabType>('시스템 알림');
-  
-  // 알림 설정 초기화 (로컬 스토리지에서 불러오기)
-  const initialSettings = getNotificationSettings();
-  const [settingAlarmList, setSettingAlarmList] = useState([
-    { title: '시스템 알림', isOn: initialSettings.systemNotification },
-    { title: '일기 알림', isOn: initialSettings.diaryNotification }
+  const [notifications, setNotifications] = React.useState<Notification[]>([
+    {
+      id: 1,
+      type: 'warning',
+      icon: img.doori_face3,
+      mainMessage: '두리에게 변화가 생겼어요 👀',
+      subMessage: '목표 금액의 50%를 초과했습니다. 소비에 유의해주세요.',
+      date: '10월 1일',
+      isNew: true
+    },
+    {
+      id: 2,
+      type: 'warning',
+      icon: img.doori_face3,
+      mainMessage: '두리에게 변화가 생겼어요 👀',
+      subMessage: '목표 금액의 75%를 초과했습니다. 소비 계획을 다시 확인해주세요.',
+      date: '10월 1일',
+      isNew: true
+    },
+    {
+      id: 3,
+      type: 'alert',
+      icon: img.doori_angry,
+      mainMessage: '두리가 화났어요!!',
+      subMessage: '목표 금액의 100%를 달성했습니다. 더이상의 소비를 지양해주세요.',
+      date: '10월 1일',
+      isNew: true
+    },
+    {
+      id: 4,
+      type: 'alert',
+      icon: img.doori_annoyed,
+      mainMessage: '저희는 더이상 두리를 말릴 수 없습니다.',
+      subMessage: '목표 금액의 100%를 초과했습니다. 두리가 당신에게 실망했습니다.',
+      date: '10월 1일'
+    },
+    {
+      id: 5,
+      type: 'report',
+      icon: img.doori_report,
+      mainMessage: '두리가 6월 소비 리포트를 가져왔습니다.',
+      subMessage: '한 달간 소비 내역을 확인하세요.',
+      date: '10월 1일'
+    }
   ]);
 
-  // persist가 자동으로 로컬 스토리지에서 로드하므로 별도 로드 불필요
-
-  // 선택된 탭에 따라 알림 필터링
-  const filteredNotifications = notifications.filter((notification) => {
-    const normalizedType = notification.type?.toLowerCase();
-    if (selectedTab === '일기 알림') {
-      // 일기 알림 탭: diary 타입만 표시
-      return normalizedType === 'diary';
-    } else {
-      // 시스템 알림 탭: diary 타입 제외한 나머지 표시
-      return normalizedType !== 'diary';
-    }
-  });
+  const [settingAlarmList, setSettingAlarmList] = useState([{ title: '시스템 알림', isOn: true }, { title: '일기 알림', isOn: true }]);
 
 
   // 함수 -=========================================================================
@@ -57,13 +86,6 @@ const NotificationView: React.FC = () => {
                   const newList = [...settingAlarmList];
                   newList[index] = { ...newList[index], isOn: e };
                   setSettingAlarmList(newList);
-                  
-                  // 로컬 스토리지에 저장
-                  const settings: NotificationSettings = {
-                    systemNotification: index === 0 ? e : newList[0].isOn,
-                    diaryNotification: index === 1 ? e : newList[1].isOn,
-                  };
-                  saveNotificationSettings(settings);
                 }}
                 checked={element.isOn}
                 className={index === 0 ? 'mb-10 mt-5' : 'mb-5'}
@@ -76,43 +98,24 @@ const NotificationView: React.FC = () => {
 
 
   // 알림 삭제
-  const handleDelete = (id: string) => {
-    removeNotification(id);
-  };
-
-  // 알림 읽음 처리
-  const handleMarkAsRead = (id: string) => {
-    markAsRead(id);
-  };
-
-  // 알림 클릭 시 처리 (읽음 처리 + 페이지 이동)
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
-    // 읽음 처리
-    if (!notification.isRead) {
-      markAsRead(notification.id);
-    }
-    // 페이지 이동
-    if (notification.actionUrl) {
-      navigate(notification.actionUrl);
-    }
+  const handleDelete = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   // 알림 설정 표시 여부 판단
-  const checkAlramStatus = () => {
-    // 시스템 알림과 일기 알림 중 하나라도 켜져있으면 전체 알림 on
-    const hasAnyNotificationOn = settingAlarmList.some(item => item.isOn);
-    setIsAlarmOn(hasAnyNotificationOn);
+  const checkAlramStatus = () =>{
+    setIsAlarmOn(settingAlarmList[0].isOn);
     setIsOpenModal(!isOpenModal);
   }
 
   return (
     <>
       <DefaultDiv
+        style={{ backgroundColor: '#FBFBFB' }}
         isHeader={true}
         title='알림'
         isShowBack={true}
         isShowClose={false}
-        className="overflow-hidden"
         headerChildren={
           <IconButton
             src={isAlarmOn ? img.alarmOn : img.alarmOff}
@@ -122,64 +125,25 @@ const NotificationView: React.FC = () => {
         onBack={() => { window.history.back(); }}
       >
 
-        <div className="block">
-          {/* 탭 영역 (고정) */}
-          <div>
-            <NotificationTab onChange={setSelectedTab} />
-          </div>
+        <NotificationTab />
 
-          {/* 알림 목록 영역 (스크롤 가능) */}
-          <div className="overflow-y-auto scroll-smooth mt-5" style={{ height: 'calc(100vh - 7rem - 80px)' }}>
-          {filteredNotifications.length > 0 && (
-            <>
-              {/* 버튼 영역 */}
-              <div className="mb-4 flex justify-end gap-4">
-                {/* 읽지 않은 알림이 있으면 전체 읽음 버튼 */}
-                {filteredNotifications.some(n => !n.isRead) && (
-                  <button
-                    onClick={() => {
-                      // 현재 탭의 알림만 읽음 처리
-                      filteredNotifications
-                        .filter(n => !n.isRead)
-                        .forEach(n => markAsRead(n.id));
-                    }}
-                    className="text-[1.2rem] text-[#4C8B73] font-medium hover:text-[#3A6B5A] transition-colors"
-                  >
-                    전체 읽음 처리
-                  </button>
-                )}
-                
-                {/* 전체 삭제 버튼 */}
-                <button
-                  onClick={() => {
-                    if (window.confirm('모든 알림을 삭제하시겠습니까?')) {
-                      clearAllNotifications();
-                    }
-                  }}
-                  className="text-[1.2rem] text-red-500 font-medium hover:text-red-700 transition-colors"
-                >
-                  전체 삭제
-                </button>
-              </div>
-              
-              {filteredNotifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className="cursor-pointer"
-                >
-                  <NotificationItem
-                    notification={notification}
-                    onDelete={handleDelete}
-                    onMarkAsRead={handleMarkAsRead}
-                  />
-                </div>
-              ))}
-            </>
+
+        {/* 메인 컨텐츠 */}
+        <div className="flex-1 py-5 h-full">
+
+          {/* 알림 목록 */}
+          {notifications.length > 0 && (
+            notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onDelete={handleDelete}
+              />
+            ))
           )}
 
-          {filteredNotifications.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center gap-5">
+          {notifications.length === 0 && (
+            <div className="flex flex-col gap-5 justify-center items-center h-full">
               <img
                 src={img.doori_normal}
                 alt="Doori"
@@ -190,7 +154,6 @@ const NotificationView: React.FC = () => {
               </p>
             </div>
           )}
-          </div>
         </div>
 
         {/* 모달창 */}
