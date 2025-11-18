@@ -5,7 +5,7 @@ export interface NotificationData {
   id: string;
   title: string;
   message: string;
-  type?: 'REPORT' | 'report' | 'diary' | 'goal' | 'achievement' | 'general' | 'warning' | 'alert';
+  type?: 'report' | 'diary' | 'goal' | 'achievement' | 'general' | 'warning' | 'alert';
   actionUrl?: string;
   month?: number; // 리포트용: 몇 월 리포트인지
   createdAt: Date | string;
@@ -27,7 +27,7 @@ const STORAGE_KEY = 'wooridoori_notifications';
 
 export const useNotificationStore = create<NotificationStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       notifications: [],
 
       addNotification: (notification) => {

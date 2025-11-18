@@ -50,7 +50,7 @@ export const useNotification = () => {
       handleNotification("알림", event.data);
     });
 
-    // 리포트 알림 이벤트
+    // 리포트 알림 이벤트 (소문자)
     eventSource.addEventListener("report", (event: MessageEvent) => {
       console.log("📊 리포트 알림:", event.data);
       try {
@@ -59,17 +59,17 @@ export const useNotification = () => {
         handleNotification(
           data.title || "리포트 알림",
           data.message || event.data,
-          "REPORT",
+          "report",
           data.actionUrl || "/report",
           month
         );
       } catch {
         const month = new Date().getMonth() + 1;
-        handleNotification("리포트 알림", event.data, "REPORT", "/report", month);
+        handleNotification("리포트 알림", event.data, "report", "/report", month);
       }
     });
 
-    // REPORT 알림 이벤트 (대문자)
+    // REPORT 알림 이벤트 (대문자 - 백엔드 호환용, 소문자로 변환)
     eventSource.addEventListener("REPORT", (event: MessageEvent) => {
       console.log("📊 REPORT 알림:", event.data);
       try {
@@ -78,13 +78,13 @@ export const useNotification = () => {
         handleNotification(
           data.title || "리포트 알림",
           data.message || event.data,
-          "REPORT",
+          "report",
           data.actionUrl || "/report",
           month
         );
       } catch {
         const month = new Date().getMonth() + 1;
-        handleNotification("리포트 알림", event.data, "REPORT", "/report", month);
+        handleNotification("리포트 알림", event.data, "report", "/report", month);
       }
     });
 
@@ -164,7 +164,7 @@ export const useNotification = () => {
   const handleNotification = (
     title: string,
     message: string,
-    type: "REPORT" | "report" | "diary" | "goal" | "achievement" | "general" = "general",
+    type: "report" | "diary" | "goal" | "achievement" | "general" = "general",
     actionUrl?: string,
     month?: number
   ) => {
