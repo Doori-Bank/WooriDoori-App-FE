@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { Link } from "react-router-dom";
 
-// export interface LoginFormRef {
-//   handleLogin: () => Promise<boolean>;
-//   isError?: boolean,
-// }
+export interface LoginFormRef {
+  getFormData: () => { email: string; password: string } | null;
+  validate: () => boolean;
+}
 
-const LoginForm = ({isError = false}:{ isError?: boolean })  => {
+interface LoginFormProps {
+  isError?: boolean;
+}
+
+const LoginForm = forwardRef<LoginFormRef, LoginFormProps>(({ isError = false }, ref) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -40,45 +44,34 @@ const LoginForm = ({isError = false}:{ isError?: boolean })  => {
     else setPwError("");
   };
 
-  // 외부에서 실행할 수 있는 로그인 검증 로직
-  // useImperativeHandle(ref, () => ({
-  //   handleLogin: async () => {
-  //     // 이메일 검증
-  //     if (!email) {
-  //       setEmailError("이메일을 입력해주세요.");
-  //       return false;
-  //     }
-  //     if (!emailRegex.test(email)) {
-  //       setEmailError("올바른 이메일 주소를 입력해주세요.");
-  //       return false;
-  //     }
-
-  //     // 비밀번호 검증
-  //     if (!password) {
-  //       setPwError("비밀번호를 입력해주세요.");
-  //       return false;
-  //     }
-  //     if (password.length < 6) {
-  //       setPwError("비밀번호는 6자리 이상이어야 합니다.");
-  //       return false;
-  //     }
-
-  //     try {
-  //       // API 호출
-  //       const result = await loginUser(email, password);
-
-  //       if (result.success) {
-  //         // 로그인 성공 시 사용자 정보를 localStorage에 저장
-  //         localStorage.setItem('userInfo', JSON.stringify(result.data));
-  //         return true;
-  //       } else {
-  //         return false;
-  //       }
-  //     } catch (error) {
-  //       return false;
-  //     }
-  //   },
-  // }));
+  // 외부에서 폼 데이터 가져오기
+  useImperativeHandle(ref, () => ({
+    getFormData: () => {
+      if (!email || !password || emailError || pwError) {
+        return null;
+      }
+      return { email, password };
+    },
+    validate: () => {
+      if (!email) {
+        setEmailError("이메일을 입력해주세요.");
+        return false;
+      }
+      if (!emailRegex.test(email)) {
+        setEmailError("올바른 이메일 주소를 입력해주세요.");
+        return false;
+      }
+      if (!password) {
+        setPwError("비밀번호를 입력해주세요.");
+        return false;
+      }
+      if (password.length < 6) {
+        setPwError("비밀번호는 6자리 이상이어야 합니다.");
+        return false;
+      }
+      return true;
+    },
+  }));
 
   return (
     <div className="w-full mx-auto mb-[10rem] flex flex-col gap-[1rem] items-center">
@@ -93,14 +86,13 @@ const LoginForm = ({isError = false}:{ isError?: boolean })  => {
             emailError || isError ? "border-red-400" : "border-gray-300"
           }`}
         />
-              <p
+        <p
           className={`text-[1.2rem] mt-[0.4rem] h-[1.6rem] transition-colors duration-200 ${
             emailError ? "text-red-500" : "text-transparent"
           }`}
         >
           {emailError || "placeholder"}
         </p>
-
       </div>
 
       {/* 비밀번호 입력 */}
@@ -111,11 +103,11 @@ const LoginForm = ({isError = false}:{ isError?: boolean })  => {
           onChange={handlePasswordChange}
           placeholder="비밀번호를 입력해주세요"
           className={`w-full px-6 py-4 rounded-lg outline-none border text-gray-800 bg-white transition text-[1.3rem] ${
-            pwError || isError  ? "border-red-400" : "border-gray-300"
+            pwError || isError ? "border-red-400" : "border-gray-300"
           }`}
         />
 
-         <p
+        <p
           className={`text-[1.2rem] mt-[0.4rem] h-[1.6rem] transition-colors duration-200 ${
             pwError ? "text-red-500" : "text-transparent"
           }`}
@@ -142,6 +134,8 @@ const LoginForm = ({isError = false}:{ isError?: boolean })  => {
       </div>
     </div>
   );
-}
+});
+
+LoginForm.displayName = "LoginForm";
 
 export default LoginForm;

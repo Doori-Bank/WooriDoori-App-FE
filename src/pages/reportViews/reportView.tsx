@@ -6,7 +6,6 @@ import ProgressDonet from "@/components/Progress/ProgressDonet";
 import { img } from "@/assets/img";
 import ProgressCategoryView from "./ProgressCategoryView";
 import FallingRockScoreView from './FallingRockScoreView';
-import MonthCategoryListView from './MonthCategroyListView';
 
 const ReportView = () => {
   const navigate = useNavigate();
@@ -18,13 +17,11 @@ const ReportView = () => {
   const [pageNum, setPageNum] = useState(1);
   const [title, setTitle] = useState("");
 
-  const getTitle = (page: number, monthValue: number | null) => {
-    const monthText = monthValue ? `${monthValue}월` : "이번 달";
+  const getTitle = (page: number) => {
     const titleMap: Record<number, string> = {
       1: `${name}님의 소비습관 점수는 ?!`,
       2: `${name}님의 한 달 동안\n전체 소비내역을 분석해봤어요`,
-      3: `${name}님의 한 달 동안\n소비한 카테고리를 보여드릴게요`,
-      4: `${name}님의 ${monthText} 소비 내역`, // ✅ 동적 표시
+      3: `${name}님의 한 달 동안\n소비한 카테고리를 보여드릴게요`
     };
     return titleMap[page] || "";
   };
@@ -51,7 +48,7 @@ const ReportView = () => {
   }, []);
 
   useEffect(() => {
-    setTitle(getTitle(pageNum, month));
+    setTitle(getTitle(pageNum));
   }, [pageNum, month]);
 
   // ==================================================
@@ -66,15 +63,6 @@ const ReportView = () => {
     { name: "기타", value: 80000, color: "#C4C4C4", percent: "7.41%", src: img.etcIcon }
   ];
 
-
-  // 카테고리 리스트
-  const categoriesByMonthList = [
-    { src: img.trafficIcon, title: "교통/자동차", color: "#3ACFA3" },
-    { src: img.foodIcon, title: "식비", color: "#FF8353" },
-    { src: img.shoppingIcon, title: "쇼핑/마트", color: "#6B5DD3" },
-    { src: img.educationIcon, title: "교육", color: "#6E6E6E" },
-    { src: img.etcIcon, title: "기타", color: "#C4C4C4" },
-  ];
 
 
   // 함수 ==========================================
@@ -95,14 +83,14 @@ const ReportView = () => {
 
 
   const onClick = (type?: string) => {
-    if (type !== "back" && pageNum === 4) {
-      navigate('/report-card');
+    if (type !== "back" && pageNum === 3) {
+        navigate("/report-card", { state: { month } });
       return;
     }
 
     const nextPage = type === "back" ? pageNum - 1 : pageNum + 1;
     setPageNum(nextPage);
-    setTitle(getTitle(nextPage, month));
+    setTitle(getTitle(nextPage));
   };
 
   const renderPage = () => {
@@ -119,8 +107,6 @@ const ReportView = () => {
       );
     }
     if (pageNum === 3)
-      return <MonthCategoryListView categoriesByMonthList={categoriesByMonthList} />;
-    if (pageNum === 4)
       return <ProgressCategoryView categoriesList={categoriesList} totalPrice={totalPrice} />;
   };
 

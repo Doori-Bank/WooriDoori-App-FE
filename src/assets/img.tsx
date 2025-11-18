@@ -22,6 +22,7 @@ import travelIcon from './travel.png';
 import transferIcon from './transfer.png';
 import residenceIcon from './residence.png';
 import martIcon from './mart.png';
+import drinkIcon from './drink.png';
 import diaryIcon from './diary.svg';
 import phoneIcon from './phone.png';
 
@@ -94,6 +95,7 @@ import woori_logo from './logo/woori_logo.png'; // 우리은행 x 우리두리
 
 import alarmOn from './bellY.png';
 import alarmOff from './bellB.png';
+import coffeeIcon from './coffee.png';
 
 
 export const img ={
@@ -107,12 +109,12 @@ export const img ={
     wooridoori_logo, woori_logo, alarmOn, alarmOff,
     
     searchIcon, wooriCard,DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, diaryIcon, 
-    hospitalIcon, phoneIcon, foodIcon, travelIcon, transferIcon, residenceIcon, martIcon, entertainmentIcon, shoppingIcon,
+    hospitalIcon, phoneIcon, foodIcon, travelIcon, transferIcon, residenceIcon, martIcon, drinkIcon, entertainmentIcon, shoppingIcon,
     educationIcon, trafficIcon, etcIcon,
     
     doori_favicon,
     check, fireworkLeft, fireworkRight, scale, gauge, needle, copperIcon2, 
 
     bgImg, 
-    stoneIcon, copperIcon, silverIcon, goldIcon, emeraldIcon, scaleIcon, testCard, cardBanner, cardBanner2, cardBanner3, bubble, starbucks, megacoffee, twosomecoffee, doori_bubbole
+    stoneIcon, copperIcon, silverIcon, goldIcon, emeraldIcon, scaleIcon, testCard, cardBanner, cardBanner2, cardBanner3, bubble, starbucks, megacoffee, twosomecoffee, doori_bubbole, coffeeIcon
 }

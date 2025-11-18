@@ -67,6 +67,11 @@ export const ERROR_RESPONSE: Record<string, ErrorResponse> = {
     errorName: "WRONG_PASSWORD",
     message: "비밀번호가 틀립니다.",
   },
+  INVALID_CREDENTIALS: {
+    errorName: "INVALID_CREDENTIALS",
+    errorCode: "ACCOUNT-011",
+    message: "비밀번호가 틀립니다.",
+  },
 
   // 회원관리 - 아이디/비밀번호 찾기
   INVALID_USER: {

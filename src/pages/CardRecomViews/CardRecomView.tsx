@@ -2,12 +2,18 @@
 import '@/styles/report/animations.css'
 import Card from "@/components/card/Card";
 import ReportLayout from "@/components/report/ReportLayout";
+import { useNavigate, useLocation } from "react-router-dom";
 import CardTabs from "./CardTabs";
 import { img } from "@/assets/img";
 import CardRankItem from '@/components/card/CardRankItem';
 
 const CardRecomView = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const name = "석기";
+  
+  // 리포트에서 전달받은 월 정보 (예: 10)
+  const reportMonth = location.state?.month as number | undefined;
 
   const cardList = [
     {
@@ -41,9 +47,33 @@ const CardRecomView = () => {
 
   ];
 
+  const onClick = () => {
+    // 리포트의 월 정보를 "YYYY.MM" 형식으로 변환
+    if (reportMonth) {
+      const currentYear = new Date().getFullYear();
+      const monthString = reportMonth.toString().padStart(2, '0');
+      const monthKey = `${currentYear}.${monthString}`;
+      
+      navigate("/achievement/detail", {
+        state: {
+          data: { month: monthKey },
+          from: "report"
+        }
+      });
+    } else {
+      // 월 정보가 없으면 기본값으로 이동
+      navigate("/achievement/detail", {
+        state: {
+          data: { month: undefined },
+          from: "report"
+        }
+      });
+    }
+  };
 
   return (
-    <ReportLayout mainText={`${name}님 소비에 딱 맞는 카드`} showClose={false}  onBack={()=>window.history.back()} buttonText={"확인"}>
+    <ReportLayout mainText={`${name}님 소비에 딱 맞는 카드`} showClose={false}  onBack={()=>window.history.back()} buttonText={"확인"} 
+      onButtonClick={ onClick}>
       <div className='w-full'>
         <p className="text-[1.2rem] text-[#A39C9C] -mt-5">소비패턴에 맞는카드{cardList.length}개를 가져와봤어요</p>
         <CardTabs onChange={(value) => { console.log(value) }} />

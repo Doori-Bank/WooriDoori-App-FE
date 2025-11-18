@@ -59,7 +59,7 @@ const DefaultDiv = ({
                     children={headerChildren}
                 />
             }
-            <div className={`flex-1  ${isHeader ? 'pt-[5rem]' : ''}`}>
+            <div className={`flex-1 ${isHeader ? 'pt-[5rem]' : ''}`}>
                 {children}
             </div>
             {isBottomNav && <BottomNav />}

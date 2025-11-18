@@ -33,6 +33,7 @@ import HomeView from "@/pages/homeViews/HomeView";
 import ReportView from "@/pages/reportViews/reportView";
 import NotificationView from "@/pages/noticationViews/NotificationView";
 import CategoryTop5View from "@/pages/CategoryTop5View";
+import MonthAchievementView from '@/pages/reportViews/MonthAchievementView';
 
 // 라우트 타입 정의
 interface RouteConfig {
@@ -98,6 +99,7 @@ const goalRoutes: RouteConfig[] = [
 const reportRoutes: RouteConfig[] = [
   { path: '/report', element: <ReportView /> },
   { path: '/report-card', element: <CardRecomView /> },
+  { path: '/month-achive', element: <MonthAchievementView /> },
 ];
 
 // 카테고리 관련 라우트

@@ -1,58 +1,152 @@
 import { img } from "@/assets/img";
-import '@/styles/home/animations.css'
+import "@/styles/home/animations.css";
 import IconButton from "@/components/button/IconButton";
 import ConsumptionCategory from "@/components/category/ConsumptionCategory";
 import BorderBox from "@/components/default/BorderBox";
-import DefaultDiv from "@/components/default/DefaultDiv"
+import DefaultDiv from "@/components/default/DefaultDiv";
 import MainBanner from "@/components/home/MainBanner";
 import ProgressDonet from "@/components/Progress/ProgressDonet";
+import NotificationBanner from "@/components/noti/NotificationBanner";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotificationStore } from "@/stores/useNotificationStore";
+import { apiList } from "@/api/apiList";
+import { getCategoryMeta } from "@/utils/categoryMeta";
+
+interface CategorySpend {
+  rank?: string;
+  category?: string;
+  totalPrice?: number;
+}
+
+interface CardRecommendItem {
+  cardId?: number;
+  cardBannerUrl?: string | null;
+}
+
+interface MainResponse {
+  fullDate?: number;
+  duringDate?: number;
+  goalPercent?: number;
+  goalMoney?: number;
+  totalPaidMoney?: number;
+  paidPriceOfCategory?: CategorySpend[];
+  cardRecommend?: CardRecommendItem[];
+}
+
+interface CategoryChartData {
+  name: string;
+  value: number;
+  color: string;
+  icon: string;
+}
+
+const DEFAULT_CATEGORY_SOURCE: CategorySpend[] = [
+  { rank: "top1", category: "FOOD", totalPrice: 400000 },
+  { rank: "top2", category: "TRANSPORTATION", totalPrice: 300000 },
+  { rank: "top3", category: "SHOPPING", totalPrice: 200000 },
+  { rank: "top4", category: "EDUCATION", totalPrice: 100000 },
+  { rank: "top5", category: "ETC", totalPrice: 80000 },
+];
+
+const DEFAULT_CARD_BANNERS = [
+  { url: "", src: img.cardBanner },
+  { url: "", src: img.cardBanner2 },
+  { url: "", src: img.cardBanner3 },
+];
+
+const mapCategorySpendToChart = (items: CategorySpend[]): CategoryChartData[] =>
+  items.map((item) => {
+    const meta = getCategoryMeta(item.category);
+    return {
+      name: meta.label,
+      value: item.totalPrice ?? 0,
+      color: meta.color,
+      icon: meta.icon,
+    };
+  });
 
 const HomeView = () => {
   const navigate = useNavigate();
+  const { notifications } = useNotificationStore();
+  const [homeData, setHomeData] = useState<MainResponse | null>(null);
 
   // localStorage에서 사용자 정보 가져오기
   const getUserName = () => {
-    const userInfo = localStorage.getItem('userInfo');
+    const userInfo = localStorage.getItem("userInfo");
     if (userInfo) {
       const user = JSON.parse(userInfo);
-      return user.name || '사용자';
+      return user.name || "사용자";
     }
-    return '석기'; // 기본값
+    return "석기"; // 기본값
   };
 
   const name: string = getUserName();
-  const target: string = '100만원 쓰기';
-  const dooriTaget = { src: img.doori_basic, title: '흠...어디 한번 볼까?' };
-  const totalPrice = 1080000;
+  const dooriTaget = { src: img.doori_basic, title: "흠...어디 한번 볼까?" };
+  const fallbackTotalPrice = DEFAULT_CATEGORY_SOURCE.reduce(
+    (sum, item) => sum + (item.totalPrice ?? 0),
+    0
+  );
+  const totalPrice = homeData?.totalPaidMoney ?? fallbackTotalPrice;
+  const goalPercent = homeData?.goalPercent ?? 80;
+  const fullDate = homeData?.fullDate ?? 30;
+  const duringDate = homeData?.duringDate ?? 28;
+  const remainDays = Math.max(fullDate - duringDate, 0);
+  const target =
+    homeData?.goalMoney && homeData.goalMoney > 0
+      ? `${homeData.goalMoney.toLocaleString()}만원 쓰기`
+      : "목표를 설정해주세요";
 
-
-  const categories = [
-    { name: "식비", value: 400000, color: "#6B5DD3" },
-    { name: "주유/자동차", value: 300000, color: "#3ACFA3" },
-    { name: "쇼핑/마트", value: 200000, color: "#FF8353" },
-    { name: "교육/육아", value: 100000, color: "#6E6E6E" },
-    { name: "기타", value: 80000, color: "#C4C4C4" },
-  ];
-  const topCategoryList = [
-    { bgColor: 'bg-[#FF8353]', amount: '200,000원', iconSrc: img.foodIcon, label: '식비' },
-    { bgColor: 'bg-[#FF8353]', amount: '200,000원', iconSrc: img.foodIcon, label: '식비' },
-    { bgColor: 'bg-[#FF8353]', amount: '200,000원', iconSrc: img.foodIcon, label: '식비' },
-    { bgColor: 'bg-[#FF8353]', amount: '200,000원', iconSrc: img.foodIcon, label: '식비' },
-    { bgColor: 'bg-[#FF8353]', amount: '200,000원', iconSrc: img.foodIcon, label: '식비' },
-
-  ];
-
-  const cardBannerList = [
-    { url: '', src: img.cardBanner },
-    { url: '', src: img.cardBanner2 },
-    { url: '', src: img.cardBanner3 },
-  ];
-
+  const categorySource = homeData?.paidPriceOfCategory?.length
+    ? homeData.paidPriceOfCategory
+    : DEFAULT_CATEGORY_SOURCE;
+  const categoryChartData = mapCategorySpendToChart(categorySource).slice(0, 5);
+  const donutCategories = categoryChartData.map(({ name, value, color }) => ({
+    name,
+    value,
+    color,
+  }));
+  const categoryTotalValue = categoryChartData.reduce(
+    (sum, cat) => sum + cat.value,
+    0
+  );
+  const topCategoryItems = categoryChartData.map((cat) => ({
+    bgColor: cat.color,
+    amount: `${cat.value.toLocaleString()}원`,
+    iconSrc: cat.icon,
+    label: cat.name,
+    percentage:
+      categoryTotalValue > 0 ? `${Math.round((cat.value / categoryTotalValue) * 100)}%` : "-",
+  }));
+  const cardBannerItems =
+    homeData?.cardRecommend && homeData.cardRecommend.length > 0
+      ? homeData.cardRecommend.map((card, index) => ({
+          url: "",
+          src: card.cardBannerUrl || DEFAULT_CARD_BANNERS[index % DEFAULT_CARD_BANNERS.length].src,
+        }))
+      : DEFAULT_CARD_BANNERS;
+  const currentMonthLabel = `${new Date().getMonth() + 1}월`;
 
   const messages = ["안녕하세요!", "오늘 하루도 화이팅!", "두리와 함께!"];
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchMainData = async () => {
+      try {
+        const response = await apiList.getMain();
+        if (isMounted) {
+          setHomeData(response);
+        }
+      } catch (error) {
+        console.error("메인 데이터 조회 실패:", error);
+      }
+    };
+    fetchMainData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -78,6 +172,26 @@ const HomeView = () => {
           <p className="mt-0.5 text-[1.2rem] text-[#858585]">오늘의 소비내역에 대해 안내해드릴께요!</p>
         </div>
 
+        {/* 알림 배너 - 읽지 않은 알림만 표시 */}
+        {(() => {
+          const unreadNotifications = notifications.filter(noti => !noti.isRead);
+          return unreadNotifications.length > 0 && (
+            <div className="mt-6">
+              {unreadNotifications.slice(0, 1).map((notification) => (
+                <NotificationBanner
+                  key={notification.id}
+                  notificationId={notification.id}
+                  title={notification.title}
+                  message={notification.message}
+                  type={notification.type}
+                  actionUrl={notification.actionUrl}
+                  month={notification.month}
+                />
+              ))}
+            </div>
+          );
+        })()}
+
         {/* 메인 배너 (달성도 배너 → 달성도 페이지 이동) */}
         <div
           onClick={() => navigate('/goal/achievementHistory', { state: { from: "home" } })}
@@ -86,8 +200,8 @@ const HomeView = () => {
           aria-label="달성도 보기"
         >
           <MainBanner
-            consumPercent={80}
-            remainDays={2}
+            consumPercent={goalPercent}
+            remainDays={remainDays}
             bgImage={img.bgImg}
             bgColor="#4C8B73"
             progressColor="#FFD84D"
@@ -111,7 +225,14 @@ const HomeView = () => {
           {/* 지출 */}
           <BorderBox flex="flex-2">
             <div onClick={() => navigate('/calendar')} className="cursor-pointer">
-              <ProgressDonet total={totalPrice} categories={categories} month="5월" size={100} isCategoryShow={false} isTotalPostionCenter={false} />
+              <ProgressDonet
+                total={totalPrice}
+                categories={donutCategories}
+                month={currentMonthLabel}
+                size={100}
+                isCategoryShow={false}
+                isTotalPostionCenter={false}
+              />
             </div>
           </BorderBox>
         </div>
@@ -123,13 +244,13 @@ const HomeView = () => {
           </div>
           <BorderBox>
             {
-              topCategoryList.map((element, index) => {
+              topCategoryItems.map((element, index) => {
                 return (
-                  <div onClick={() => navigate(`/category-top5/${index}`)} className="cursor-pointer">
-                    <div key={index} className={`flex items-center gap-6 ${index != topCategoryList.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <div key={index} onClick={() => navigate(`/category-top5/${index}`)} className="cursor-pointer">
+                    <div className={`flex items-center gap-6 ${index != topCategoryItems.length - 1 ? 'border-b border-gray-100' : ''}`}>
                       <p className={`text-[1.5rem] font-bold pl-4
-                        ${index == 0 ? 'text-[#FF0000]' : index == topCategoryList.length - 1 ? 'text-[#138FEF]' : 'text-[#4A4A4A]'}`}>TOP {index + 1}</p>
-                      <ConsumptionCategory amount={element.amount} iconSrc={element.iconSrc} label={element.label} bgColor={element.bgColor} percentage="" isBorder={false} />
+                        ${index == 0 ? 'text-[#FF0000]' : index == topCategoryItems.length - 1 ? 'text-[#138FEF]' : 'text-[#4A4A4A]'}`}>TOP {index + 1}</p>
+                      <ConsumptionCategory amount={element.amount} iconSrc={element.iconSrc} label={element.label} bgColor={element.bgColor} percentage={element.percentage} isBorder={false} />
                     </div>
                   </div>
                 )
@@ -148,7 +269,7 @@ const HomeView = () => {
           </div>
 
           <div>
-            {cardBannerList.map((element, index) => {
+            {cardBannerItems.map((element, index) => {
               return (
                 <div key={index} onClick={() => navigate('/card-recommend')} className="block mt-6 cursor-pointer">
                   <img src={element.src} alt={`카드배너${index + 1}`} height={88} />

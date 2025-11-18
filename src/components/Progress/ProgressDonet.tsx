@@ -22,8 +22,15 @@ interface ProgressDonetProps {
 
 const ProgressDonet: React.FC<ProgressDonetProps> = ({ total, categories, month, size = 250, totalPirceClassName, isCategoryShow = true, isTotalPostionCenter = true }) => {
   return (
-    <div className={`w-full mx-auto text-center ${isTotalPostionCenter ? 'relative' : 'flex flex-col-reverse items-center'}`} 
-          style={{ width: isTotalPostionCenter ? size : 'auto', height: isTotalPostionCenter ? `${size + 100}px` : 'auto' }}>
+    <div 
+      className={`w-full mx-auto text-center ${isTotalPostionCenter ? 'relative' : 'flex flex-col-reverse items-center'}`} 
+      style={{ 
+        width: isTotalPostionCenter ? `${size}px` : 'auto', 
+        height: isTotalPostionCenter ? `${size + 100}px` : 'auto',
+        minWidth: isTotalPostionCenter ? `${size}px` : '0',
+        minHeight: isTotalPostionCenter ? `${size + 100}px` : '0'
+      }}
+    >
       {
         isCategoryShow &&
         <div className="flex flex-wrap justify-start gap-4 mt-4">
@@ -36,7 +43,15 @@ const ProgressDonet: React.FC<ProgressDonetProps> = ({ total, categories, month,
         </div>
       }
 
-      <div style={{ width: size, height: size }} className={`${isTotalPostionCenter ?'mt-10' : ''}`}>
+      <div 
+        style={{ 
+          width: `${size}px`, 
+          height: `${size}px`,
+          minWidth: `${size}px`,
+          minHeight: `${size}px`
+        }} 
+        className={`${isTotalPostionCenter ?'mt-10' : ''}`}
+      >
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
