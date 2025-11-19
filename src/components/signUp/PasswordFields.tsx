@@ -2,12 +2,18 @@ import { useState, useEffect } from "react";
 
 interface PasswordFieldsProps {
   onValidChange?: (isValid: boolean) => void; // 상위로 전달용
+  onPasswordChange?: (pw: string) => void;  // 추가
 }
 
-const PasswordFields = ({ onValidChange }: PasswordFieldsProps) => {
+const PasswordFields = ({ onValidChange, onPasswordChange }: PasswordFieldsProps) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+
+  // 비밀번호 변경 시 부모에게 값 전달
+  useEffect(() => {
+    onPasswordChange?.(password);
+  }, [password]);
 
   // 비밀번호 일치 여부 감시
   useEffect(() => {

@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 
 interface BirthInputProps {
   onValidChange?: (isValid: boolean) => void;
+
+  setBirthDate?: (value: string) => void;   // 추가
+  setBirthBack?: (value: string) => void;   // 추가
 }
 
-const BirthInput = ({ onValidChange }: BirthInputProps) => {
+const BirthInput = ({ onValidChange, setBirthDate, setBirthBack }: BirthInputProps) => {
   const [front, setFront] = useState(""); // YYMMDD
   const [back, setBack] = useState("");   // 1자리 (1~4)
 
@@ -13,7 +16,11 @@ const BirthInput = ({ onValidChange }: BirthInputProps) => {
     const isValidDate = validateDate(front);
     const isValidBack = /^[1-4]$/.test(back);
     onValidChange?.(isValidDate && isValidBack);
-  }, [front, back, onValidChange]);
+
+    setBirthDate?.(front);
+    setBirthBack?.(back);
+
+  }, [front, back, onValidChange, setBirthDate, setBirthBack]);
 
   const validateDate = (value: string) => {
     if (!/^\d{6}$/.test(value)) return false;
