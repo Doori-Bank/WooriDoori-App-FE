@@ -73,7 +73,7 @@ export default function AchievementHistoryView() {
           >
             <div className="flex justify-between items-center">
               <div className="flex-1">
-                <p className="text-[1.3rem] text-gray-500">{a.goalStartDate}</p>
+                <p className="text-[1.3rem] text-gray-500">{a.goalStartDate?.slice(0, 7).replace("-", ".")}</p>
                 <p className="text-[1.4rem] font-medium text-gray-700">{a.previousGoalMoney}만원 쓰기</p>
 
                 {/* ✅ 진행바 (색상 고정 버전) */}
