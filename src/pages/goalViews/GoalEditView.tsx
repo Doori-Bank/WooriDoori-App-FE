@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import Title2 from "@/components/title/Title2";
