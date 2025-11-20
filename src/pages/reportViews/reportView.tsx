@@ -6,121 +6,123 @@ import ProgressDonet from "@/components/Progress/ProgressDonet";
 import { img } from "@/assets/img";
 import ProgressCategoryView from "./ProgressCategoryView";
 import FallingRockScoreView from './FallingRockScoreView';
+import { apiList } from "@/api/apiList";
+import { useUserStore } from "@/stores/useUserStore";
+
+// 백엔드 DTO (DashboardResponseDto) 기반 TypeScript 인터페이스 정의
+interface AchievementDetailDto {
+  goalAmount: number;        // 이번 달 목표 금액
+  achievementRate: number;   // 달성률 (0~100)
+  achievementScore: number;  // 목표 달성 점수
+  stabilityScore: number;    
+  ratioScore: number;        
+  continuityScore: number;   
+  topCategorySpending: Record<string, number>; // 카테고리별 소비
+  comment?: string;
+}
 
 const ReportView = () => {
   const navigate = useNavigate();
-  const name = "석기";
-
-  const [month, setMonth] = useState<number | null>(null);
-  const [score, setScore] = useState<number | null>(null);
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
 
   const [pageNum, setPageNum] = useState(1);
   const [title, setTitle] = useState("");
 
+  const [month, setMonth] = useState<number | null>(null);
+  const [reportData, setReportData] = useState<AchievementDetailDto | null>(null);
+
+  // ===================== 페이지별 타이틀 =====================
   const getTitle = (page: number) => {
     const titleMap: Record<number, string> = {
-      1: `${name}님의 소비습관 점수는 ?!`,
-      2: `${name}님의 한 달 동안\n전체 소비내역을 분석해봤어요`,
-      3: `${name}님의 한 달 동안\n소비한 카테고리를 보여드릴게요`
+      1: `${userName}님의 소비습관 점수는 ?!`,
+      2: `${userName}님의 한 달 동안\n전체 소비내역을 분석해봤어요`,
+      3: `${userName}님의 한 달 동안\n소비한 카테고리를 보여드릴게요`
     };
     return titleMap[page] || "";
   };
 
   useEffect(() => {
+    setTitle(getTitle(pageNum));
+  }, [pageNum, userName]);
+
+  // ===================== API 호출 =====================
+  useEffect(() => {
     const fetchReportData = async () => {
       try {
-        // 🔹 실제 API 연동 시 아래 주석 해제
-        // const res = await fetch("/api/report/summary");
-        // const data = await res.json();
-        // setMonth(data.month);
-        // setScore(data.score);
+        const res = await apiList.goaldashboard.getGoalDashboard(); // Dashboard API 호출
+        setReportData(res);
 
-        // 🔹 지금은 더미 데이터
-        setMonth(10);
-        setScore(0);
+        // month와 score 상태 업데이트
+        const currentMonth = res.goalAmount ? new Date().getMonth() + 1 : null;
+        setMonth(currentMonth);
       } catch (error) {
         console.error("월 데이터 불러오기 실패:", error);
-        setMonth(new Date().getMonth() + 1); // 실패 시 현재 달로 대체
-        setScore(45);
+        setMonth(new Date().getMonth() + 1);
       }
     };
     fetchReportData();
   }, []);
 
-  useEffect(() => {
-    setTitle(getTitle(pageNum));
-  }, [pageNum, month]);
-
-  // ==================================================
-
-  //도넛 리스트
-  const totalPrice = 1080000;
-  const categoriesList = [
-    { name: "식비", value: 400000, color: "#FF8353", percent: "37.04%", src: img.foodIcon },
-    { name: "교통/자동차", value: 300000, color: "#3ACFA3", percent: "27.78%", src: img.trafficIcon },
-    { name: "쇼핑/마트", value: 200000, color: "#6B5DD3", percent: "18.52%", src: img.shoppingIcon },
-    { name: "교육", value: 100000, color: "#6E6E6E", percent: "9.26%", src: img.educationIcon },
-    { name: "기타", value: 80000, color: "#C4C4C4", percent: "7.41%", src: img.etcIcon }
-  ];
-
-
-
-  // 함수 ==========================================
-
-
-  useEffect(() => {
-    const handlePopState = () => {
-      // 다른 페이지에서 뒤로가기 해서 돌아왔을 때
-      setPageNum(4); // 4번째 페이지 선택
-    };
-
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
-
-
-  const onClick = (type?: string) => {
+  // ===================== 페이지 이동 =====================
+  const onClick = (type?: "back") => {
     if (type !== "back" && pageNum === 3) {
-        navigate("/report-card", { state: { month } });
+      navigate("/report-card", { state: { month } });
       return;
     }
-
     const nextPage = type === "back" ? pageNum - 1 : pageNum + 1;
     setPageNum(nextPage);
     setTitle(getTitle(nextPage));
   };
 
+  // ===================== 렌더링 페이지 =====================
   const renderPage = () => {
+    if (!reportData) return null;
+
     if (pageNum === 1) {
-      return <FallingRockScoreView score={score ?? 0} />;
+      return <FallingRockScoreView score={reportData.achievementScore+reportData.stabilityScore+reportData.ratioScore+reportData.continuityScore} />;
     }
-    // 총 지출 카테고리별
-    if (pageNum == 2) {
+
+    // ProgressDonet용 카테고리 데이터
+    const categoriesForDonut = Object.entries(reportData.topCategorySpending).map(([name, value]) => ({
+      name,
+      value,
+      color: "#FF8353", // 필요 시 카테고리별 색상 매핑
+      percent: `${Math.round((value / reportData.goalAmount) * 100)}%`,
+      src: img.foodIcon // 필요 시 아이콘 매핑
+    }));
+
+    if (pageNum === 2) {
       return (
         <div className="w-full">
           <p className="text-[#4A4A4A] font-semibold">카테고리별 소비</p>
-          <ProgressDonet total={totalPrice} categories={categoriesList} month={`${month ?? ""}월`} size={300} />
+          <ProgressDonet 
+            total={reportData.goalAmount*reportData.achievementRate} 
+            categories={categoriesForDonut} 
+            month={`${month ?? ""}월`} 
+            size={300} 
+          />
         </div>
       );
     }
-    if (pageNum === 3)
-      return <ProgressCategoryView categoriesList={categoriesList} totalPrice={totalPrice} />;
+
+    if (pageNum === 3) {
+      return (
+        <ProgressCategoryView 
+          categoriesList={categoriesForDonut} 
+          totalPrice={reportData.goalAmount} 
+        />
+      );
+    }
   };
 
   return (
     <ReportLayout
       mainText={title}
       isMainTextCenter={false}
-      // ✅ 뒤로가기 버튼 표시 여부 (1페이지면 숨김)
       showBack={pageNum !== 1}
-      // ✅ 뒤로가기 동작: 이전 페이지 이동
       onBack={() => onClick("back")}
-      // ✅ 닫기 버튼 누르면 홈으로 이동
       onClose={() => navigate('/home')}
-      // ✅ 다음 버튼 클릭
       onButtonClick={onClick}
     >
       {renderPage()}

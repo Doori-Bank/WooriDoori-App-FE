@@ -336,6 +336,13 @@ goal: {
       .then(res => res.data.resultData),
 },
 
+  goaldashboard: {
+    getGoalDashboard: () =>
+    axiosInstance
+      .get(`/goal/dashboard`)
+      .then(res => res.data.resultData),
+},
+
 // 채팅 API
 chat: async (message: string) => {
   try {
