@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import { img } from '@/assets/img';
 import { useUserStore } from '@/stores/useUserStore';
-import { useCookieManager } from '@/hooks/useCookieManager';
 
 const UserInfoView: React.FC = () => {
   const navigate = useNavigate();
-  const { userInfo: storeUserInfo, clearUserInfo } = useUserStore();
-  const { removeCookies } = useCookieManager();
+  const { userInfo: storeUserInfo } = useUserStore();
   
   // store에서 사용자 정보 가져오기
   const getUserInfo = () => {
@@ -32,40 +30,14 @@ const UserInfoView: React.FC = () => {
   
   const [userInfo] = useState(getUserInfo());
 
-  // 모달 상태
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
-
-  const handleLogout = () => {
-    setIsLogoutModalOpen(true);
-  };
-
-  const handleWithdraw = () => {
-    setIsWithdrawModalOpen(true);
-  };
-
-  const confirmLogout = () => {
-    // store에서 사용자 정보 제거
-    clearUserInfo();
-    
-    // 쿠키에서 토큰 제거
-    removeCookies();
-    
-    // localStorage에서 사용자 정보 제거 (기존 코드 호환성)
-    localStorage.removeItem('userInfo');
-    
-    // 모달 닫기
-    setIsLogoutModalOpen(false);
-    
-    // 로그아웃 성공 모달 표시
-    setShowLogoutSuccess(true);
-  };
-
-  const confirmWithdraw = () => {
-    console.log('회원 탈퇴 실행');
-    setIsWithdrawModalOpen(false);
-    // 회원 탈퇴 로직 구현
+  // localStorage에서 프로필 이미지 가져오기
+  const getProfileImage = (): string | null => {
+    try {
+      return localStorage.getItem('profileImage');
+    } catch (error) {
+      console.error('프로필 이미지 로드 실패:', error);
+      return null;
+    }
   };
   
   const [profileImage, setProfileImage] = useState<string | null>(getProfileImage());
