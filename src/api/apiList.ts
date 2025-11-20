@@ -123,4 +123,12 @@ goal: {
   },
 
 
+  goaldetail: {
+  // year, month를 받아서 해당 월의 상세 정보 조회
+  getGoalDetail: (year: number, month: number) =>
+    axiosInstance
+      .get(`/goal/past?year=${year}&month=${month}`)
+      .then(res => res.data.resultData),
+},
+
 };

@@ -7,16 +7,12 @@ import DefaultDiv from "@/components/default/DefaultDiv";
 import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 
-// type Achievement = {
-//   month: string;
-//   goal: string;
-//   score: number;
-//   percent: number;
-// };
 
 export default function AchievementHistoryView() {
   const navigate = useNavigate();
   const location = useLocation();
+  
+
 
   const from = location.state?.from || "home";
 
@@ -25,16 +21,10 @@ export default function AchievementHistoryView() {
     else navigate("/home");
   };
 
-  // ✅ 더미 데이터 (임시 테스트용)
-  // const mockHistory: Achievement[] = [
-  //   { month: "2025.04", goal: "10,000만원 쓰기", percent: 80, score: 20 },
-  //   { month: "2025.03", goal: "1,000만원 쓰기", percent: 40, score: 60 },
-  //   { month: "2025.02", goal: "300만원 쓰기", percent: 25, score: 75 },
-  // ];
-  // 백엔드 연동 시 setHistoryList(mockHistory); 에서 교체해야해서 했음
 
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  const selectedItem = selected !== null ? historyList[selected] : null;
   
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
@@ -93,14 +83,35 @@ export default function AchievementHistoryView() {
           </button>
         ))}
 
+
         {/* 선택 시 다음 버튼 */}
         {selected !== null && (
           <div className="mt-auto">
             <BottomButtonWrapper>
-              <DefaultButton text="달성도 확인하기"
-              onClick={() =>
-                navigate("/achievement/detail", { state: { data: historyList[selected], from: from } })
-              } />
+              <DefaultButton
+    text="달성도 확인하기"
+    onClick={() => {
+      const selectedItem = historyList[selected];
+      
+      // ✅ 1단계: year와 month를 Number 타입으로 변환
+      const year = Number(selectedItem.goalStartDate.slice(0, 4));
+      const month = Number(selectedItem.goalStartDate.slice(5, 7)); // 예: "2025-04-01" -> 4
+
+      // 💡 콘솔 로그 1: 전달되는 year와 month의 값과 타입 확인
+      console.log("--- [상세 뷰로 전달되는 Data] ---");
+      console.log("Year:", year, typeof year); // 예상: 2025 'number'
+      console.log("Month:", month, typeof month); // 예상: 4 'number'
+      console.log("----------------------------------");
+
+      navigate("/achievement/detail", {
+        state: {
+          year,
+          month,
+          from,
+        },
+      });
+    }}
+  />
             </BottomButtonWrapper>
           </div>
         )}
