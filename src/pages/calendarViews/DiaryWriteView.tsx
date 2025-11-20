@@ -7,6 +7,9 @@ import { useCalendarStore } from '@/stores/calendarStore';
 import NavBar from '@/components/default/NavBar';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import BottomButtonWrapper from '@/components/button/BottomButtonWrapper';
+import { apiList } from '@/api/apiList';
+import { emotionIndexToEnum, emotionEnumToIndex } from '@/utils/diaryUtils';
+import { OneBtnModal } from '@/components/modal/OneBtnModal';
 
 const DiaryWriteView = () => {
   const navigate = useNavigate();
@@ -14,16 +17,29 @@ const DiaryWriteView = () => {
   const date = searchParams.get('date') || '';
   const emotionFromUrl = searchParams.get('emotion');
   const editMode = searchParams.get('edit') === 'true';
+  const diaryIdFromUrl = searchParams.get('diaryId');
   const setDiaryEntry = useCalendarStore((state) => state.setDiaryEntry);
   const getDiaryEntry = useCalendarStore((state) => state.getDiaryEntry);
   
   // 기존 일기 정보 가져오기
   const existingEntry = getDiaryEntry(date);
   
-  const emotion = emotionFromUrl ? parseInt(emotionFromUrl) : (existingEntry?.emotion || 0);
+  // 수정 모드이고 diaryId가 URL에 있으면 store의 diaryId와 매칭 확인
+  const diaryId = editMode && diaryIdFromUrl 
+    ? parseInt(diaryIdFromUrl) 
+    : (existingEntry && (existingEntry as any).diaryId ? (existingEntry as any).diaryId : undefined);
+  
+  // 감정 값 결정: URL > 기존 일기 > 기본값(보통)
+  const emotion = emotionFromUrl !== null 
+    ? parseInt(emotionFromUrl) 
+    : (existingEntry?.emotion !== undefined ? existingEntry.emotion : 2);
+  
+  console.log('DiaryWriteView - emotion:', emotion, 'emotionFromUrl:', emotionFromUrl, 'existingEntry:', existingEntry);
   const [content, setContent] = useState(existingEntry?.content || '');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<{ message: string; showModal: boolean } | null>(null);
   const maxLength = 50;
   
   // 날짜 파싱
@@ -46,13 +62,74 @@ const DiaryWriteView = () => {
     }
   };
   
-  const handleConfirmSave = () => {
-    setDiaryEntry(date, {
-      date,
-      content: content.trim(),
-      emotion,
-    });
-    navigate('/calendar/diary');
+  const handleConfirmSave = async () => {
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      const emotionEnum = emotionIndexToEnum(emotion);
+      console.log('일기 저장 시작 - emotion index:', emotion, 'emotion enum:', emotionEnum);
+      
+      if (editMode && diaryId) {
+        // 수정 모드
+        const result = await apiList.updateDiary(
+          diaryId,
+          emotionEnum,
+          content.trim()
+        );
+        
+        if (result.success) {
+          // API 응답에서 업데이트된 감정 정보 가져오기
+          const updatedEmotion = result.data?.diaryEmotion 
+            ? emotionEnumToIndex(result.data.diaryEmotion)
+            : emotion;
+          
+          // store 업데이트 (감정 정보 포함)
+          setDiaryEntry(date, {
+            date,
+            content: result.data?.diaryContent || content.trim(),
+            emotion: updatedEmotion,
+            diaryId: diaryId,
+          });
+          navigate('/calendar/diary');
+        } else {
+          setError({
+            message: result.resultMsg || '일기 수정에 실패했습니다.',
+            showModal: true,
+          });
+        }
+      } else {
+        // 생성 모드
+        const result = await apiList.createDiary(date, emotionEnum, content.trim());
+        
+        if (result.success && result.data) {
+          // DiaryCreateResponseDto는 diaryId만 반환하므로 로컬 state의 emotion 사용
+          // store 업데이트 (로컬 state의 감정 정보 사용)
+          console.log('일기 생성 - 저장할 감정:', emotion, 'date:', date);
+          setDiaryEntry(date, {
+            date,
+            content: content.trim(),
+            emotion: emotion, // 선택한 감정 그대로 사용
+            diaryId: result.data.diaryId || result.data.id,
+          });
+          console.log('store 업데이트 완료');
+          navigate('/calendar/diary');
+        } else {
+          setError({
+            message: result.resultMsg || '일기 생성에 실패했습니다.',
+            showModal: true,
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('일기 저장 에러:', error);
+      setError({
+        message: '일기 저장에 실패했습니다.',
+        showModal: true,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
   
   const handleCancel = () => {
@@ -132,15 +209,15 @@ const DiaryWriteView = () => {
         <BottomButtonWrapper paddingBottom="pb-[7rem]">
           <button
             onClick={handleComplete}
-            disabled={!content.trim()}
+            disabled={!content.trim() || isSaving}
             className={`w-full py-4 rounded-2xl text-2xl font-bold transition-colors ${
-              content.trim() 
+              content.trim() && !isSaving
                 ? 'text-white' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
-            style={content.trim() ? { backgroundColor: 'rgb(139, 195, 75)' } : {}}
+            style={content.trim() && !isSaving ? { backgroundColor: 'rgb(139, 195, 75)' } : {}}
           >
-            완료
+            {isSaving ? '저장 중...' : '완료'}
           </button>
         </BottomButtonWrapper>
         
@@ -158,6 +235,22 @@ const DiaryWriteView = () => {
           isOpen={showCancelModal}
           onConfirm={handleConfirmCancel}
           onCancel={() => setShowCancelModal(false)}
+        />
+
+        {/* 에러 모달 */}
+        <OneBtnModal
+          isOpen={error?.showModal || false}
+          message={
+            <div className="py-2">
+              <div className="text-5xl mb-4">⚠️</div>
+              <p className="text-[1.4rem] leading-relaxed">{error?.message}</p>
+            </div>
+          }
+          confirmTitle="확인"
+          confirmColor="#4C8B73"
+          onConfirm={() => {
+            setError(null);
+          }}
         />
       </div>
       <NavBar />

@@ -1,6 +1,8 @@
 import React from 'react';
 import { useCalendarStore } from '@/stores/calendarStore';
 import { img } from '@/assets/img';
+import { apiList } from '@/api/apiList';
+import { getCategoryEnum } from '@/utils/categoryMeta';
 // Payment 타입 - CalendarView의 paymentData 구조에 맞춤
 export type Payment = { 
   id: number; // 거래 고유 ID
@@ -82,12 +84,20 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
     setTimeout(() => setDetail(null), 200);
   };
 
-  const handleCategorySelect = (category: string) => {
+  const handleCategorySelect = async (category: string) => {
+    if (!detail) return;
+    
     setSelectedCategory(category);
     setShowCategoryDropdown(false);
     
+    // 카테고리 한글명을 백엔드 enum 형식으로 변환
+    const categoryEnum = getCategoryEnum(category);
+    
+    // API 호출
+    try {
+      const result = await apiList.updateCategory(detail.data.id, categoryEnum);
+      if (result.success) {
     // detail 데이터 업데이트
-    if (detail) {
       setDetail({
         ...detail,
         data: {
@@ -96,18 +106,30 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
           categoryColor: categoryInfo[category].color,
         }
       });
+      } else {
+        console.error('카테고리 수정 실패:', result.resultMsg);
+        alert(result.resultMsg || '카테고리 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('카테고리 수정 에러:', error);
+      alert('카테고리 수정 중 오류가 발생했습니다.');
     }
   };
 
-  const handleToggleChange = (value: boolean) => {
+  const handleToggleChange = async (value: boolean) => {
+    if (!detail) return;
+    
     // 이체 카테고리이고 제외(false)로 변경하려는 경우 모달 표시
     if (selectedCategory === '이체' && !value) {
       setShowExcludeModal(true);
       return;
     }
     
-    // 일반 카테고리 또는 포함(true)으로 변경하는 경우 바로 적용
-    if (detail) {
+    // API 호출
+    try {
+      const result = await apiList.updateIncludeTotal(detail.data.id, value);
+      if (result.success) {
+        // detail 데이터 업데이트
       setDetail({
         ...detail,
         data: {
@@ -115,12 +137,23 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
           includeInTotal: value,
         }
       });
+      } else {
+        console.error('지출 합계 포함 여부 수정 실패:', result.resultMsg);
+        alert(result.resultMsg || '수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('지출 합계 포함 여부 수정 에러:', error);
+      alert('수정 중 오류가 발생했습니다.');
     }
   };
 
   // 제외 모달에서 "이번만" 선택
-  const handleExcludeOnce = () => {
-    if (detail) {
+  const handleExcludeOnce = async () => {
+    if (!detail) return;
+    
+    try {
+      const result = await apiList.updateIncludeTotal(detail.data.id, false);
+      if (result.success) {
       setDetail({
         ...detail,
         data: {
@@ -128,14 +161,25 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
           includeInTotal: false,
         }
       });
+      } else {
+        console.error('지출 합계 포함 여부 수정 실패:', result.resultMsg);
+        alert(result.resultMsg || '수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('지출 합계 포함 여부 수정 에러:', error);
+      alert('수정 중 오류가 발생했습니다.');
     }
     setShowExcludeModal(false);
   };
 
   // 제외 모달에서 "전체" 선택
-  const handleExcludeAll = () => {
+  const handleExcludeAll = async () => {
+    if (!detail) return;
+    
     // TODO: 같은 회사명의 모든 이체 내역 제외 기능
-    if (detail) {
+    try {
+      const result = await apiList.updateIncludeTotal(detail.data.id, false);
+      if (result.success) {
       setDetail({
         ...detail,
         data: {
@@ -143,6 +187,13 @@ export const DetailModal: React.FC<{ dateLabel: string }> = ({ dateLabel }) => {
           includeInTotal: false,
         }
       });
+      } else {
+        console.error('지출 합계 포함 여부 수정 실패:', result.resultMsg);
+        alert(result.resultMsg || '수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('지출 합계 포함 여부 수정 에러:', error);
+      alert('수정 중 오류가 발생했습니다.');
     }
     setShowExcludeModal(false);
   };

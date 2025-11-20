@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import cardIcon from '@/assets/card-icon.svg';
 import { DetailModal, Payment } from '@/components/calender/detail';
@@ -11,68 +11,29 @@ import "@/styles/calendar/calendar.styles.css";
 import PullToRefreshIndicator from '@/components/calender/PullToRefreshIndicator';
 import MonthCalendarSection from '@/components/calender/MonthCalendarSection';
 import PaymentListByDate from '@/components/calender/PaymentListByDate';
+import { apiList } from '@/api/apiList';
+import { getCategoryMeta } from '@/utils/categoryMeta';
+import { OneBtnModal } from '@/components/modal/OneBtnModal';
 
-
-// 결제 데이터 (테이블 형식 - 플랫 배열)
-const paymentData: Payment[] = [
-  // 11월 데이터
-  { id: 24, date: "2025-11-01 08:30", category: "식비", categoryColor: "FF715B", company: "(주) 투썸플레이스", amount: -8500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 25, date: "2025-11-01 12:20", category: "식비", categoryColor: "FF715B", company: "(주) 맥도날드", amount: -12000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 2 },
-  { id: 26, date: "2025-11-02 09:00", category: "교통/자동차", categoryColor: "34D1BF", company: "(주) 코레일", amount: -35000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 27, date: "2025-11-03 14:15", category: "쇼핑", categoryColor: "345BD1", company: "(주) 다이소", amount: -23000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 28, date: "2025-11-04 18:30", category: "식비", categoryColor: "FF715B", company: "(주) 버거킹", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 29, date: "2025-11-05 10:45", category: "편의점", categoryColor: "FFC456", company: "(주) GS25", amount: -8900, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 30, date: "2025-11-06 16:20", category: "쇼핑", categoryColor: "345BD1", company: "(주) 무신사", amount: -89000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 31, date: "2025-11-07 19:00", category: "술/유흥", categoryColor: "FF715B", company: "호프집", amount: -45000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 3 },
-  { id: 32, date: "2025-11-08 13:30", category: "식비", categoryColor: "FF715B", company: "(주) 백다방", amount: -6500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 33, date: "2025-11-09 11:00", category: "병원", categoryColor: "31BB66", company: "(주) 서울안과", amount: -25000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 34, date: "2025-11-10 00:00", category: "주거", categoryColor: "FFF1D6", company: "월세", amount: -300000, includeInTotal: true, cardName: "우리 체크카드", dutchPay: 1 },
-  { id: 35, date: "2025-11-11 15:45", category: "쇼핑", categoryColor: "345BD1", company: "(주) 11번가", amount: -67000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 36, date: "2025-11-12 20:30", category: "식비", categoryColor: "FF715B", company: "치킨집", amount: -28000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 2 },
-  { id: 37, date: "2025-11-13 09:20", category: "교통/자동차", categoryColor: "34D1BF", company: "(주) 카카오택시", amount: -18500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 38, date: "2025-11-14 14:00", category: "편의점", categoryColor: "FFC456", company: "(주) 세븐일레븐", amount: -12500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 39, date: "2025-11-15 12:15", category: "식비", categoryColor: "FF715B", company: "(주) 스타벅스코리아", amount: -9800, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 40, date: "2025-11-16 17:30", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -45000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 41, date: "2025-11-17 10:00", category: "교육", categoryColor: "969191", company: "(주) 밀리의서재", amount: -9900, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 42, date: "2025-11-18 08:00", category: "통신", categoryColor: "FFF", company: "(주) KT", amount: -85000, includeInTotal: true, cardName: "우리 체크카드", dutchPay: 1 },
-  { id: 43, date: "2025-11-19 13:45", category: "식비", categoryColor: "FF715B", company: "(주) 써브웨이", amount: -11000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 44, date: "2025-11-20 19:20", category: "술/유흥", categoryColor: "FF715B", company: "와인바", amount: -65000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 2 },
-  { id: 45, date: "2025-11-21 11:30", category: "쇼핑", categoryColor: "345BD1", company: "(주) 쿠팡", amount: -123000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 46, date: "2025-11-22 15:00", category: "이체", categoryColor: "FFF495", company: "박민수", amount: -50000, includeInTotal: true, cardName: "우리 체크카드", dutchPay: 1 },
-  { id: 47, date: "2025-11-23 18:15", category: "식비", categoryColor: "FF715B", company: "일식집", amount: -38000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 48, date: "2025-11-24 10:20", category: "편의점", categoryColor: "FFC456", company: "(주) CU 편의점", amount: -15600, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 49, date: "2025-11-25 14:40", category: "쇼핑", categoryColor: "345BD1", company: "(주) CJ올리브영", amount: -72000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 50, date: "2025-11-26 16:50", category: "기타", categoryColor: "E4EAF0", company: "주차장", amount: -10000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 51, date: "2025-11-27 12:00", category: "식비", categoryColor: "FF715B", company: "(주) 롯데리아", amount: -13500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 52, date: "2025-11-28 20:00", category: "술/유흥", categoryColor: "FF715B", company: "노래방", amount: -32000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 4 },
-  { id: 53, date: "2025-11-29 09:30", category: "교통/자동차", categoryColor: "34D1BF", company: "(주) 주유소", amount: -75000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 54, date: "2025-11-30 14:20", category: "식비", categoryColor: "FF715B", company: "(주) 이디야커피", amount: -4500, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  // 10월 데이터
-  { id: 1, date: "2025-10-01 12:30", category: "식비", categoryColor: "FF715B", company: "(주) KFC", amount: -20000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 2, date: "2025-10-03 09:15", category: "교통/자동차", categoryColor: "34D1BF", company: "(주) 버스타고", amount: -47100, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1 },
-  { id: 3, date: "2025-10-04 18:45", category: "편의점", categoryColor: "FFC456", company: "(주) CU 편의점", amount: -17000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 4, date: "2025-10-06 14:20", category: "식비", categoryColor: "FF715B", company: "(주) 스타벅스코리아", amount: -17000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 5, date: "2025-10-07 16:00", category: "쇼핑", categoryColor: "345BD1", company: "(주) CJ올리브영", amount: -180000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 6, date: "2025-10-10 10:30", category: "쇼핑", categoryColor: "FF715B", company: "(주) 쿠팡", amount: -180000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 7, date: "2025-10-11 00:00", category: "주거", categoryColor: "FFF1D6", company: "월세", amount: -300000, includeInTotal: true, cardName: "우리 체크카드" , dutchPay: 1 },
-  { id: 8, date: "2025-10-12 11:00", category: "병원", categoryColor: "31BB66", company: "(주) 조은피부과", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 9, date: "2025-10-13 15:45", category: "이체", categoryColor: "FFF495", company: "최홍석", amount: -15000, includeInTotal: true, cardName: "우리 체크카드" , dutchPay: 1 },
-  { id: 10, date: "2025-10-14 20:00", category: "술/유흥", categoryColor: "FF715B", company: "오늘의술", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 11, date: "2025-10-15 13:15", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 12, date: "2025-10-16 14:30", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 13, date: "2025-10-17 17:20", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 14, date: "2025-10-18 08:00", category: "통신", categoryColor: "FFF", company: "(주) LG유플러스", amount: -100000, includeInTotal: true, cardName: "우리 체크카드", dutchPay: 1  },
-  { id: 15, date: "2025-10-19 19:30", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 16, date: "2025-10-20 11:45", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 17, date: "2025-10-21 16:15", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드" , dutchPay: 1 },
-  { id: 18, date: "2025-10-22 10:00", category: "교육", categoryColor: "969191", company: "(주) 메가스터디", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 19, date: "2025-10-23 12:30", category: "기타", categoryColor: "E4EAF0", company: "합정역", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  // 9월 데이터
-  { id: 20, date: "2025-09-01 14:00", category: "이체", categoryColor: "FF715B", company: "김순자", amount: -15000, includeInTotal: true, cardName: "우리 체크카드", dutchPay: 1  },
-  { id: 21, date: "2025-09-01 15:30", category: "식비", categoryColor: "FF715B", company: "(주) 메가커피", amount: -5000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 22, date: "2025-09-03 09:00", category: "쇼핑", categoryColor: "345BD1", company: "(주) 네이버페이", amount: -456000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-  { id: 23, date: "2025-09-03 19:15", category: "식비", categoryColor: "FF715B", company: "콘하스", amount: -15000, includeInTotal: true, cardName: "네이버페이 우리 카드", dutchPay: 1  },
-];
+// 백엔드 응답을 프론트엔드 Payment 형식으로 변환
+const convertBackendToPayment = (backendData: any): Payment => {
+  const categoryMeta = getCategoryMeta(backendData.historyCategory);
+  const dateStr = backendData.date || '';
+  // 시간 정보가 없으면 기본값 "00:00" 추가
+  const dateTime = dateStr.includes(' ') ? dateStr : `${dateStr} 00:00`;
+  
+  return {
+    id: backendData.id,
+    date: dateTime,
+    category: categoryMeta.label,
+    categoryColor: categoryMeta.color.replace('#', ''),
+    company: backendData.historyName || '',
+    amount: -(backendData.historyPrice || 0), // 음수로 변환
+    includeInTotal: backendData.includeTotal === 'Y' || backendData.includeTotal === 'YES', // 백엔드는 "Y"/"N" 사용
+    cardName: '우리 카드', // 백엔드에서 제공하지 않으면 기본값
+    dutchPay: backendData.historyDutchpay || 1,
+  };
+};
 
 const getCategoryIcon = (category: string) => {
   const iconMap: Record<string, string> = {
@@ -109,7 +70,9 @@ const CalendarView = () => {
   const calendarStickyRef = React.useRef<HTMLDivElement | null>(null);
 
   // Payment 데이터를 state로 관리
-  const [paymentDataState, setPaymentDataState] = useState<Payment[]>(paymentData);
+  const [paymentDataState, setPaymentDataState] = useState<Payment[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<{ message: string; showModal: boolean } | null>(null);
 
   // 캘린더 접기/펼치기 상태
   const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false);
@@ -125,8 +88,81 @@ const CalendarView = () => {
   const THRESHOLD = 80;
   const MAX_PULL = 130;
 
+  // 월별 소비 내역 조회
+  const fetchMonthlySpendings = async (targetDate: Date, showError = true) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth() + 1;
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
+      
+      const result = await apiList.getMonthlySpendings(dateStr);
+      
+      // 받아온 데이터 콘솔에 출력
+      console.log('📊 받아온 소비 내역 데이터:', result);
+      console.log('📋 result.data:', result.data);
+      
+      if (result.success && result.data) {
+        const spendings = result.data.spendings || [];
+        console.log('💰 spendings 배열:', spendings);
+        console.log('📝 spendings 개수:', spendings.length);
+        
+        const convertedPayments = spendings.map(convertBackendToPayment);
+        console.log('🔄 변환된 Payment 데이터:', convertedPayments);
+        setPaymentDataState(convertedPayments);
+        
+        // 데이터가 없을 때는 에러가 아니라 정상 상태
+        if (spendings.length === 0) {
+          console.log('📭 해당 월에 소비 내역이 없습니다.');
+        }
+      } else {
+        const errorMessage = result.resultMsg || '소비 내역을 불러오는데 실패했습니다.';
+        console.error('소비 내역 조회 실패:', errorMessage);
+        setPaymentDataState([]);
+        
+        if (showError) {
+          setError({
+            message: errorMessage,
+            showModal: true,
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('소비 내역 조회 에러:', error);
+      setPaymentDataState([]);
+      
+      // 네트워크 에러 처리
+      let errorMessage = '소비 내역을 불러오는데 실패했습니다.';
+      if (error?.message?.includes('Network Error') || error?.code === 'ERR_NETWORK') {
+        errorMessage = '네트워크 연결을 확인해주세요.';
+      } else if (error?.response?.status === 401) {
+        errorMessage = '로그인이 필요합니다.';
+      } else if (error?.response?.status === 404) {
+        errorMessage = '해당 월의 소비 내역을 찾을 수 없습니다.';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      if (showError) {
+        setError({
+          message: errorMessage,
+          showModal: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // currentDate 변경 시 데이터 조회
+  useEffect(() => {
+    fetchMonthlySpendings(currentDate);
+  }, [currentDate]);
+
   
-  // detail 변경 감지하여 paymentData 업데이트
+  // detail 변경 감지하여 paymentData 업데이트 및 데이터 재조회
   React.useEffect(() => {
     if (detail && detail.data.id) {
       setPaymentDataState(prev => {
@@ -142,6 +178,8 @@ const CalendarView = () => {
           return p;
         });
       });
+      // 수정 후 데이터 재조회 (선택적 - 필요시 주석 해제)
+      // fetchMonthlySpendings(currentDate);
     }
   }, [detail]);
 
@@ -215,7 +253,10 @@ const CalendarView = () => {
         if (pullY >= THRESHOLD) {
           setIsRefreshing(true);
           setTimeout(() => {
-            window.location.reload();
+            fetchMonthlySpendings(currentDate, false); // Pull-to-refresh는 에러 모달 표시 안 함
+            setPullY(0);
+            setIsPulling(false);
+            setIsRefreshing(false);
           }, 200);
         } else {
           setPullY(0);
@@ -538,6 +579,26 @@ const CalendarView = () => {
           ref={scrollRef}
           className="overflow-y-auto overscroll-contain flex-1 px-5 pb-32"
         >
+          {isLoading && paymentDataState.length === 0 ? (
+            // 로딩 상태
+            <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C8B73] mb-4"></div>
+              <p className="text-[1.4rem] text-gray-500">소비 내역을 불러오는 중...</p>
+            </div>
+          ) : paymentDataState.length === 0 && !isLoading ? (
+            // 빈 데이터 상태
+            <div className="flex flex-col items-center justify-center h-full min-h-[200px] px-4">
+              <div className="text-6xl mb-4">📭</div>
+              <p className="text-[1.6rem] font-semibold text-gray-700 mb-2">
+                소비 내역이 없습니다
+              </p>
+              <p className="text-[1.2rem] text-gray-500 text-center">
+                {year}년 {month + 1}월에는<br />
+                기록된 소비 내역이 없습니다.
+              </p>
+            </div>
+          ) : (
+            // 정상 데이터 표시
           <PaymentListByDate
             groupedPayments={groupedPayments}
             year={year}
@@ -546,6 +607,7 @@ const CalendarView = () => {
             onPaymentClick={(day, payment) => setDetail({ day, data: payment })}
             getCategoryIcon={getCategoryIcon}
           />
+          )}
         </div>
 
       </div>
@@ -560,6 +622,21 @@ const CalendarView = () => {
         {/* 더치페이 모달 */}
         <DutchPayModal />
 
+        {/* 에러 모달 */}
+        <OneBtnModal
+          isOpen={error?.showModal || false}
+          message={
+            <div className="py-2">
+              <div className="text-5xl mb-4">⚠️</div>
+              <p className="text-[1.4rem] leading-relaxed">{error?.message}</p>
+            </div>
+          }
+          confirmTitle="확인"
+          confirmColor="#4C8B73"
+          onConfirm={() => {
+            setError(null);
+          }}
+        />
     </DefaultDiv>
   );
 };

@@ -10,6 +10,7 @@ import NotificationBanner from "@/components/noti/NotificationBanner";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import { useUserStore } from "@/stores/useUserStore";
 import { apiList } from "@/api/apiList";
 import { getCategoryMeta } from "@/utils/categoryMeta";
 
@@ -27,6 +28,7 @@ interface CardRecommendItem {
 interface MainResponse {
   fullDate?: number;
   duringDate?: number;
+  remainingDays?: number;
   goalPercent?: number;
   goalMoney?: number;
   totalPaidMoney?: number;
@@ -69,19 +71,11 @@ const mapCategorySpendToChart = (items: CategorySpend[]): CategoryChartData[] =>
 const HomeView = () => {
   const navigate = useNavigate();
   const { notifications } = useNotificationStore();
+  const { userInfo, isLoggedIn } = useUserStore();
   const [homeData, setHomeData] = useState<MainResponse | null>(null);
 
-  // localStorage에서 사용자 정보 가져오기
-  const getUserName = () => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
-      const user = JSON.parse(userInfo);
-      return user.name || "사용자";
-    }
-    return "석기"; // 기본값
-  };
-
-  const name: string = getUserName();
+  // 사용자 이름 가져오기
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : null;
   const dooriTaget = { src: img.doori_basic, title: "흠...어디 한번 볼까?" };
   const fallbackTotalPrice = DEFAULT_CATEGORY_SOURCE.reduce(
     (sum, item) => sum + (item.totalPrice ?? 0),
@@ -91,7 +85,8 @@ const HomeView = () => {
   const goalPercent = homeData?.goalPercent ?? 80;
   const fullDate = homeData?.fullDate ?? 30;
   const duringDate = homeData?.duringDate ?? 28;
-  const remainDays = Math.max(fullDate - duringDate, 0);
+  // 백엔드에서 계산한 예상 남은 일수 사용, 없으면 기본값 계산
+  const remainDays = homeData?.remainingDays ?? Math.max(fullDate - duringDate, 0);
   const target =
     homeData?.goalMoney && homeData.goalMoney > 0
       ? `${homeData.goalMoney.toLocaleString()}만원 쓰기`
@@ -168,8 +163,12 @@ const HomeView = () => {
       {/* 인사 타이틀 */}
       <main className="flex flex-col pt-8 pb-40">
         <div className="title">
-          <h1 className="text-[1.6rem] font-semibold text-[#4A4A4A]">안녕하세요 {name}님</h1>
-          <p className="mt-0.5 text-[1.2rem] text-[#858585]">오늘의 소비내역에 대해 안내해드릴께요!</p>
+          <h1 className="text-[1.6rem] font-semibold text-[#4A4A4A]">
+            {userName ? `안녕하세요 ${userName}님` : "로그인을 해주세요"}
+          </h1>
+          <p className="mt-0.5 text-[1.2rem] text-[#858585]">
+            {userName ? "오늘의 소비내역에 대해 안내해드릴께요!" : "로그인 후 서비스를 이용해주세요."}
+          </p>
         </div>
 
         {/* 알림 배너 - 읽지 않은 알림만 표시 */}
@@ -262,7 +261,9 @@ const HomeView = () => {
         {/* 카드 추천 */}
         <div className="mt-10">
           <div className="flex justify-between items-center mb-8">
-            <h3 className="font-bold text-[1.6rem]">{name}님에게 딱 맞춘 카드</h3>
+            <h3 className="font-bold text-[1.6rem]">
+              {userName ? `${userName}님에게 딱 맞춘 카드` : "추천 카드"}
+            </h3>
             <div onClick={() => navigate('/card-recommend')} className="cursor-pointer">
               <img src={img.grayCheckRightIcon} alt=">" width={15} />
             </div>

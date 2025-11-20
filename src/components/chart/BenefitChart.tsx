@@ -1,5 +1,5 @@
 import React from 'react';
-import { Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, AreaChart, Tooltip, DotProps } from 'recharts';
+import { Line, XAxis, YAxis, ResponsiveContainer, Area, AreaChart, Tooltip, DotProps } from 'recharts';
 
 interface BenefitChartProps {
   data: {
@@ -59,41 +59,43 @@ const BenefitChart: React.FC<BenefitChartProps> = ({
   };
 
   return (
-    <div className="p-1 mb-6 w-full bg-white rounded-2xl">
+    <div className="mb-4 w-full">
       {/* 상단 문구 섹션 */}
-      <div className="mb-7">
+      <div className="mb-5">
         <p className="mb-1 font-bold text-gray-800">
-          <span className="text-[1.5rem]">{userName}님,</span>{' '}
-          <span className="text-[1.6rem] text-blue-800">{gradeInfo.message}</span>
+          <span className="text-[1.6rem]">{userName}님,</span>{' '}
+          <span className="text-[1.7rem] text-blue-800">{gradeInfo.message}</span>
         </p>
-        <p className="text-[1.2rem] text-gray-600">
+        <p className="text-[1.3rem] text-gray-600">
           {gradeInfo.subMessage}
         </p>
       </div>
 
       {/* 그래프 영역 */}
-      <div className="relative -mx-20">
+      <div className="overflow-y-hidden overflow-x-visible relative w-full">
         {/* 라인 그래프 */}
         <ResponsiveContainer width="100%" height={180}>
-          <AreaChart data={data} margin={{ top: 10, right: 50, left: 0, bottom: 20 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 5, left: 5, bottom: 20 }}>
             <defs>
               <linearGradient id="colorBenefit" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8BC34A" stopOpacity={0.3}/>
+                <stop offset="5%" stopColor="#8BC34A" stopOpacity={0.2}/>
                 <stop offset="95%" stopColor="#8BC34A" stopOpacity={0}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+            {/* 그리드 제거 - 깔끔한 디자인 */}
             <XAxis 
               dataKey="month" 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#6B7280', fontSize: 12 }}
+              tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
+              padding={{ left: 5, right: 5 }}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
               tick={false}
               domain={[0, 100]}
+              width={0}
             />
             <Tooltip
               content={({ active, payload }) => {
@@ -114,7 +116,7 @@ const BenefitChart: React.FC<BenefitChartProps> = ({
               type="monotone"
               dataKey="benefit"
               stroke="#8BC34A"
-              strokeWidth={2}
+              strokeWidth={2.5}
               fillOpacity={1}
               fill="url(#colorBenefit)"
             />
@@ -122,7 +124,7 @@ const BenefitChart: React.FC<BenefitChartProps> = ({
               type="monotone"
               dataKey="benefit"
               stroke="#8BC34A"
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={<CustomDot />}
               activeDot={<CustomActiveDot />}
             />

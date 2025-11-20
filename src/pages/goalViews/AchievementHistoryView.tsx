@@ -77,7 +77,7 @@ export default function AchievementHistoryView() {
       isBottomNav={true}
       className="overflow-hidden"
     >
-      <div className="flex overflow-hidden flex-col flex-1 min-h-0">
+      <div className="flex overflow-hidden flex-col h-full min-h-0">
         {/* 혜택 그래프 - 상단 고정 */}
         <div className="flex-shrink-0 px-6 pt-4 pb-4">
           {benefitData.length > 0 && (
@@ -89,8 +89,11 @@ export default function AchievementHistoryView() {
           )}
         </div>
         
+        {/* 경계선 */}
+        <div className="flex-shrink-0 mx-6 border-t border-gray-200"></div>
+        
         {/* 달성도 카드 목록 - 스크롤 가능 */}
-        <div className="overflow-y-auto flex-1 px-6 pb-56 min-h-0">
+        <div className="overflow-y-auto flex-1 px-6 pt-4 pb-56 min-h-0 -webkit-overflow-scrolling-touch">
           <div className="flex flex-col gap-6">
             {historyList.map((a, i) => (
           <div

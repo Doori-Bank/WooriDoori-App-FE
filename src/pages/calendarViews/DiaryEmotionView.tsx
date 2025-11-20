@@ -11,6 +11,7 @@ const DiaryEmotionView = () => {
   const [searchParams] = useSearchParams();
   const date = searchParams.get('date') || '';
   const editMode = searchParams.get('edit') === 'true';
+  const diaryId = searchParams.get('diaryId');
   
   const [showCancelModal, setShowCancelModal] = useState(false);
   
@@ -25,7 +26,13 @@ const DiaryEmotionView = () => {
   const handleEmotionSelect = (emotionIndex: number) => {
     // 선택 즉시 다음 페이지로 이동
     setTimeout(() => {
-      navigate(`/calendar/diary/write?date=${date}&emotion=${emotionIndex}`);
+      const params = new URLSearchParams({
+        date,
+        emotion: emotionIndex.toString(),
+      });
+      if (editMode) params.set('edit', 'true');
+      if (diaryId) params.set('diaryId', diaryId);
+      navigate(`/calendar/diary/write?${params.toString()}`);
     }, 100);
   };
   

@@ -10,12 +10,14 @@ import LoginForm, { LoginFormRef } from "@/components/login/LoginForm";
 import { useApi } from "@/hooks/useApi";
 import { apiList } from "@/api/apiList";
 import { useCookieManager } from "@/hooks/useCookieManager";
+import { useUserStore } from "@/stores/useUserStore";
 
 const LoginView = () => {
   const navigate = useNavigate();
   const loginFormRef = useRef<LoginFormRef>(null);
   const { setCookies, getCookies } = useCookieManager();
   const loginApi = useApi(apiList.login);
+  const { setUserInfo } = useUserStore();
 
   const [showSuccess, setShowSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -53,13 +55,23 @@ const LoginView = () => {
     console.log("로그인 결과:", result);
 
     if (result?.success && result.data) {
-      // 로그인 성공 - 쿠키에 토큰 저장
-      const { accessToken, refreshToken } = result.data;
+      // 로그인 성공 - 쿠키에 토큰 저장 및 사용자 정보 store에 저장
+      const { accessToken, refreshToken, name } = result.data;
       console.log("토큰 받음:", accessToken ? "있음" : "없음");
       
       if (accessToken && refreshToken) {
         try {
           setCookies(accessToken, refreshToken);
+          
+          // 사용자 정보를 store에 저장
+          if (name) {
+            setUserInfo({
+              name,
+              memberId: formData.email, // memberId로 email 사용
+              email: formData.email,
+            });
+          }
+          
           console.log("로그인 성공!");
           
           setShowSuccess(true);

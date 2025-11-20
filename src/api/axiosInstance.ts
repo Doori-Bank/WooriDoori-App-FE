@@ -117,10 +117,11 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // 로그인 API는 에러를 컴포넌트에서 처리하므로 여기서는 alert를 띄우지 않음
+    // 에러를 컴포넌트에서 직접 처리하는 API들은 alert를 띄우지 않음
     const isLoginApi = error?.config?.url?.includes('/auth/login');
+    const isSpendingApi = error?.config?.url?.includes('/history/calendar');
     
-    if (!isLoginApi) {
+    if (!isLoginApi && !isSpendingApi) {
       handleApiError(error);
     }
     

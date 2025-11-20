@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import ChatForm, { ChatMessage } from "@/components/chat/ChatForm";
+import { apiList } from "@/api/apiList";
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose }) => {
     },
   ]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -26,19 +28,62 @@ const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const handleSendMessage = useCallback((text: string) => {
+  const formatTimestamp = () => {
+    return new Date().toLocaleTimeString("ko-KR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }).replace("AM", "오전").replace("PM", "오후");
+  };
+
+  const handleSendMessage = useCallback(async (text: string) => {
+    // 사용자 메시지 추가
     const newUserMessage: ChatMessage = {
       id: Date.now().toString(),
       type: "user",
       text,
-      timestamp: new Date().toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }).replace("AM", "오전").replace("PM", "오후"),
+      timestamp: formatTimestamp(),
     };
 
     setMessages((prev) => [...prev, newUserMessage]);
+    setIsTyping(true);
+
+    try {
+      // API 호출
+      const result = await apiList.chat(text);
+
+      if (result.success && result.data) {
+        // 봇 응답 메시지 추가
+        const botMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: "bot",
+          text: result.data.message,
+          timestamp: formatTimestamp(),
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      } else {
+        // 에러 메시지 표시
+        const errorMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: "bot",
+          text: result.resultMsg || "죄송합니다. 메시지를 처리하는 중 오류가 발생했습니다.",
+          timestamp: formatTimestamp(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      }
+    } catch (error) {
+      console.error("채팅 API 호출 에러:", error);
+      // 에러 메시지 표시
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        text: "죄송합니다. 일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+        timestamp: formatTimestamp(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsTyping(false);
+    }
   }, []);
 
   if (!isOpen) return null;
@@ -70,6 +115,7 @@ const ChatModal: React.FC<ChatModalProps> = ({ isOpen, onClose }) => {
         <ChatForm
           messages={messages}
           onSendMessage={handleSendMessage}
+          isTyping={isTyping}
         />
       </div>
     </div>

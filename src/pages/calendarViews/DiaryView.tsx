@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import DiaryConfirmModal from '@/components/modal/DiaryConfirmModal';
 import { img } from '@/assets/img';
@@ -9,6 +9,9 @@ import MonthCalendarSection from '@/components/calender/MonthCalendarSection';
 import DiaryHeader from '@/components/calender/DiaryHeader';
 import DiaryEmptyState from '@/components/calender/DiaryEmptyState';
 import DiaryContent from '@/components/calender/DiaryContent';
+import { apiList } from '@/api/apiList';
+import { emotionEnumToIndex } from '@/utils/diaryUtils';
+import { OneBtnModal } from '@/components/modal/OneBtnModal';
 
 const DiaryView = () => {
   const navigate = useNavigate();
@@ -17,11 +20,14 @@ const DiaryView = () => {
   const setSelectedDate = useCalendarStore((state) => state.setSelectedDate);
   const changeMonth = useCalendarStore((state) => state.changeMonth);
   const getDiaryEntry = useCalendarStore((state) => state.getDiaryEntry);
+  const diaryEntries = useCalendarStore((state) => state.diaryEntries); // store 직접 구독
   
-  const [confirmModal, setConfirmModal] = useState<{ type: 'edit' | 'delete'; isOpen: boolean }>({
+  const [confirmModal, setConfirmModal] = useState<{ type: 'edit' | 'delete'; isOpen: boolean; diaryId?: number }>({
     type: 'edit',
     isOpen: false,
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<{ message: string; showModal: boolean } | null>(null);
   
   // 캘린더 접기/펼치기 상태
   const [isCalendarCollapsed, setIsCalendarCollapsed] = useState(false);
@@ -138,6 +144,66 @@ const DiaryView = () => {
   // 선택된 날짜의 일기 가져오기
   const selectedDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`;
   const diaryEntry = getDiaryEntry(selectedDateStr);
+
+  // 월별 일기 조회
+  const fetchMonthlyDiaries = async (targetDate: Date) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth() + 1;
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-01`;
+      
+      const result = await apiList.getMonthlyDiaries(dateStr);
+      
+      if (result.success && result.data) {
+        const diaries = result.data || [];
+        
+        // 일기 데이터를 store 형식으로 변환
+        const diaryEntries: Record<string, { date: string; content: string; emotion: number; diaryId?: number }> = {};
+        diaries.forEach((diary: any) => {
+          const diaryDate = diary.diaryDay;
+          // LocalDate 형식 처리 (YYYY-MM-DD)
+          const dateKey = typeof diaryDate === 'string' ? diaryDate.split('T')[0] : diaryDate;
+          const emotionEnum = diary.diaryEmotion || 'NEUTRAL';
+          const emotionIndex = emotionEnumToIndex(emotionEnum);
+          console.log('일기 조회 - date:', dateKey, 'emotion enum:', emotionEnum, 'emotion index:', emotionIndex, '전체 diary:', diary);
+          diaryEntries[dateKey] = {
+            date: dateKey,
+            content: diary.diaryContent || '',
+            emotion: emotionIndex,
+            diaryId: diary.diaryId,
+          };
+        });
+        
+        // store에 저장
+        useCalendarStore.setState({ diaryEntries });
+      } else {
+        // 일기가 없는 경우는 정상 상태 (빈 객체로 설정)
+        useCalendarStore.setState({ diaryEntries: {} });
+      }
+    } catch (error: any) {
+      console.error('월별 일기 조회 에러:', error);
+      // 네트워크 에러나 서버 에러만 에러로 처리 (404는 일기가 없는 정상 상태)
+      const statusCode = error?.response?.status;
+      if (statusCode !== 404) {
+        setError({
+          message: '일기 조회에 실패했습니다.',
+          showModal: true,
+        });
+      } else {
+        // 404는 일기가 없는 정상 상태
+        useCalendarStore.setState({ diaryEntries: {} });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // currentDate 변경 시 일기 조회
+  useEffect(() => {
+    fetchMonthlyDiaries(currentDate);
+  }, [currentDate]);
   
   // 날짜 클릭 핸들러
   const handleDateClick = (day: number | null) => {
@@ -157,12 +223,28 @@ const DiaryView = () => {
   };
   
   // 확인 버튼 핸들러
-  const handleConfirm = () => {
-    if (confirmModal.type === 'delete') {
-      // 삭제 로직
-      const newEntries = { ...useCalendarStore.getState().diaryEntries };
-      delete newEntries[selectedDateStr];
-      useCalendarStore.setState({ diaryEntries: newEntries });
+  const handleConfirm = async () => {
+    if (confirmModal.type === 'delete' && confirmModal.diaryId) {
+      try {
+        const result = await apiList.deleteDiary(confirmModal.diaryId);
+        if (result.success) {
+          // 삭제 성공 시 store에서도 제거
+          const newEntries = { ...useCalendarStore.getState().diaryEntries };
+          delete newEntries[selectedDateStr];
+          useCalendarStore.setState({ diaryEntries: newEntries });
+        } else {
+          setError({
+            message: result.resultMsg || '일기 삭제에 실패했습니다.',
+            showModal: true,
+          });
+        }
+      } catch (error: any) {
+        console.error('일기 삭제 에러:', error);
+        setError({
+          message: '일기 삭제에 실패했습니다.',
+          showModal: true,
+        });
+      }
     }
     setConfirmModal({ ...confirmModal, isOpen: false });
   };
@@ -194,7 +276,7 @@ const DiaryView = () => {
       style={{ backgroundColor: '#FBFBFB' }}
       onClose={() => navigate('/calendar')}
     >
-      <div className="flex relative flex-col h-full" style={{ height: '    height: calc(-12rem + 100vh);' }}>
+      <div className="flex relative flex-col h-full">
         {/* 월 선택 + 캘린더 영역 */}
         <MonthCalendarSection
           month={month}
@@ -208,13 +290,17 @@ const DiaryView = () => {
           dateHeight="h-24"
           renderDateContent={(day) => {
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const entry = getDiaryEntry(dateStr);
+            const entry = diaryEntries[dateStr] || null; // store에서 직접 가져오기
             const hasDiary = entry !== null;
+            
+            if (hasDiary) {
+              console.log('캘린더 렌더링 - date:', dateStr, 'entry:', entry, 'emotion:', entry?.emotion, 'icon index:', entry?.emotion || 2);
+            }
             
             return hasDiary ? (
               <div className="-mt-[0.6rem]">
                 <img 
-                  src={emotionIcons[entry?.emotion || 2]} 
+                  src={emotionIcons[entry?.emotion ?? 2]} 
                   alt="일기 있음"
                   className="object-contain w-20 h-20"
                 />
@@ -225,19 +311,35 @@ const DiaryView = () => {
         
         {/* 일기 표시 영역 (스크롤 가능) */}
         <div ref={diaryAreaRef} className="overflow-y-auto flex-1 px-5 pt-4 pb-50">
-          <div className="px-6 bg-white rounded-3xl shadow-sm">
-            <DiaryHeader
-              diaryEntry={diaryEntry}
-              selectedDate={selectedDate}
-              selectedDayOfWeek={selectedDayOfWeek}
-              emotionIcons={emotionIcons}
-              onEditClick={() => navigate(`/calendar/diary/emotion?date=${selectedDateStr}&edit=true`)}
-            />
-            
-            {!diaryEntry && <DiaryEmptyState onWriteClick={handleWriteClick} />}
-            
-            {diaryEntry && <DiaryContent content={diaryEntry.content} />}
-          </div>
+          {isLoading ? (
+            // 로딩 상태
+            <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C8B73] mb-4"></div>
+              <p className="text-[1.4rem] text-gray-500">일기를 불러오는 중...</p>
+            </div>
+          ) : (
+            <div className="px-6 bg-white rounded-3xl shadow-sm">
+              <DiaryHeader
+                diaryEntry={diaryEntry}
+                selectedDate={selectedDate}
+                selectedDayOfWeek={selectedDayOfWeek}
+                emotionIcons={emotionIcons}
+                onEditClick={() => {
+                const diaryId = diaryEntry && (diaryEntry as any).diaryId;
+                navigate(`/calendar/diary/emotion?date=${selectedDateStr}&edit=true${diaryId ? `&diaryId=${diaryId}` : ''}`);
+              }}
+                onDeleteClick={() => {
+                  if (diaryEntry && (diaryEntry as any).diaryId) {
+                    setConfirmModal({ type: 'delete', isOpen: true, diaryId: (diaryEntry as any).diaryId });
+                  }
+                }}
+              />
+              
+              {!diaryEntry && <DiaryEmptyState onWriteClick={handleWriteClick} />}
+              
+              {diaryEntry && <DiaryContent content={diaryEntry.content} />}
+            </div>
+          )}
         </div>
         
 
@@ -247,6 +349,22 @@ const DiaryView = () => {
           type={confirmModal.type === 'delete' ? 'delete' : 'edit'}
           onConfirm={handleConfirm}
           onCancel={handleModalCancel}
+        />
+
+        {/* 에러 모달 */}
+        <OneBtnModal
+          isOpen={error?.showModal || false}
+          message={
+            <div className="py-2">
+              <div className="text-5xl mb-4">⚠️</div>
+              <p className="text-[1.4rem] leading-relaxed">{error?.message}</p>
+            </div>
+          }
+          confirmTitle="확인"
+          confirmColor="#4C8B73"
+          onConfirm={() => {
+            setError(null);
+          }}
         />
       </div>
     </DefaultDiv>

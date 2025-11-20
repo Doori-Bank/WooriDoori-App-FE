@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import BorderBox from "@/components/default/BorderBox";
@@ -17,6 +17,12 @@ export default function AchievementDetailView() {
 
   const handleBack = () => navigate(-1);
   const handleClose = () => (from === "mypage" ? navigate("/mypage") : navigate("/home"));
+
+  // 스와이프 제스처를 위한 ref와 state
+  const contentRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
+  const isScrolling = useRef<boolean>(false);
 
   // ✅ 카테고리 매핑 함수
   const getCategoryInfo = (categoryName: string) => {
@@ -168,6 +174,98 @@ export default function AchievementDetailView() {
   const fmt = (n: number) =>
     n.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
 
+  // 스와이프 제스처 핸들러
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    isScrolling.current = false;
+  };
+
+  const handleTouchMove = (_e: React.TouchEvent) => {
+    // 수직 스크롤이 있는지 확인
+    if (contentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+      const isAtTop = scrollTop === 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+      
+      // 스크롤 가능한 영역이 있고, 상단/하단에 있지 않으면 스크롤로 간주
+      if (scrollHeight > clientHeight && !isAtTop && !isAtBottom) {
+        isScrolling.current = true;
+        return;
+      }
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (isScrolling.current) return;
+    
+    touchEndY.current = e.changedTouches[0].clientY;
+    const diff = touchStartY.current - touchEndY.current;
+    const minSwipeDistance = 50; // 최소 스와이프 거리
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // 위로 스와이프 (다음 달)
+        if (currentIndex < mockHistory.length - 1) {
+          setCurrentIndex((v) => v + 1);
+        }
+      } else {
+        // 아래로 스와이프 (이전 달)
+        if (currentIndex > 0) {
+          setCurrentIndex((v) => v - 1);
+        }
+      }
+    }
+  };
+
+  // 마우스 드래그 지원 (데스크톱)
+  const handleMouseDown = (e: React.MouseEvent) => {
+    touchStartY.current = e.clientY;
+    isScrolling.current = false;
+  };
+
+  const handleMouseMove = (_e: React.MouseEvent) => {
+    if (touchStartY.current === 0) return;
+    
+    // 스크롤 가능한 영역 확인
+    if (contentRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+      const isAtTop = scrollTop === 0;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+      
+      if (scrollHeight > clientHeight && !isAtTop && !isAtBottom) {
+        isScrolling.current = true;
+        return;
+      }
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (isScrolling.current || touchStartY.current === 0) {
+      touchStartY.current = 0;
+      return;
+    }
+    
+    touchEndY.current = e.clientY;
+    const diff = touchStartY.current - touchEndY.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // 위로 드래그 (다음 달)
+        if (currentIndex < mockHistory.length - 1) {
+          setCurrentIndex((v) => v + 1);
+        }
+      } else {
+        // 아래로 드래그 (이전 달)
+        if (currentIndex > 0) {
+          setCurrentIndex((v) => v - 1);
+        }
+      }
+    }
+    
+    touchStartY.current = 0;
+  };
+
   return (
     <DefaultDiv
       isHeader
@@ -180,7 +278,17 @@ export default function AchievementDetailView() {
       isMainTitle={false}
       isBottomNav={true}
     >
-      <div className="flex relative flex-col gap-6 px-4 pt-4 pb-24 h-full">
+      <div 
+        ref={contentRef}
+        className="flex overflow-y-auto relative flex-col gap-6 px-4 pt-4 pb-24 h-full"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {/* ✅ 월 선택 (헤더 바로 아래) */}
         <div className="flex items-center justify-center gap-4 text-gray-600 text-[1.4rem] font-semibold">
           <button
@@ -261,7 +369,7 @@ export default function AchievementDetailView() {
 
         {/* 최근 기록(첫 번째 항목)에만 챗봇 버튼 표시 */}
         {currentIndex === 0 && (
-          <div className="flex sticky right-6 bottom-24 z-40 justify-end">
+          <div className="flex sticky right-6 bottom-8 z-40 justify-end">
             <button
               onClick={() => setIsChatModalOpen(true)}
               className="flex relative justify-center items-center w-20 h-20 bg-white rounded-full border border-black shadow-lg transition-colors hover:bg-green-600"
