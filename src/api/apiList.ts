@@ -131,4 +131,86 @@ goal: {
       .then(res => res.data.resultData),
 },
 
+// 채팅 API
+chat: async (message: string) => {
+  try {
+    // baseURL 확인 (디버깅용)
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    if (!baseURL) {
+      console.error("⚠️ VITE_API_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      return {
+        success: false,
+        resultMsg: "API 서버 주소가 설정되지 않았습니다. 환경 변수를 확인해주세요.",
+      };
+    }
+    
+    const response = await axiosInstance.post("/api/chat", { message });
+    
+    // 디버깅: 응답 구조 확인
+    console.log("📨 채팅 API 응답:", response.data);
+    
+    // 백엔드 응답 구조 확인
+    const responseData = response.data;
+    
+    // 채팅 API 응답 구조: {response: '메시지 내용'}
+    // 또는 {statusCode: "SUCCESS", resultData: {message: '...'}} 형태일 수도 있음
+    if (responseData.response) {
+      // 직접 response 필드가 있는 경우
+      return {
+        success: true,
+        data: {
+          message: responseData.response,
+        },
+        resultMsg: "성공",
+      };
+    } else if (responseData.statusCode === "SUCCESS") {
+      // statusCode가 "SUCCESS"인 경우 (다른 API와 동일한 구조)
+      const chatMessage = 
+        responseData.resultData?.message || 
+        responseData.resultData?.response || 
+        responseData.resultData?.content ||
+        responseData.message ||
+        "";
+      
+      if (!chatMessage) {
+        console.warn("⚠️ 채팅 응답에 메시지가 없습니다:", responseData);
+        return {
+          success: false,
+          resultMsg: "응답에 메시지가 없습니다.",
+        };
+      }
+      
+      return {
+        success: true,
+        data: {
+          message: chatMessage,
+        },
+        resultMsg: responseData.resultMsg,
+      };
+    } else {
+      // statusCode가 "SUCCESS"가 아닌 경우
+      return {
+        success: false,
+        resultMsg: responseData.resultMsg || responseData.errorResultMsg || "채팅 전송에 실패했습니다.",
+      };
+    }
+  } catch (err: any) {
+    console.error("채팅 API 에러:", err);
+    
+    const errorName = err?.response?.data?.errorName;
+    const errorResultMsg = err?.response?.data?.errorResultMsg;
+    
+    let errorMessage = errorResultMsg;
+    if (errorName && ERROR_RESPONSE[errorName]) {
+      errorMessage = ERROR_RESPONSE[errorName].message;
+    }
+    
+    return {
+      success: false,
+      resultMsg: errorMessage || err?.response?.data?.resultMsg || err?.message || "채팅 전송에 실패했습니다.",
+      resultCode: err?.response?.data?.statusCode,
+      errorName: errorName,
+    };
+  }
+},
 };

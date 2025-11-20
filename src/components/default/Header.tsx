@@ -29,15 +29,7 @@ const HeaderBar = ({
 }: HeaderBarProps) => {
   return (
     <header
-      className={`
-        fixed top-0 left-1/2 transform -translate-x-1/2
-        flex items-center justify-between
-        w-full h-[6rem] max-w-[400px]
-        px-5 bg-white
-        z-1
-        pt-[env(safe-area-inset-top)]
-        ${className}
-      `}
+      className={`flex fixed top-0 left-1/2 justify-between items-center px-5 w-full bg-white transform -translate-x-1/2 h-[6rem] max-w-[400px] z-[99] pt-[env(safe-area-inset-top)] ${className}`}
     >
       {/* 왼쪽: 뒤로가기 버튼 */}
       {isShowBack && (
@@ -45,9 +37,9 @@ const HeaderBar = ({
           type="button"
           onClick={onBack}
           aria-label="뒤로가기"
-          className="flex-1 max-w-10 h-full flex items-center justify-center"
+          className="flex flex-1 justify-center items-center h-full max-w-10"
         >
-          <img src={img.Vector} alt="뒤로가기" className="object-contain w-15 h-6" />
+          <img src={img.Vector} alt="뒤로가기" className="object-contain h-6 w-15" />
         </button>
       )}
 
@@ -64,7 +56,7 @@ const HeaderBar = ({
       </div>
 
       {/* 오른쪽 영역 (닫기/설정 자리) */}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex gap-2 items-center ml-auto">
         {isShowSetting && (
           <button
             type="button"

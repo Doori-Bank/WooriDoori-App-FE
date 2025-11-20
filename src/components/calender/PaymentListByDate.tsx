@@ -40,13 +40,13 @@ const PaymentListByDate: React.FC<PaymentListByDateProps> = ({
                 className="flex gap-4 items-center p-4 mb-3 bg-white rounded-2xl shadow-sm transition-shadow cursor-pointer dark:bg-gray-600 hover:shadow-md dark:hover:shadow-lg"
               >
                 <div 
-                  className="flex flex-shrink-0 justify-center items-center w-20 h-20 rounded-full"
+                  className="flex flex-shrink-0 justify-center items-center w-14 h-14 rounded-full"
                   style={{ backgroundColor: `#${payment.categoryColor}` }}
                 >
                   <img
                     src={getCategoryIcon(payment.category) as any}
                     alt={payment.category}
-                    className="object-contain w-12"
+                    className="object-contain w-8"
                   />
                 </div>
                 <div className="flex-1">

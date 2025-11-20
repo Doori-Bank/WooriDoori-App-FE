@@ -22,7 +22,7 @@ interface props {
 const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEditMode = false, onDelete, isEditingTitle = false, onSaveTitle, onCancelEdit, onEditNickname}: props) => {
 
     return (
-        <div className="border-b border-[#F2F2F2] w-full my-4 pt-3 pb-6 border-box flex flex-col gap-3 items-start">
+        <div className="flex flex-col gap-4 items-start px-5 py-5 w-full">
             {/* 타이틀 */}
             <div className="flex justify-between items-center w-full">
                 <div className="flex items-center">
@@ -31,7 +31,7 @@ const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEditMode = false, 
                             <input
                                 type="text"
                                 defaultValue={title}
-                                className="font-semibold text-[1.8rem] text-[#4A4A4A] border-0 border-b border-gray-300 bg-transparent px-1 py-0 focus:outline-none focus:border-gray-500"
+                                className="font-semibold text-[1.6rem] text-[#4A4A4A] border-0 border-b border-gray-300 bg-transparent px-1 py-0 focus:outline-none focus:border-gray-500"
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                         onSaveTitle?.(e.currentTarget.value);
@@ -48,14 +48,14 @@ const MyCardBox = ({src,alt,title,cardName,cardNum,content, isEditMode = false, 
                         </div>
                     ) : (
                         <div className="flex gap-2 items-center">
-                            <h1 className="font-semibold text-[1.8rem] text-[#4A4A4A]">{title}</h1>
-                            {isEditMode ? <IconButton src={img.EditIcon} alt="수정" width={18} height={18} onClick={onEditNickname} /> : null}
+                            <h1 className="font-semibold text-[1.6rem] text-[#4A4A4A]">{title}</h1>
+                            {isEditMode ? <IconButton src={img.EditIcon} alt="수정" width={14} height={14} onClick={onEditNickname} /> : null}
                         </div>
                     )}
                 </div>
                 {isEditMode && (
-                    <div className="flex items-center -mr-10">
-                        <IconButton src={img.DeleteIcon} alt="삭제" width={15} height={15} onClick={onDelete} />
+                    <div className="flex items-center">
+                        <IconButton src={img.DeleteIcon} alt="삭제" width={14} height={14} onClick={onDelete} />
                     </div>
                 )}
             </div>

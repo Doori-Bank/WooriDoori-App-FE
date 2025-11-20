@@ -5,7 +5,7 @@ const BorderBox = ({
   borderRadius = "rounded-xl",
   padding = "p-4",
   shadow = "shadow-sm",
-  flex = "flex-1",
+  flex,
 }: {
   children: React.ReactNode;
   borderColor?: string;
@@ -15,9 +15,11 @@ const BorderBox = ({
   shadow?: string;
   flex? : string;
 }) => {
+  const flexClass = flex === "" ? "" : (flex || "flex-1");
+  
   return (
     <div
-      className={`${borderColor} ${bgColor} ${borderRadius} ${padding} ${shadow} border ${flex}`}
+      className={`${borderColor} ${bgColor} ${borderRadius} ${padding} ${shadow} border ${flexClass}`}
     >
       {children}
     </div>

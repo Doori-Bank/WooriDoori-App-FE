@@ -1,9 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-   darkMode: 'class',
+  darkMode: "class",
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        ongleip: ["OngleipRyudung", "sans-serif"],
+        nanosanskr: ["nanosanskr", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };
