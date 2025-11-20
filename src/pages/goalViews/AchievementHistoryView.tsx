@@ -34,6 +34,7 @@ export default function AchievementHistoryView() {
 
   const [historyList, setHistoryList] = useState<any[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
+  const selectedItem = selected !== null ? historyList[selected] : null;
  // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     apiList.goalhistory.getGoalHistory()
@@ -145,10 +146,24 @@ export default function AchievementHistoryView() {
             {/* 선택 시 다음 버튼 */}
             {selected !== null && (
               <BottomButtonWrapper paddingBottom="pb-[9rem]">
-                <DefaultButton text="목표관리 확인하기"
-                onClick={() =>
-                  navigate("/achievement/detail", { state: { data: historyList[selected], from: from } })
-                } />
+                <DefaultButton
+  text="목표관리 확인하기"
+  onClick={() => {
+    const selectedItem = historyList[selected];
+
+    // year, month 숫자로 변환
+    const year = Number(selectedItem.goalStartDate.slice(0, 4));
+    const month = Number(selectedItem.goalStartDate.slice(5, 7));
+
+    navigate("/achievement/detail", {
+      state: {
+        year,
+        month,
+        from,
+      },
+    });
+  }}
+/>
               </BottomButtonWrapper>
             )}
           </div>
