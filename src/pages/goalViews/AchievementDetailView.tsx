@@ -369,7 +369,7 @@ export default function AchievementDetailView() {
 
         {/* 최근 기록(첫 번째 항목)에만 챗봇 버튼 표시 */}
         {currentIndex === 0 && (
-          <div className="flex sticky right-6 bottom-24 z-40 justify-end">
+          <div className="flex sticky right-6 bottom-8 z-40 justify-end">
             <button
               onClick={() => setIsChatModalOpen(true)}
               className="flex relative justify-center items-center w-20 h-20 bg-white rounded-full border border-black shadow-lg transition-colors hover:bg-green-600"
