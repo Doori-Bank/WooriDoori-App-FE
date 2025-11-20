@@ -11,10 +11,12 @@ const CardManagement: React.FC = () => {
     cards,
     isEditMode,
     isEditNicknameModalOpen,
+    isDeletingCard,
     loadCards,
     toggleSettingsModal,
     toggleEditMode,
     handleDeleteCard,
+    handleSaveChanges,
     openNicknameModal,
   } = useCardStore();
 
@@ -30,10 +32,6 @@ const CardManagement: React.FC = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [loadCards]);
 
-  const handleSaveChanges = () => {
-    console.log('변경사항 저장');
-    toggleEditMode();
-  };
 
 
   return (
@@ -66,8 +64,8 @@ const CardManagement: React.FC = () => {
                   <h2 className="text-[1.3rem] font-semibold text-gray-800">내 카드</h2>
                   <p className="mt-1 text-[1.2rem] text-gray-500">총 {cards.length}개 등록됨</p>
                 </div>
-                <div className="flex justify-center items-center w-16 h-16 bg-blue-50 rounded-full">
-                  <span className="text-[1.5rem] font-bold text-blue-600">{cards.length}</span>
+                <div className="flex justify-center items-center w-12 h-12 bg-green-100 rounded-full">
+                  <span className="text-[1.4rem] font-bold text-green-600">{cards.length}</span>
                 </div>
               </div>
             </div>
@@ -122,9 +120,10 @@ const CardManagement: React.FC = () => {
         {isEditMode && (
           <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[400px] px-4 py-20 z-40 flex justify-center" style={{ backgroundColor: '#FBFBFB' }}>
             <DefaultButton
-              text="변경사항 저장"
-              onClick={!isEditNicknameModalOpen ? handleSaveChanges : undefined}
-              className={`${isEditNicknameModalOpen
+              text={isDeletingCard ? "저장 중..." : "변경사항 저장"}
+              onClick={!isEditNicknameModalOpen && !isDeletingCard ? handleSaveChanges : undefined}
+              disabled={isEditNicknameModalOpen || isDeletingCard}
+              className={`${isEditNicknameModalOpen || isDeletingCard
                 ? 'bg-gray-400 opacity-50 cursor-not-allowed'
                 : 'bg-red-500 hover:bg-red-600 active:bg-red-700'
                 }`}

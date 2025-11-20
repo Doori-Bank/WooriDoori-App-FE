@@ -1,4 +1,3 @@
-import cardsData from '@/data/cards.json';
 import { img } from '@/assets/img';
 
 export interface CardData {
@@ -16,24 +15,26 @@ const CARDS_STORAGE_KEY = 'userCards';
 
 // 카드 데이터를 가져오는 함수
 export const getCards = (): CardData[] => {
-  // localStorage에서 데이터를 가져오고, 없으면 기본 JSON 데이터 사용
+  // localStorage에서 데이터를 가져오기
   const storedCards = localStorage.getItem(CARDS_STORAGE_KEY);
   if (storedCards) {
     const parsedCards = JSON.parse(storedCards);
-    return parsedCards.map((card: any) => ({
-      ...card,
-      cardImage: img.cardExample
-    }));
+    // 빈 배열이거나 유효한 카드 데이터가 있으면 반환
+    if (Array.isArray(parsedCards)) {
+      return parsedCards.map((card: any) => ({
+        ...card,
+        // cardImage가 URL인 경우 그대로 사용, 아니면 기본 이미지 사용
+        cardImage: card.cardImage && (
+          card.cardImage.startsWith('http://') || 
+          card.cardImage.startsWith('https://') ||
+          card.cardImage.startsWith('/')
+        ) ? card.cardImage : (card.cardImage === 'cardExample' ? img.cardExample : img.cardExample)
+      }));
+    }
   }
   
-  // 기본 데이터를 localStorage에 저장
-  const defaultCards = cardsData.cards.map(card => ({
-    ...card,
-    cardImage: img.cardExample
-  }));
-  localStorage.setItem(CARDS_STORAGE_KEY, JSON.stringify(defaultCards));
-  
-  return defaultCards;
+  // 기본 데이터 없이 빈 배열 반환 (로그인 시 카드가 없어야 함)
+  return [];
 };
 
 // 새 카드를 추가하는 함수

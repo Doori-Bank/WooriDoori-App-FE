@@ -6,7 +6,7 @@ export const CardNumInput = ({ onClick, cardNumList, errors }: { onClick: () => 
     <div>
       <div
         className={`
-          flex items-center px-3 w-full h-[4rem] text-[1.2rem] text-gray-800 rounded-lg border 
+          flex items-center px-3 w-full h-[3rem] text-[1.2rem] text-gray-800 rounded-lg border 
           cursor-pointer focus:outline-none 
           ${errors.cardNumber ? 'border-red-500' : 'border-gray-200'}
         `}

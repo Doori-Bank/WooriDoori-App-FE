@@ -96,4 +96,18 @@ export const ERROR_RESPONSE: Record<string, ErrorResponse> = {
     errorName: "UPDATE_FAILED",
     message: "임시 비밀번호 저장에 실패했습니다.",
   },
+
+  // 카드 관리
+  CARD_ISNULL: {
+    errorName: "CARD_ISNULL",
+    message: "해당 카드는 존재하지 않습니다. 카드 정보를 확인해주세요.",
+  },
+  DUPLICATE_CARD: {
+    errorName: "DUPLICATE_CARD",
+    message: "이미 불러온 카드입니다.",
+  },
+  CARD_ALREADY_EXISTS: {
+    errorName: "CARD_ALREADY_EXISTS",
+    message: "이미 불러온 카드입니다.",
+  },
 };
