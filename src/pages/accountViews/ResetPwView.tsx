@@ -7,12 +7,10 @@ import InputBox from "@/components/input/InputBox";
 import Title1 from "@/components/title/Title1";
 import { useState } from "react";
 import axiosInstance from "@/api/axiosInstance";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ResetPwView = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const email = location.state?.email;
 
   const [name, setName] = useState("");
   const [id, setId] = useState("");
