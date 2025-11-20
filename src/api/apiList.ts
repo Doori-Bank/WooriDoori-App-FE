@@ -194,4 +194,226 @@ chat: async (message: string) => {
     };
   }
 },
+
+// 카드 API
+card: {
+  // 카드 목록 조회
+  getCardList: async () => {
+    try {
+      console.log("🔵 getCardList API 호출:", {
+        url: "/card",
+        method: "GET",
+      });
+
+      const response = await axiosInstance.get("/card");
+      
+      console.log("🟢 getCardList API 성공 응답:", {
+        statusCode: response.data.statusCode,
+        resultMsg: response.data.resultMsg,
+        resultData: response.data.resultData,
+      });
+
+      return {
+        success: true,
+        data: response.data.resultData,
+        resultMsg: response.data.resultMsg,
+      };
+    } catch (err: any) {
+      console.error("🔴 카드 목록 조회 에러:", {
+        message: err?.message,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+        config: {
+          url: err?.config?.url,
+          method: err?.config?.method,
+        },
+      });
+      
+      const errorName = err?.response?.data?.errorName;
+      const errorResultMsg = err?.response?.data?.errorResultMsg;
+      
+      let errorMessage = errorResultMsg;
+      if (errorName && ERROR_RESPONSE[errorName]) {
+        errorMessage = ERROR_RESPONSE[errorName].message;
+      }
+      
+      return {
+        success: false,
+        resultMsg: errorMessage || err?.response?.data?.resultMsg || err?.message || "카드 목록 조회에 실패했습니다.",
+        resultCode: err?.response?.data?.statusCode,
+        errorName: errorName,
+      };
+    }
+  },
+
+  // 카드 삭제
+  deleteCard: async (cardId: number) => {
+    try {
+      console.log("🔵 deleteCard API 호출:", {
+        url: "/card/deleteCard",
+        method: "PATCH",
+        data: { id: cardId },
+      });
+
+      const response = await axiosInstance.patch("/card/deleteCard", { id: cardId });
+      
+      console.log("🟢 deleteCard API 성공 응답:", {
+        statusCode: response.data.statusCode,
+        resultMsg: response.data.resultMsg,
+        resultData: response.data.resultData,
+      });
+
+      return {
+        success: true,
+        data: response.data.resultData,
+        resultMsg: response.data.resultMsg,
+      };
+    } catch (err: any) {
+      console.error("🔴 카드 삭제 에러:", {
+        message: err?.message,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+        config: {
+          url: err?.config?.url,
+          method: err?.config?.method,
+        },
+      });
+      
+      const errorName = err?.response?.data?.errorName;
+      const errorResultMsg = err?.response?.data?.errorResultMsg;
+      
+      let errorMessage = errorResultMsg;
+      if (errorName && ERROR_RESPONSE[errorName]) {
+        errorMessage = ERROR_RESPONSE[errorName].message;
+      }
+      
+      return {
+        success: false,
+        resultMsg: errorMessage || err?.response?.data?.resultMsg || err?.message || "카드 삭제에 실패했습니다.",
+        resultCode: err?.response?.data?.statusCode,
+        errorName: errorName,
+      };
+    }
+  },
+
+  // 카드 별명 수정
+  editCard: async (cardData: {
+    id: number;
+    cardAlias: string;
+  }) => {
+    try {
+      console.log("🔵 editCard API 호출:", {
+        url: "/card/editCard",
+        method: "PATCH",
+        data: cardData,
+      });
+
+      const response = await axiosInstance.patch("/card/editCard", cardData);
+      
+      console.log("🟢 editCard API 성공 응답:", {
+        statusCode: response.data.statusCode,
+        resultMsg: response.data.resultMsg,
+        resultData: response.data.resultData,
+      });
+
+      return {
+        success: true,
+        data: response.data.resultData,
+        resultMsg: response.data.resultMsg,
+      };
+    } catch (err: any) {
+      console.error("🔴 카드 별명 수정 에러:", {
+        message: err?.message,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+        config: {
+          url: err?.config?.url,
+          method: err?.config?.method,
+        },
+      });
+      
+      const errorName = err?.response?.data?.errorName;
+      const errorResultMsg = err?.response?.data?.errorResultMsg;
+      
+      let errorMessage = errorResultMsg;
+      if (errorName && ERROR_RESPONSE[errorName]) {
+        errorMessage = ERROR_RESPONSE[errorName].message;
+      }
+      
+      return {
+        success: false,
+        resultMsg: errorMessage || err?.response?.data?.resultMsg || err?.message || "카드 별명 수정에 실패했습니다.",
+        resultCode: err?.response?.data?.statusCode,
+        errorName: errorName,
+      };
+    }
+  },
+
+  // 카드 검증 및 불러오기
+  putCard: async (cardData: {
+    cardNum: string;
+    cardPw: string;
+    expiryMmYy: string;
+    cardUserRegistNum: string;
+    cardUserRegistBack: string;
+    cardCvc: string;
+    cardAlias?: string;
+  }) => {
+    try {
+      console.log("🔵 putCard API 호출:", {
+        url: "/card/putCard",
+        method: "PATCH",
+        data: {
+          ...cardData,
+          cardNum: cardData.cardNum.replace(/\d(?=\d{4})/g, '*'), // 마스킹
+          cardPw: '**',
+          cardCvc: '***',
+        },
+      });
+
+      const response = await axiosInstance.patch("/card/putCard", cardData);
+      
+      console.log("🟢 putCard API 성공 응답:", {
+        statusCode: response.data.statusCode,
+        resultMsg: response.data.resultMsg,
+        resultData: response.data.resultData,
+      });
+
+      return {
+        success: true,
+        data: response.data.resultData,
+        resultMsg: response.data.resultMsg,
+      };
+    } catch (err: any) {
+      console.error("🔴 카드 검증 에러:", {
+        message: err?.message,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        data: err?.response?.data,
+        config: {
+          url: err?.config?.url,
+          method: err?.config?.method,
+        },
+      });
+      
+      const errorName = err?.response?.data?.errorName;
+      const errorResultMsg = err?.response?.data?.errorResultMsg;
+      
+      let errorMessage = errorResultMsg;
+      if (errorName && ERROR_RESPONSE[errorName]) {
+        errorMessage = ERROR_RESPONSE[errorName].message;
+      }
+      
+      return {
+        success: false,
+        resultMsg: errorMessage || err?.response?.data?.resultMsg || err?.message || "카드 검증에 실패했습니다.",
+        resultCode: err?.response?.data?.statusCode,
+        errorName: errorName,
+      };
+    }
+  },
+},
 };
