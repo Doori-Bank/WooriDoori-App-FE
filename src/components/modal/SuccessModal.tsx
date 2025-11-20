@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SuccessModalProps {
   isOpen: boolean;
@@ -15,11 +15,32 @@ const SuccessModal: React.FC<SuccessModalProps> = ({
   confirmText = '확인',
   onConfirm,
 }) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      // 모달이 열릴 때 애니메이션 시작
+      setTimeout(() => setIsAnimating(true), 10);
+    } else {
+      setIsAnimating(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/40 px-10">
-      <div className="w-full max-w-[350px] rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all duration-300 scale-100">
+    <div 
+      className={`fixed inset-0 z-[500] flex items-center justify-center px-10 transition-opacity duration-300 ${
+        isAnimating ? 'opacity-100 bg-black/40' : 'opacity-0 bg-black/0'
+      }`}
+    >
+      <div 
+        className={`w-full max-w-[350px] rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all duration-300 ${
+          isAnimating 
+            ? 'translate-y-0 opacity-100 scale-100' 
+            : '-translate-y-8 opacity-0 scale-95'
+        }`}
+      >
         {/* 상단 체크 아이콘 */}
         <div className="flex justify-center pt-8 pb-4">
           <div className="flex justify-center items-center w-16 h-16 bg-green-100 rounded-full">

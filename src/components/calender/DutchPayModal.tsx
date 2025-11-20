@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCalendarStore } from '@/stores/calendarStore';
+import { apiList } from '@/api/apiList';
 
 // 더치페이 모달
 export const DutchPayModal: React.FC = () => {
@@ -38,14 +39,37 @@ export const DutchPayModal: React.FC = () => {
     }, 200);
   };
 
-  const handleComplete = () => {
-    if (dutchPayModal) {
-      // 원본 데이터는 수정하지 않고, 더치페이 인원과 금액만 UI 표시용으로 저장
-      const updatedAmount = isEditingAmount ? -editedAmount : dutchPayModal.amount;
+  const handleComplete = async () => {
+    if (!dutchPayModal) return;
+    
+    try {
+      const updatedAmount = isEditingAmount ? editedAmount : Math.abs(dutchPayModal.amount);
+      
+      // 더치페이 인원 수정 API 호출
+      if (participants !== dutchPayModal.dutchPay) {
+        const dutchPayResult = await apiList.updateDutchpay(dutchPayModal.id, participants);
+        if (!dutchPayResult.success) {
+          console.error('더치페이 수정 실패:', dutchPayResult.resultMsg);
+          alert(dutchPayResult.resultMsg || '더치페이 수정에 실패했습니다.');
+          return;
+        }
+      }
+      
+      // 금액 수정 API 호출 (금액이 변경된 경우)
+      if (isEditingAmount && updatedAmount !== Math.abs(dutchPayModal.amount)) {
+        const priceResult = await apiList.updatePrice(dutchPayModal.id, updatedAmount);
+        if (!priceResult.success) {
+          console.error('금액 수정 실패:', priceResult.resultMsg);
+          alert(priceResult.resultMsg || '금액 수정에 실패했습니다.');
+          return;
+        }
+      }
+      
+      // 업데이트된 데이터
       const updatedData = {
         ...dutchPayModal,
         dutchPay: participants,
-        amount: updatedAmount,
+        amount: -updatedAmount,
       };
       
       // 업데이트된 데이터를 전달 (UI에 표시되도록)
@@ -62,6 +86,9 @@ export const DutchPayModal: React.FC = () => {
           data: updatedData 
         });
       }, 100);
+    } catch (error) {
+      console.error('더치페이/금액 수정 에러:', error);
+      alert('수정 중 오류가 발생했습니다.');
     }
   };
 

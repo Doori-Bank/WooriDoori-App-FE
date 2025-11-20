@@ -2,38 +2,42 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
 import { img } from '@/assets/img';
+import { useUserStore } from '@/stores/useUserStore';
 
 const UserInfoView: React.FC = () => {
   const navigate = useNavigate();
+  const { userInfo: storeUserInfo } = useUserStore();
   
-  // localStorage에서 사용자 정보 가져오기
+  // store에서 사용자 정보 가져오기
   const getUserInfo = () => {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      const user = JSON.parse(userInfo);
+    if (storeUserInfo) {
       return {
-        id: user.memberId || user.email || 'test@test.com',
-        password: user.password ? '•'.repeat(user.password.length) : '••••••••',
-        name: user.name || '홍길동',
-        phone: user.phone || '010-0000-0000',
-        birth: user.birth || '040207'
+        id: storeUserInfo.memberId || storeUserInfo.email || 'test@test.com',
+        password: '••••••••',
+        name: storeUserInfo.name || '사용자',
+        phone: '010-0000-0000', // store에 phone 정보가 없으면 기본값
+        birth: '040207' // store에 birth 정보가 없으면 기본값
       };
     }
     return {
       id: 'test@test.com',
       password: '••••••••',
-      name: '홍길동',
+      name: '사용자',
       phone: '010-0000-0000',
       birth: '040207'
     };
   };
   
-  const userInfo = getUserInfo();
-  
-  // 프로필 이미지 상태 관리
-  const getProfileImage = () => {
-    const savedImage = localStorage.getItem('profileImage');
-    return savedImage || null;
+  const [userInfo] = useState(getUserInfo());
+
+  // localStorage에서 프로필 이미지 가져오기
+  const getProfileImage = (): string | null => {
+    try {
+      return localStorage.getItem('profileImage');
+    } catch (error) {
+      console.error('프로필 이미지 로드 실패:', error);
+      return null;
+    }
   };
   
   const [profileImage, setProfileImage] = useState<string | null>(getProfileImage());

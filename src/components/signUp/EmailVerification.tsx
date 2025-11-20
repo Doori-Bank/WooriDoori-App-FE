@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import InputBox from "../input/InputBox";
 import SuccessModal from "../modal/SuccessModal";
+import axiosInstance from "@/api/axiosInstance";
 
 interface EmailVerificationProps {
   email: string;
@@ -13,10 +14,11 @@ const EmailVerification = ({ email, setEmail, onVerified }: EmailVerificationPro
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
   const [inputCode, setInputCode] = useState(""); // 사용자가 입력한 코드
-  const [serverCode, setServerCode] = useState(""); // 실제 서버에서 받은 코드 (예시용)
   const [isVerified, setIsVerified] = useState(false);
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [modalType, setModalType] = useState<'success' | 'error'>('success');
+  const [modalMsg, setModalMsg] = useState("");
 
   // 타이머
   useEffect(() => {
@@ -40,65 +42,116 @@ const EmailVerification = ({ email, setEmail, onVerified }: EmailVerificationPro
   };
 
   // 이메일 중복확인
-  const handleEmailCheck = () => {
+  const handleEmailCheck = async () => {
     if (!email) {
-      setModalType('error');
+      setModalType("error");
+      setModalMsg("이메일을 입력해주세요.");
       setShowSuccessModal(true);
       return;
     }
+
     if (!validateEmailFormat(email)) {
-      alert("올바른 이메일 형식이 아닙니다.");
+      setModalType("error");
+      setModalMsg("올바른 이메일 형식이 아닙니다.");
+      setShowSuccessModal(true);
       return;
     }
 
-    const available = email !== "test@example.com";
-    setIsAvailable(available);
+    try {
+      const res = await axiosInstance.get("/auth/idCheck", {
+        params: { memberId: email },
+        headers: { Authorization: "" } //토큰 제거
+      });
 
-    if (!available) {
-      alert("이미 사용 중인 이메일입니다.");
-      setIsCodeSent(false);
-      setTimeLeft(0);
-    } else {
+      const available = res.data.resultData === true;
+      setIsAvailable(available);
+
+      if (!available) {
+        setModalType("error");
+        setModalMsg("이미 사용 중인 이메일입니다.");
+        setShowSuccessModal(true);
+        setIsCodeSent(false);
+        setTimeLeft(0);
+        return;
+      }
+
       handleSendCode(true);
+
+    } catch (err) {
+      console.error(err);
+      setModalType("error");
+      setModalMsg("이메일 확인 중 오류가 발생했습니다.");
+      setShowSuccessModal(true);
     }
   };
-
+  
   // 인증번호 전송
-  const handleSendCode = (forceSend = false) => {
+  const handleSendCode = async (forceSend = false) => {
     if (!forceSend && isAvailable !== true) {
       return alert("먼저 사용 가능한 이메일을 확인해주세요.");
     }
-    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setServerCode(generatedCode);
-    console.log("✅ [테스트용 인증번호]", generatedCode);
-    setIsCodeSent(true);
-    setTimeLeft(180);
-    setIsVerified(false);
-    setInputCode("");
+
+    try {
+      await axiosInstance.post("/auth/send-verification",
+        { email: email },
+        { headers: { Authorization: "" } }  // 수정
+      );
+
+      setModalType("success");
+      setModalMsg("인증번호가 발송되었습니다. 이메일을 확인해주세요.");
+      setShowSuccessModal(true);
+
+      // 기존 타이머 로직 유지
+      setIsCodeSent(true);
+      setTimeLeft(180);
+      setIsVerified(false);
+      setInputCode("");
+
+    } catch (err) {
+      console.error(err);
+      setModalType("error");
+      setModalMsg("인증번호 발송 실패. 다시 시도해주세요.");
+      setShowSuccessModal(true);
+    }
   };
 
   // 인증번호 확인
-  const handleVerifyCode = () => {
-    if (!inputCode) return alert("인증번호를 입력해주세요.");
+  const handleVerifyCode = async () => {
+    if (!inputCode) {
+      alert("인증번호를 입력해주세요.");
+      return;
+    }
 
-    // 타이머 만료 시 인증 불가
     if (timeLeft <= 0) {
-      alert("인증 시간이 만료되었습니다. 인증번호를 다시 요청해주세요.");
+      alert("인증 시간이 만료되었습니다. 다시 요청해주세요.");
       setIsCodeSent(false);
       setInputCode("");
       return;
     }
 
-    if (inputCode === serverCode) {
-      setModalType('success');
-      setShowSuccessModal(true);
-      setIsVerified(true);
-      setIsCodeSent(false);
-      setTimeLeft(0);
-      onVerified?.();
-    } else {
-      alert("인증번호가 일치하지 않습니다.");
-      setIsVerified(false);
+    try {
+      const res = await axiosInstance.post("/auth/verify-email", 
+        { email: email, code: inputCode },
+        { headers: { Authorization: "" } }   // 수정
+      );
+
+      if (res.data.resultData === true) {
+        setModalType("success");
+        setModalMsg("이메일 인증이 완료되었습니다!");
+        setShowSuccessModal(true);
+
+        setIsVerified(true);
+        setIsCodeSent(false);
+        setTimeLeft(0);
+        onVerified?.();
+
+      } else {
+        alert("인증번호가 일치하지 않습니다.");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("인증 실패. 다시 시도해주세요.");
     }
   };
 
@@ -203,11 +256,12 @@ const EmailVerification = ({ email, setEmail, onVerified }: EmailVerificationPro
       <SuccessModal
         isOpen={showSuccessModal}
         title={modalType === 'success' ? "인증 완료!" : "이메일을 입력해주세요"}
-        message={modalType === 'success' ? "이메일 인증이 성공적으로 완료되었습니다." : "이메일을 입력한 후 인증하기 버튼을 눌러주세요."}
+        message={modalMsg}
         confirmText="확인"
         onConfirm={() => setShowSuccessModal(false)}
       />
     </div>
+    
   );
 };
 

@@ -4,26 +4,22 @@ import DefaultDiv from '@/components/default/DefaultDiv';
 import ChoiceModal from '@/components/modal/ChoiceModal';
 import SuccessModal from '@/components/modal/SuccessModal';
 import { img } from '@/assets/img';
+import axiosInstance from "@/api/axiosInstance";
+import { useCookieManager } from "@/hooks/useCookieManager";
+import { useUserStore } from "@/stores/useUserStore";
 
 const MyPageView: React.FC = () => {
   const navigate = useNavigate();
-  
-  // localStorage에서 사용자 정보 가져오기
-  const getUserName = () => {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      const user = JSON.parse(userInfo);
-      return user.name || '사용자';
-    }
-    return '석기'; // 기본값
-  };
-  
-  const userName = getUserName();
-  
+
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
+
   // 모달 상태
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+  const { removeCookies } = useCookieManager();
+
 
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
@@ -33,10 +29,25 @@ const MyPageView: React.FC = () => {
     setIsWithdrawModalOpen(true);
   };
 
-  const confirmLogout = () => {
-    localStorage.removeItem('userInfo');
-    setIsLogoutModalOpen(false);
-    setShowLogoutSuccess(true);
+  const confirmLogout = async () => {
+    try {
+      // 백엔드 로그아웃 요청
+      await axiosInstance.post("/auth/logout");
+
+      removeCookies();
+
+      // 로컬 토큰/유저정보 삭제
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userInfo");
+
+      // 모달 처리
+      setIsLogoutModalOpen(false);
+      setShowLogoutSuccess(true);
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃 중 오류가 발생했습니다.");
+    }
   };
 
   const confirmWithdraw = () => {
@@ -51,7 +62,7 @@ const MyPageView: React.FC = () => {
   const cancelWithdraw = () => {
     setIsWithdrawModalOpen(false);
   };
-  
+
   const menuSections = [
     {
       title: '',
@@ -83,7 +94,7 @@ const MyPageView: React.FC = () => {
     {
       title: '',
       items: [
-        { title: '로그아웃', path: '', action: handleLogout },
+        { title: '로그아웃', path: '/auth/logout', action: handleLogout },
         { title: '회원 탈퇴', path: '', action: handleWithdraw },
       ]
     },
@@ -112,8 +123,8 @@ const MyPageView: React.FC = () => {
   );
 
   return (
-    <DefaultDiv 
-      isBottomNav={true} 
+    <DefaultDiv
+      isBottomNav={true}
       isHeader={true}
       title="마이페이지"
       isShowBack={true}
@@ -122,9 +133,9 @@ const MyPageView: React.FC = () => {
       onBack={() => navigate(-1)}
       headerClassName="bg-gray-100"
       style={{ backgroundColor: '#FBFBFB' }}
-      >
+    >
       {/* 사용자 프로필 섹션 - 클릭 가능 */}
-      <div 
+      <div
         onClick={() => navigate('/userinfo')}
         className="flex gap-4 items-center p-4 mb-6 bg-gray rounded-2xl transition-all duration-200 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transform hover:scale-[1.01] active:scale-[0.99]"
       >
@@ -136,7 +147,7 @@ const MyPageView: React.FC = () => {
             className="object-contain w-16 h-16"
           />
         </div>
-        
+
         {/* 사용자 정보 */}
         <div className="flex-1">
           <h1 className="text-[1.8rem] font-bold text-gray-900 mb-1">
@@ -156,7 +167,7 @@ const MyPageView: React.FC = () => {
       {/* 메뉴 섹션들 */}
       <div className="flex flex-col gap-4 mb-24 w-full">
         {menuSections.map((section, sectionIndex) => (
-          <div 
+          <div
             key={sectionIndex}
             className="overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm"
           >

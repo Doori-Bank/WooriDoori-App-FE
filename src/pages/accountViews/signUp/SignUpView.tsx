@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DefaultDiv from "../../../components/default/DefaultDiv";
 import InputBox from "../../../components/input/InputBox";
 import DefaultButton from "../../../components/button/DefaultButton";
@@ -9,17 +9,34 @@ import BirthInput from "../../../components/signUp/BirthInput";
 import SuccessModal from "../../../components/modal/SuccessModal";
 import { useNavigate } from "react-router-dom";
 
+import axiosInstance from "@/api/axiosInstance";
+
 const SignUpFormView = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // 🔥 이전 로그인 사용자 완전 로그아웃
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    
+  }, []);
 
   // 상태 정의
   const [email, setEmail] = useState("");
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  const [password, setPassword] = useState(""); // 추가: 비밀번호 저장
+
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [nameError, setNameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+
+  // 추가: birthDate / birthBack 저장
+  const [birthDate, setBirthDate] = useState("");
+  const [birthBack, setBirthBack] = useState("");
+
   const [birthValid, setBirthValid] = useState(false);
   const [showSignUpSuccess, setShowSignUpSuccess] = useState(false);
 
@@ -59,13 +76,13 @@ const SignUpFormView = () => {
   const isFormValid =
     isEmailVerified &&
     isPasswordValid &&
+    password &&
     name &&
     phone.length === 11 &&
     !nameError &&
     !phoneError &&
     birthValid;
 
-  // 완료 버튼 클릭
   const handleSubmitClick = async () => {
     if (!isFormValid) {
       alert("모든 항목을 올바르게 입력해주세요.");
@@ -73,18 +90,35 @@ const SignUpFormView = () => {
     }
 
     try {
-      // 실제 서버 요청이 들어간다고 가정 (테스트용)
-      // await api.post("/signup", { email, password, name, phone });
+      const res = await axiosInstance.post("/auth/join", {
+        id: email,
+        password: password,
+        name: name,
+        phone: phone,
+        birthDate: birthDate,
+        birthBack: birthBack,
+      }
+        , {
+          headers: {
+            Authorization: ""
+          }
+        }
+      );
 
-      // 테스트용 성공 시뮬레이션
-      const success = Math.random() > 0.1; // 10% 확률로 실패
-      if (!success) throw new Error("서버 응답 오류");
 
-      // 회원가입 성공 모달 표시
+      console.log("회원가입 성공:", res.data);
+
+      // 🔥 가입 후 자동 로그인 토큰 저장
+      const tokens = res.data.resultData?.tokens;
+      if (tokens) {
+        localStorage.setItem("accessToken", tokens.accessToken);
+        localStorage.setItem("refreshToken", tokens.refreshToken);
+      }
+
       setShowSignUpSuccess(true);
+
     } catch (error) {
       console.error("회원가입 중 오류:", error);
-      alert("예기치 못한 오류로 회원가입에 실패했습니다.");
       navigate("/signUp/Fail");
     }
   };
@@ -93,16 +127,16 @@ const SignUpFormView = () => {
     <DefaultDiv
       isHeader={true}
       title="회원가입"
-      isShowBack={true}               
-      isShowClose={true}               
+      isShowBack={true}
+      isShowClose={true}
       isShowSetting={false}
-      onBack={() => navigate(-1)}      
-      onClose={() => navigate("/login")} 
+      onBack={() => navigate(-1)}
+      onClose={() => navigate("/login")}
       isMainTitle={false}
     >
 
       <div className="pt-[4rem] flex flex-col items-center">
-        <form className="w-full max-w-[34rem] flex flex-col gap-[2rem]">
+        <div className="w-full max-w-[34rem] flex flex-col gap-[2rem]">
           {/* 이메일 인증 */}
           <EmailVerification
             email={email}
@@ -111,7 +145,10 @@ const SignUpFormView = () => {
           />
 
           {/* 비밀번호 입력 */}
-          <PasswordFields onValidChange={setIsPasswordValid} />
+          <PasswordFields
+            onValidChange={setIsPasswordValid}
+            onPasswordChange={setPassword}
+          />
 
           {/* 이름 */}
           <div>
@@ -148,7 +185,12 @@ const SignUpFormView = () => {
           </div>
 
           {/* 생년월일 */}
-          <BirthInput onValidChange={setBirthValid} />
+          <BirthInput
+            onValidChange={setBirthValid}
+            setBirthDate={setBirthDate}
+            setBirthBack={setBirthBack}
+
+          />
 
           {/* 완료 버튼 */}
           <BottomButtonWrapper>
@@ -158,15 +200,15 @@ const SignUpFormView = () => {
               onClick={handleSubmitClick}
             />
           </BottomButtonWrapper>
-        </form>
+        </div>
 
         {/* 회원가입 성공 모달 */}
         <SuccessModal
           isOpen={showSignUpSuccess}
           title="회원가입 완료!"
-          message="축하합니다! 회원가입이 성공적으로 완료되었습니다.\n이제 로그인하여 서비스를 이용해보세요."
-          confirmText="로그인하기"
-          onConfirm={() => navigate('/login')}
+          message="축하합니다! 회원가입이 성공적으로 완료되었습니다."
+          confirmText="홈으로 이동"
+          onConfirm={() => navigate('/home')}
         />
       </div>
     </DefaultDiv>

@@ -5,6 +5,7 @@ export interface DiaryEntry {
   date: string; // YYYY-MM-DD
   content: string;
   emotion: number; // 0-4 (매우 좋음, 좋음, 보통, 나쁨, 매우 나쁨)
+  diaryId?: number; // 백엔드 일기 ID (수정/삭제 시 필요)
 }
 
 interface CalendarStore {

@@ -6,13 +6,34 @@ import DefaultDiv from "@/components/default/DefaultDiv";
 import InputBox from "@/components/input/InputBox";
 import Title1 from "@/components/title/Title1";
 import { useState } from "react";
+import axiosInstance from "@/api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const SearchIdView = () => {
+  const navigate = useNavigate();
+  
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
   // 이름과 전화번호가 모두 유효하면 버튼 활성화
   const isFormValid = name.trim().length > 0 && /^[0-9]{11}$/.test(phone.trim());
+
+  const handleSearchId = async () => {
+    try {
+      // 🔥 백엔드로 아이디 찾기 요청
+      const response = await axiosInstance.get("/auth/searchId", {
+        params: { name, phone },
+      });
+
+      const foundEmail = response.data; // 백엔드는 이메일 문자열 반환
+
+      // 🔥 결과 페이지로 이동하면서 이메일 전달
+      navigate("/yourid", { state: { email: foundEmail } });
+    } catch (error) {
+      console.error("아이디 찾기 오류:", error);
+      alert("해당 정보로 가입된 계정을 찾을 수 없습니다.");
+    }
+  };
 
   return (
     <DefaultDiv>
@@ -70,7 +91,7 @@ const SearchIdView = () => {
           <DefaultButton 
             text="확인"
             disabled={!isFormValid}
-            onClick={() => (window.location.href = "/yourid")} 
+            onClick= {handleSearchId} 
           />
         </BottomButtonWrapper>
       </div>

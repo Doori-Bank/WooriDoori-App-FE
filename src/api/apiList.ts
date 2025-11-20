@@ -103,6 +103,212 @@ export const apiList = {
     }
   },
 
+  // 소비 내역 API
+  // 월별 소비 내역 조회
+  getMonthlySpendings: async (targetDate: string) => {
+    try {
+      const response = await axiosInstance.get("/history/calendar", {
+        params: { targetDate },
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("월별 소비 내역 조회 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "소비 내역 조회에 실패했습니다.",
+      };
+    }
+  },
+
+  // 소비 내역 상세 조회
+  getSpendingDetail: async (historyId: number) => {
+    try {
+      const response = await axiosInstance.get(`/history/calendar/detail/${historyId}`);
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("소비 내역 상세 조회 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "상세 내역 조회에 실패했습니다.",
+      };
+    }
+  },
+
+  // 지출 합계 포함 여부 수정
+  updateIncludeTotal: async (historyId: number, includeInTotal: boolean) => {
+    try {
+      const response = await axiosInstance.patch(`/history/calendar/${historyId}/${includeInTotal}`);
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("지출 합계 포함 여부 수정 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "수정에 실패했습니다.",
+      };
+    }
+  },
+
+  // 카테고리 수정
+  updateCategory: async (historyId: number, category: string) => {
+    try {
+      const response = await axiosInstance.patch(`/history/calendar/${historyId}/category`, {
+        category,
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("카테고리 수정 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "카테고리 수정에 실패했습니다.",
+      };
+    }
+  },
+
+  // 더치페이 인원 수정
+  updateDutchpay: async (historyId: number, count: number) => {
+    try {
+      const response = await axiosInstance.patch(`/history/calendar/${historyId}/dutchpay`, {
+        count,
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("더치페이 수정 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "더치페이 수정에 실패했습니다.",
+      };
+    }
+  },
+
+  // 소비 금액 수정
+  updatePrice: async (historyId: number, price: number) => {
+    try {
+      const response = await axiosInstance.patch(`/history/calendar/${historyId}/price`, {
+        price,
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("금액 수정 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "금액 수정에 실패했습니다.",
+      };
+    }
+  },
+
+  // 소비 일기 API
+  // 월별 일기 조회
+  getMonthlyDiaries: async (targetDate: string) => {
+    try {
+      const response = await axiosInstance.get("/diary", {
+        params: { targetDate },
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("월별 일기 조회 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "일기 조회에 실패했습니다.",
+      };
+    }
+  },
+
+  // 일기 상세 조회
+  getDiaryDetail: async (diaryId: number) => {
+    try {
+      const response = await axiosInstance.get(`/diary/${diaryId}`);
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("일기 상세 조회 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "일기 상세 조회에 실패했습니다.",
+      };
+    }
+  },
+
+  // 일기 생성
+  createDiary: async (diaryDay: string, diaryEmotion: string, diaryContent: string) => {
+    try {
+      const response = await axiosInstance.post("/diary/insertDiary", {
+        diaryDay,
+        diaryEmotion,
+        diaryContent,
+      });
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("일기 생성 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "일기 생성에 실패했습니다.",
+      };
+    }
+  },
+
+  // 일기 수정
+  updateDiary: async (diaryId: number, diaryEmotion?: string, diaryContent?: string) => {
+    try {
+      const requestBody: { diaryEmotion?: string; diaryContent?: string } = {};
+      if (diaryEmotion !== undefined) requestBody.diaryEmotion = diaryEmotion;
+      if (diaryContent !== undefined) requestBody.diaryContent = diaryContent;
+
+      const response = await axiosInstance.put(`/diary/updateDiary/${diaryId}`, requestBody);
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("일기 수정 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "일기 수정에 실패했습니다.",
+      };
+    }
+  },
+
+  // 일기 삭제
+  deleteDiary: async (diaryId: number) => {
+    try {
+      const response = await axiosInstance.delete(`/diary/${diaryId}`);
+      return {
+        success: true,
+        data: response.data.resultData,
+      };
+    } catch (err: any) {
+      console.error("일기 삭제 에러:", err);
+      return {
+        success: false,
+        resultMsg: err?.response?.data?.errorResultMsg || err?.response?.data?.resultMsg || "일기 삭제에 실패했습니다.",
+      };
+    }
+  },
 // 목표 API
 goal: {
   getCurrentGoal: () => axiosInstance.get("/goal/current"),

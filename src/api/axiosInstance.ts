@@ -44,6 +44,9 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response, // 응답은 그대로 반환
   async (error: AxiosError) => {
+    if (error.config?.url?.includes("/auth/logout")) {
+      return Promise.reject(error);
+    }
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     // 401 에러이고, reissue API가 아니고, 이미 재시도한 요청이 아닐 때
@@ -51,6 +54,7 @@ axiosInstance.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest.url?.includes('/auth/reissue') &&
       !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/logout') &&
       !originalRequest._retry
     ) {
       // 이미 재발급 중이면 대기
@@ -117,10 +121,11 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // 로그인 API는 에러를 컴포넌트에서 처리하므로 여기서는 alert를 띄우지 않음
+    // 에러를 컴포넌트에서 직접 처리하는 API들은 alert를 띄우지 않음
     const isLoginApi = error?.config?.url?.includes('/auth/login');
+    const isSpendingApi = error?.config?.url?.includes('/history/calendar');
     
-    if (!isLoginApi) {
+    if (!isLoginApi && !isSpendingApi) {
       handleApiError(error);
     }
     

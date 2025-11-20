@@ -3,8 +3,21 @@ import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import Title1 from "@/components/title/Title1";
+import { useLocation } from "react-router-dom";
 
 const YourIdView = () => {
+  const location = useLocation();
+  const email = location.state?.email;
+
+  if (!email) {
+    return (
+      <DefaultDiv>
+        <div className="h-16" />
+        <h2 className="text-center text-xl font-bold">잘못된 접근입니다.</h2>
+      </DefaultDiv>
+    );
+  }
+
   return (
     <DefaultDiv>
       <div className="h-16" />
@@ -26,7 +39,7 @@ const YourIdView = () => {
             className="w-full h-full object-none"
           />
           <p className="absolute left-1/2 top-1/4 -translate-x-1/2 text-white text-3xl font-bold">
-            example@gmail.com
+            {email}
           </p>
         </div>
 

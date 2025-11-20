@@ -6,8 +6,12 @@ import DefaultDiv from "@/components/default/DefaultDiv";
 import InputBox from "@/components/input/InputBox";
 import Title1 from "@/components/title/Title1";
 import { useState } from "react";
+import axiosInstance from "@/api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const ResetPwView = () => {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [id, setId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -15,18 +19,33 @@ const ResetPwView = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isFormValid = name.trim().length > 0 && emailRegex.test(id.trim());
 
-  const handleConfirm = () => {
-    if (!emailRegex.test(id.trim())) {
+  const handleConfirm = async () => {
+    if (!isFormValid) {
       setErrorMsg("유효한 이메일 주소를 입력해주세요.");
       return;
     }
 
-    if (id !== "example@gmail.com") {
-      setErrorMsg("존재하지 않는 아이디입니다.");
-      return;
-    }
+    try {
+      // 🔥 PATCH /auth/genPw 요청 (임시 비밀번호 발급)
+      await axiosInstance.patch("/auth/genPw", {
+        name,
+        id,
+      });
 
-    window.location.href = "/newpw";
+      // 성공 → newpw 페이지로 이동
+      navigate("/newpw", { state: { id } });
+
+    } catch (error: any) {
+      console.error("임시 비밀번호 발급 오류:", error);
+
+      if (error.response?.status === 404) {
+        setErrorMsg("해당 정보의 사용자를 찾을 수 없습니다.");
+      } else if (error.response?.status === 403) {
+        setErrorMsg("비활성화된 계정입니다.");
+      } else {
+        setErrorMsg("임시 비밀번호 발급 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   return (
@@ -54,7 +73,7 @@ const ResetPwView = () => {
           임시 비밀번호를 발급받을 계정을 입력해주세요
         </h3>
 
-      <div className="h-8" />
+        <div className="h-8" />
         <InputBox
           placeholder="이름을 입력해주세요"
           className="mt-6"
@@ -80,14 +99,14 @@ const ResetPwView = () => {
 
         {/* 에러 메시지 */}
         {errorMsg && <p className="mt-3 text-red-500 text-start">{errorMsg}</p>}
-     
+
         {/* 확인 버튼 */}
         <BottomButtonWrapper>
-            <DefaultButton 
-              text="확인"
-              disabled={!isFormValid}
-              onClick={handleConfirm} 
-            />
+          <DefaultButton
+            text="확인"
+            disabled={!isFormValid}
+            onClick={handleConfirm}
+          />
         </BottomButtonWrapper>
       </div>
     </DefaultDiv>

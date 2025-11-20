@@ -20,7 +20,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
   TRAVEL: { label: "여행", color: "#8BD6EF", icon: img.travelIcon },
   TELECOM: { label: "통신", color: "#FFF", icon: img.phoneIcon },
   ALL: { label: "전체", color: "#C4C4C4", icon: img.etcIcon },
-  ETC: { label: "기타", color: "#FFF", icon: img.etcIcon },
+  ETC: { label: "기타", color: "#E4EAF0", icon: img.etcIcon },
 };
 
 export const getCategoryMeta = (category?: string): CategoryMeta => {
@@ -29,6 +29,12 @@ export const getCategoryMeta = (category?: string): CategoryMeta => {
   }
   const key = category.toUpperCase();
   return CATEGORY_META[key] || CATEGORY_META.ETC;
+};
+
+// 한글 라벨을 백엔드 enum 형식으로 변환
+export const getCategoryEnum = (label: string): string => {
+  const entry = Object.entries(CATEGORY_META).find(([_, meta]) => meta.label === label);
+  return entry ? entry[0] : 'ETC';
 };
 
 /** 🔥 역매핑: "식비" → "FOOD" */
