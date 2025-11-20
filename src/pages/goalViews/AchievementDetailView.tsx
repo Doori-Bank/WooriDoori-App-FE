@@ -9,8 +9,9 @@ import ChatModal from "@/components/modal/ChatModal";
 import "@/styles/goal/gaugePointerAnimations.css";
 import "@/styles/home/animations.css";
 import { apiList } from "@/api/apiList";
+import { useUserStore } from "@/stores/useUserStore";
 
-// ㅁㅁㅁ 백엔드 DTO (DashboardResponseDto) 기반 TypeScript 인터페이스 정의 ㅁㅁㅁ
+// 백엔드 DTO (DashboardResponseDto) 기반 TypeScript 인터페이스 정의
 type TopCategorySpending = Record<string, number>;
 
 interface AchievementDetailDto {
@@ -34,6 +35,8 @@ export default function AchievementDetailView() {
   const navigate = useNavigate();
   const { state } = useLocation();
   
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
 
   const historyList = state?.historyList as HistoryItem[] | undefined; // 1. 전체 달성도 리스트를 받습니다.
   const initialYear = state?.year as number;
@@ -198,18 +201,7 @@ export default function AchievementDetailView() {
       };
   });
 
-  // 유저 이름 로드
-  const getUserName = () => {
-    const info = localStorage.getItem("userInfo");
-    if (!info) return "사용자";
-    try {
-      const parsed = JSON.parse(info);
-      return parsed?.name || "사용자";
-    } catch {
-      return "사용자";
-    }
-  };
-  const userName = getUserName();
+  
 
   const fmt = (n: number) =>
     n.toLocaleString("ko-KR", { maximumFractionDigits: 0 });

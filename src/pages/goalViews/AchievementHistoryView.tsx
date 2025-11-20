@@ -5,12 +5,16 @@ import DefaultDiv from "@/components/default/DefaultDiv";
 import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import BenefitChart from "@/components/chart/BenefitChart";
+import { useUserStore } from "@/stores/useUserStore";
 
 export default function AchievementHistoryView() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from || "home";
+
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
 
   const handleClose = () => {
     if (from === "mypage") navigate("/mypage");
@@ -47,15 +51,7 @@ export default function AchievementHistoryView() {
       })
     : [];
 
-  // 사용자 이름 가져오기
-  const getUserName = () => {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      const user = JSON.parse(userInfo);
-      return user.name || '사용자';
-    }
-    return '사용자';
-  };
+
 
   return (
     <DefaultDiv
@@ -76,7 +72,7 @@ export default function AchievementHistoryView() {
             <BenefitChart 
               data={benefitData} 
               currentMonthIndex={benefitData.length - 1}
-              userName={getUserName()}
+              userName={userName}
             />
           )}
         </div>
