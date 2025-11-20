@@ -5,6 +5,8 @@ import ChoiceModal from '@/components/modal/ChoiceModal';
 import SuccessModal from '@/components/modal/SuccessModal';
 import { img } from '@/assets/img';
 import axiosInstance from "@/api/axiosInstance";
+import { useCookieManager } from "@/hooks/useCookieManager";
+
 
 const MyPageView: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +27,8 @@ const MyPageView: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
+  const { removeCookies } = useCookieManager();
+
 
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
@@ -38,6 +42,8 @@ const MyPageView: React.FC = () => {
     try {
       // 백엔드 로그아웃 요청
       await axiosInstance.post("/auth/logout");
+
+      removeCookies();
 
       // 로컬 토큰/유저정보 삭제
       localStorage.removeItem("accessToken");
