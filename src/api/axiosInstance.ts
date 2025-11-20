@@ -44,6 +44,9 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response, // 응답은 그대로 반환
   async (error: AxiosError) => {
+    if (error.config?.url?.includes("/auth/logout")) {
+      return Promise.reject(error);
+    }
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     
     // 401 에러이고, reissue API가 아니고, 이미 재시도한 요청이 아닐 때
@@ -51,6 +54,7 @@ axiosInstance.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest.url?.includes('/auth/reissue') &&
       !originalRequest.url?.includes('/auth/login') &&
+      !originalRequest.url?.includes('/auth/logout') &&
       !originalRequest._retry
     ) {
       // 이미 재발급 중이면 대기
