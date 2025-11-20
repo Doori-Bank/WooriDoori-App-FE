@@ -1,22 +1,43 @@
 @keyframes diagonalShake {
-  0% { transform: rotate(0deg); }
-  10% { transform: rotate(10deg); }
-  20% { transform: rotate(-10deg); }
-  30% { transform: rotate(15deg); }
-  40% { transform: rotate(-15deg); }
-  50% { transform: rotate(20deg); }
-  60% { transform: rotate(-20deg); }
-  70% { transform: rotate(15deg); }
-  80% { transform: rotate(-15deg); }
-  90% { transform: rotate(10deg); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(10deg);
+  }
+  20% {
+    transform: rotate(-10deg);
+  }
+  30% {
+    transform: rotate(15deg);
+  }
+  40% {
+    transform: rotate(-15deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+  60% {
+    transform: rotate(-20deg);
+  }
+  70% {
+    transform: rotate(15deg);
+  }
+  80% {
+    transform: rotate(-15deg);
+  }
+  90% {
+    transform: rotate(10deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .diagonal-shake {
   display: inline-block;
   animation: diagonalShake 1s linear;
 }
-
 
 /* 홈 두리 이미지  */
 @keyframes slideText {
@@ -36,4 +57,38 @@
 
 .animate-slide {
   animation: slideText 3s ease-in-out infinite;
+}
+
+/* 느낌표 배지 강조 애니메이션 */
+@keyframes attentionPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+}
+
+@keyframes attentionShake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
+.attention-pulse {
+  animation: attentionPulse 1.5s ease-in-out infinite;
+}
+
+.attention-shake {
+  animation: attentionShake 0.5s ease-in-out infinite;
 }
