@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import BorderBox from "@/components/default/BorderBox";
