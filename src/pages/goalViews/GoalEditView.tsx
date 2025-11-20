@@ -8,6 +8,7 @@ import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
 import check from "@/assets/check2.png";
 import { apiList } from "@/api/apiList";
+import { useUserStore } from "@/stores/useUserStore";
 
 // 문자열 → 숫자 변환
 function parseAmountToNumber(v: string | number | null) {
@@ -20,6 +21,9 @@ function parseAmountToNumber(v: string | number | null) {
 export default function GoalEditView() {
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1(수입 수정) → 2(목표 수정) → 3(완료)
+
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
 
   const [incomeText, setIncomeText] = useState("");
   const [goalText, setGoalText] = useState("");
@@ -118,7 +122,7 @@ export default function GoalEditView() {
       {step === 1 && (
         <div className="flex flex-col px-6 pt-16 pb-10 h-full">
           <div className="text-left mt-[3rem]">
-            <Title2 text="석기시대님의 수입은" />
+            <Title2 text={`${userName}님의 수입은`} />
             <Title2 text="어느정도이신가요?" />
             <div className="mt-[2rem]">
               <SubText text="실제 수령하는 금액 기준으로 입력 부탁드려요." />
