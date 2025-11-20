@@ -97,8 +97,7 @@ export default function AchievementDetailView() {
   }, [currentIndex, currentYear, currentMonth]); // 💡 currentIndex가 변경될 때마다 재실행!
 
   // 8. 이전/다음 데이터 기록으로 이동하는 로직 (인덱스 기반)
-  const handleNavigateMonth = (direction: "prev" | "next") => {
-    console.log(direction, !historyList || currentIndex, currentIndex)
+    const handleNavigateMonth = (direction: "prev" | "next") => {
     if (!historyList || currentIndex === -1) return;
 
     // HistoryList가 일반적으로 최신순(Index 0)으로 정렬되었다고 가정
@@ -108,10 +107,8 @@ export default function AchievementDetailView() {
         setCurrentIndex(currentIndex - 1);
       }
     } else {
-      console.log("12345678345678")
       // '다음 달' 버튼 (최신 기록으로 이동 -> 인덱스 감소)
       if (currentIndex <= 0) {
-        console.log("+*******")
         setCurrentIndex(currentIndex + 1);
       }
     }
