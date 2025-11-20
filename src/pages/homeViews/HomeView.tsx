@@ -156,12 +156,12 @@ const HomeView = () => {
   }, []);
 
   return (
-    <DefaultDiv isHome={true} isBottomNav={true}>
+    <DefaultDiv style={{ backgroundColor: '#FBFBFB' }} isBottomNav={true}>
       {/* 해더 */}
       <header className="flex justify-between items-center">
-        <img src={img.wooridoori_logo} alt="우리두리" width={100} />
+        <img src={img.wooridoori_logo} alt="우리두리" width={80} />
         <div onClick={() => navigate('/notification')} className="cursor-pointer">
-          <IconButton src={img.alarmOn} alt="알람" width={45} height={45} />
+          <IconButton src={img.alarmOn} alt="알람" width={34} height={34} />
         </div>
       </header>
 

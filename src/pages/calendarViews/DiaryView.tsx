@@ -191,9 +191,10 @@ const DiaryView = () => {
       title='소비일기' 
       isHeader={true}
       isShowClose={true}
+      style={{ backgroundColor: '#FBFBFB' }}
       onClose={() => navigate('/calendar')}
     >
-      <div className="flex relative flex-col h-full " style={{ height: '    height: calc(-12rem + 100vh);' }}>
+      <div className="flex relative flex-col h-full" style={{ height: '    height: calc(-12rem + 100vh);' }}>
         {/* 월 선택 + 캘린더 영역 */}
         <MonthCalendarSection
           month={month}

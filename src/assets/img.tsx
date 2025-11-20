@@ -93,6 +93,8 @@ import cardBanner3 from './home/card_banner3.png';
 import wooridoori_logo from './logo/logo.png'; // 우리두리
 import woori_logo from './logo/woori_logo.png'; // 우리은행 x 우리두리
 
+import signUp from './login/signUp.png';
+
 import alarmOn from './bellY.png';
 import alarmOff from './bellB.png';
 import coffeeIcon from './coffee.png';
@@ -106,7 +108,7 @@ export const img ={
     doori_heart, doori_normal, doori_pouting, doori_question, doori_report, doori_thinking, 
     doori_wallet, doori_writing,doori_basic, goindol,cardExample,
     
-    wooridoori_logo, woori_logo, alarmOn, alarmOff,
+    wooridoori_logo, woori_logo, signUp, alarmOn, alarmOff,
     
     searchIcon, wooriCard,DeleteIcon, EditIcon, grayCheckRightIcon, settingIcon, diaryIcon, 
     hospitalIcon, phoneIcon, foodIcon, travelIcon, transferIcon, residenceIcon, martIcon, drinkIcon, entertainmentIcon, shoppingIcon,

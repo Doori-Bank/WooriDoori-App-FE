@@ -117,6 +117,7 @@ const CardRecommendView: React.FC = () => {
       isShowBack={true}
       isShowClose={false}
       isShowSetting={false}
+      style={{ backgroundColor: '#FBFBFB' }}
       onBack={() => navigate(-1)}
       isMainTitle={false}
     >
@@ -196,7 +197,7 @@ const CardRecommendView: React.FC = () => {
                   </p>
                   
                   {/* 카드 타입 태그 */}
-                  <div className="flex gap-2 mb-3">
+                  <div className="flex gap-2 mb-3" style={{ backgroundColor: '#FBFBFB' }}>
                     <span className="px-3 py-1 rounded-full text-[0.9rem] font-medium bg-green-100 text-green-600">
                       {card.isCheckCard ? '#체크카드' : '#신용카드'}
                     </span>

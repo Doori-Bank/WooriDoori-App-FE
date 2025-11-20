@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "OngleipRyudung";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/2405-2@1.0/Ownglyph_ryuttung-Rg.woff2")
+    format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
 /* react-day-picker 기본 스타일 일부 초기화/조정 (Tailwind 프리플라이트 충돌 방지) */
 .rdp {
   --rdp-accent-color: #111111;
@@ -46,28 +54,25 @@ body {
   touch-action: pan-y;
   justify-content: center;
 }
-
 ::-webkit-scrollbar {
   display: none;
 }
 
-*{
+* {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-size: 10px;
 }
-.default-img{
-  background: url('./assets/background.jpg') center center;
+.default-img {
+  background: url("./assets/background.jpg") center center;
 }
-.round-10{
+.round-10 {
   border-radius: 10px;
 }
-.flex-2{
+.flex-2 {
   flex: 2;
 }
-
-
 
 .bottom-sheet {
   display: none;

@@ -24,6 +24,7 @@ import AchievementDetailView from "@/pages/goalViews/AchievementDetailView";
 import MyPageView from "@/pages/myPageViews/MyPageView";
 import UserInfoView from "@/pages/myPageViews/UserInfoView";
 import LoginView from "@/pages/accountViews/LoginView";
+import LoadingView from "@/pages/accountViews/LoadingView";
 import SignUpAgreementView from "@/pages/accountViews/signUp/SignUpAgreementView";
 import SignUpView from "@/pages/accountViews/signUp/SignUpView";
 import SignUpSuccessView from "@/pages/accountViews/signUp/SignUpSuccessView";
@@ -48,7 +49,7 @@ const homeRoutes: RouteConfig[] = [
 
 // 인증 관련 라우트
 const authRoutes: RouteConfig[] = [
-  { path: '/', element: <LoginView /> }, // 기본 경로를 로그인으로 설정
+  { path: '/', element: <LoadingView /> }, // 기본 경로를 로딩 페이지로 설정
   { path: '/login', element: <LoginView /> },
   { path: '/mypage', element: <MyPageView /> },
   { path: '/userinfo', element: <UserInfoView /> },

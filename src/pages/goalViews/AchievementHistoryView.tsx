@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import DefaultDiv from "@/components/default/DefaultDiv";
 import DefaultButton from "@/components/button/DefaultButton";
 import BottomButtonWrapper from "@/components/button/BottomButtonWrapper";
+import BenefitChart from "@/components/chart/BenefitChart";
 
 type Achievement = {
   month: string;
@@ -24,6 +25,9 @@ export default function AchievementHistoryView() {
 
   // ✅ 더미 데이터 (임시 테스트용)
   const mockHistory: Achievement[] = [
+    { month: "2025.07", goal: "100만원 쓰기", percent: 60, score: 80 },
+    { month: "2025.06", goal: "1,000만원 쓰기", percent: 80, score: 60 },
+    { month: "2025.05", goal: "20,000만원 쓰기", percent: 80, score: 40 },
     { month: "2025.04", goal: "10,000만원 쓰기", percent: 80, score: 20 },
     { month: "2025.03", goal: "1,000만원 쓰기", percent: 40, score: 60 },
     { month: "2025.02", goal: "300만원 쓰기", percent: 25, score: 75 },
@@ -38,61 +42,103 @@ export default function AchievementHistoryView() {
     setHistoryList(mockHistory);
   }, []);
 
+  // ✅ 혜택 그래프 데이터 - historyList의 score를 사용, 데이터가 있는 만큼만 표시
+  const benefitData = historyList.length > 0 
+    ? historyList.map((item) => {
+        // month에서 월 추출 (예: "2025.04" -> "4월")
+        const monthMatch = item.month.match(/\.(\d+)$/);
+        const monthNum = monthMatch ? parseInt(monthMatch[1]) : 1;
+        return {
+          month: `${monthNum}월`,
+          benefit: item.score, // score를 benefit으로 사용
+        };
+      }).reverse() // 최신순으로 정렬
+    : [];
+
+  // 사용자 이름 가져오기
+  const getUserName = () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      return user.name || '사용자';
+    }
+    return '사용자';
+  };
+
   return (
     <DefaultDiv
       isHeader={true}
-      title="달성도"
+      title="목표 관리 기록"
       isShowBack={false}
       isShowClose={true}
       isShowSetting={false}
       onClose={handleClose}
       isMainTitle={false}
+      isBottomNav={true}
+      className="overflow-hidden"
     >
-      <div className="flex flex-col gap-6 px-6 pt-20 pb-10 h-full">
-        {/* 달성도 카드 목록 */}
-        {historyList.map((a, i) => (
-          <button
+      <div className="flex overflow-hidden flex-col flex-1 min-h-0">
+        {/* 혜택 그래프 - 상단 고정 */}
+        <div className="flex-shrink-0 px-6 pt-4 pb-4">
+          {benefitData.length > 0 && (
+            <BenefitChart 
+              data={benefitData} 
+              currentMonthIndex={benefitData.length - 1}
+              userName={getUserName()}
+            />
+          )}
+        </div>
+        
+        {/* 달성도 카드 목록 - 스크롤 가능 */}
+        <div className="overflow-y-auto flex-1 px-6 pb-56 min-h-0">
+          <div className="flex flex-col gap-6">
+            {historyList.map((a, i) => (
+          <div
             key={i}
-            onClick={() => setSelected(i)}
             className={`
-              w-full text-left rounded-2xl p-4 transition-all
+              w-full rounded-2xl p-4 transition-all relative
               ${selected === i ? "border-2 border-[#8BC34A] shadow-md" : "border border-transparent"}
               bg-white hover:bg-gray-50
             `}
           >
-            <div className="flex justify-between items-center">
-              <div className="flex-1">
-                <p className="text-[1.3rem] text-gray-500">{a.month}</p>
-                <p className="text-[1.4rem] font-medium text-gray-700">{a.goal}</p>
+            <button
+              onClick={() => setSelected(i)}
+              className="w-full text-left"
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex-1">
+                  <p className="text-[1.3rem] text-gray-500">{a.month}</p>
+                  <p className="text-[1.4rem] font-medium text-gray-700">{a.goal}</p>
 
-                {/* ✅ 진행바 (색상 고정 버전) */}
-                <div className="w-full bg-[#FFFCD9] h-[0.8rem] rounded-full mt-3 flex items-center relative">
-                  <div
-                    className="h-[0.8rem] rounded-full bg-[#8BC34A]"
-                    style={{ width: `${a.percent}%` }}
-                  />
-                  <span className="absolute right-0 text-[1.2rem] text-gray-500 font-medium translate-x-[130%]">
-                    {a.percent}%
-                  </span>
+                  {/* ✅ 진행바 (색상 고정 버전) */}
+                  <div className="w-full bg-[#FFFCD9] h-[0.8rem] rounded-full mt-3 flex items-center relative">
+                    <div
+                      className="h-[0.8rem] rounded-full bg-[#8BC34A]"
+                      style={{ width: `${a.percent}%` }}
+                    />
+                    <span className="absolute right-0 text-[1.2rem] text-gray-500 font-medium translate-x-[130%]">
+                      {a.percent}%
+                    </span>
+                  </div>
                 </div>
+
+                <p className="text-[1.8rem] font-bold text-gray-900">{a.score}점</p>
               </div>
-
-              <p className="text-[1.8rem] font-bold text-gray-900">{a.score}점</p>
-            </div>
-          </button>
-        ))}
-
-        {/* 선택 시 다음 버튼 */}
-        {selected !== null && (
-          <div className="mt-auto">
-            <BottomButtonWrapper>
-              <DefaultButton text="달성도 확인하기"
-              onClick={() =>
-                navigate("/achievement/detail", { state: { data: historyList[selected], from: from } })
-              } />
-            </BottomButtonWrapper>
+            </button>
           </div>
-        )}
+            ))}
+
+            {/* 선택 시 다음 버튼 */}
+            {selected !== null && (
+              <BottomButtonWrapper paddingBottom="pb-[9rem]">
+                <DefaultButton text="목표관리 확인하기"
+                onClick={() =>
+                  navigate("/achievement/detail", { state: { data: historyList[selected], from: from } })
+                } />
+              </BottomButtonWrapper>
+            )}
+          </div>
+        </div>
       </div>
     </DefaultDiv>
   );

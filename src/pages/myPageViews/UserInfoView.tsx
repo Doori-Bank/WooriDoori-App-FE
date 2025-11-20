@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DefaultDiv from '@/components/default/DefaultDiv';
-import ChoiceModal from '@/components/modal/ChoiceModal';
-import SuccessModal from '@/components/modal/SuccessModal';
 import { img } from '@/assets/img';
 
 const UserInfoView: React.FC = () => {
@@ -30,186 +28,137 @@ const UserInfoView: React.FC = () => {
     };
   };
   
-  const [userInfo] = useState(getUserInfo());
-
-  // 모달 상태
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [showLogoutSuccess, setShowLogoutSuccess] = useState(false);
-
-  const handleLogout = () => {
-    setIsLogoutModalOpen(true);
+  const userInfo = getUserInfo();
+  
+  // 프로필 이미지 상태 관리
+  const getProfileImage = () => {
+    const savedImage = localStorage.getItem('profileImage');
+    return savedImage || null;
   };
-
-  const handleWithdraw = () => {
-    setIsWithdrawModalOpen(true);
+  
+  const [profileImage, setProfileImage] = useState<string | null>(getProfileImage());
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
   };
-
-  const confirmLogout = () => {
-    // localStorage에서 사용자 정보 제거
-    localStorage.removeItem('userInfo');
-    
-    // 모달 닫기
-    setIsLogoutModalOpen(false);
-    
-    // 로그아웃 성공 모달 표시
-    setShowLogoutSuccess(true);
-  };
-
-  const confirmWithdraw = () => {
-    console.log('회원 탈퇴 실행');
-    setIsWithdrawModalOpen(false);
-    // 회원 탈퇴 로직 구현
-  };
-
-  const cancelLogout = () => {
-    setIsLogoutModalOpen(false);
-  };
-
-  const cancelWithdraw = () => {
-    setIsWithdrawModalOpen(false);
+  
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 이미지 파일인지 확인
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+      
+      // 파일 크기 제한 (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('이미지 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageDataUrl = reader.result as string;
+        setProfileImage(imageDataUrl);
+        localStorage.setItem('profileImage', imageDataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
     <DefaultDiv
       isHeader={true}
-      title="사용자 정보"
+      title="내 정보 관리"
       isShowBack={true}
       isShowClose={false}
       isShowSetting={false}
       onBack={() => navigate(-1)}
       isBottomNav={true}
-    >
-      {/* 모달이 열릴 때 어두운 오버레이 */}
-      <div className={`absolute inset-0 bg-black/40 transition-opacity duration-200 z-10 ${(isLogoutModalOpen || isWithdrawModalOpen) ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}></div>
-
+      style={{ backgroundColor: '#FBFBFB' }}
+      headerClassName="bg-white"
+      >
       {/* 프로필 섹션 */}
-      <div className="flex justify-between items-center mt-20 mb-10">
-        {/* 프로필 이미지 - favicon */}
-        <div className="flex overflow-hidden justify-center items-center w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full">
-          <img
-            src={img.doori_favicon}
-            alt="프로필"
-            className="object-contain w-24 h-24"
-          />
-        </div>
-        
-        {/* 버튼들 */}
-        <div className="flex gap-3">
-          <button
-            onClick={handleWithdraw}
-            className="px-6 py-1 bg-gray-600 text-white text-[1.2rem] font-medium rounded-lg hover:bg-gray-700 transition-colors"
+      <div className="flex flex-col justify-center items-center mt-32 mb-24">
+        {/* 프로필 이미지 컨테이너 */}
+        <div className="relative">
+          {/* 프로필 이미지 - 클릭 가능 */}
+          <div 
+            onClick={handleImageClick}
+            className="flex overflow-hidden relative justify-center items-center w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full transition-transform duration-200 cursor-pointer group hover:scale-105 active:scale-95"
           >
-            회원 탈퇴
-          </button>
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="프로필"
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <img
+                src={img.doori_favicon}
+                alt="프로필"
+                className="object-contain w-24 h-24"
+              />
+            )}
+          </div>
+          {/* 우측 상단 + 버튼 */}
           <button
-            onClick={handleLogout}
-            className="px-6 py-2 bg-red-500 text-white text-[1.2rem] font-medium rounded-lg hover:bg-red-600 transition-colors"
+            onClick={handleImageClick}
+            className="flex absolute -top-1 -right-1 justify-center items-center w-10 h-10 bg-blue-500 rounded-full border-2 border-white shadow-md transition-all duration-200 cursor-pointer hover:bg-blue-600 active:scale-95"
           >
-            로그아웃
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-5 h-5"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
           </button>
         </div>
-      </div>
-
-      {/* 사용자 정보 입력 폼 */}
-      <div className="mt-16 space-y-12">
-        {/* 아이디 */}
-        <div>
-          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
-            아이디
-          </label>
-          <input
-            type="email"
-            value={userInfo.id}
-            readOnly
-            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
-          />
-        </div>
-
-        {/* 비밀번호 */}
-        <div>
-          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
-            비밀번호
-          </label>
-          <input
-            type="password"
-            value={userInfo.password}
-            readOnly
-            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
-          />
-        </div>
-
-        {/* 이름 */}
-        <div>
-          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
-            이름
-          </label>
-          <input
-            type="text"
-            value={userInfo.name}
-            readOnly
-            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
-          />
-        </div>
-
-        {/* 전화번호 */}
-        <div>
-          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
-            전화번호
-          </label>
-          <input
-            type="tel"
-            value={userInfo.phone}
-            readOnly
-            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
-          />
-        </div>
-
-        {/* 생년월일 */}
-        <div>
-          <label className="block text-[1.3rem] font-medium text-gray-800 mb-2">
-            생년월일
-          </label>
-          <input
-            type="text"
-            value={userInfo.birth}
-            readOnly
-            className="w-full px-4 py-3 bg-gray-200 rounded-lg text-[1.2rem] text-gray-600 cursor-not-allowed"
-          />
-        </div>
-      </div>
-
-      {/* 로그아웃 확인 모달 */}
-      <div className="relative z-20">
-        <ChoiceModal
-          message="정말 로그아웃 할 것인가요?"
-          isOpen={isLogoutModalOpen}
-          onConfirm={confirmLogout}
-          onCancel={cancelLogout}
-          btnTitle="로그아웃"
-          btnColor="text-red-500"
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
         />
       </div>
 
-      {/* 회원탈퇴 확인 모달 */}
-      <div className="relative z-20">
-        <ChoiceModal
-          message="정말 회원탈퇴를 하시겠습니까?"
-          isOpen={isWithdrawModalOpen}
-          onConfirm={confirmWithdraw}
-          onCancel={cancelWithdraw}
-          btnTitle="탈퇴"
-          btnColor="text-red-500"
-        />
+      {/* 사용자 정보 리스트 */}
+      <div className="mt-4">
+        <div className="overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm">
+          {/* 전화번호 */}
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+            <span className="text-[1.4rem] text-gray-800">전화번호</span>
+            <span className="text-[1.4rem] text-gray-600">{userInfo.phone}</span>
+          </div>
 
-        {/* 로그아웃 성공 모달 */}
-        <SuccessModal
-          isOpen={showLogoutSuccess}
-          title="로그아웃 완료"
-          message="안전하게 로그아웃되었습니다. 다음에 또 만나요!"
-          confirmText="확인"
-          onConfirm={() => navigate('/')}
-        />
+          {/* 이메일 */}
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+            <span className="text-[1.4rem] text-gray-800">이메일</span>
+            <span className="text-[1.4rem] text-gray-600">{userInfo.id}</span>
+          </div>
+
+          {/* 이름 */}
+          <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100">
+            <span className="text-[1.4rem] text-gray-800">이름</span>
+            <span className="text-[1.4rem] text-gray-600">{userInfo.name}</span>
+          </div>
+
+          {/* 생년월일 */}
+          <div className="flex justify-between items-center px-5 py-4">
+            <span className="text-[1.4rem] text-gray-800">생년월일</span>
+            <span className="text-[1.4rem] text-gray-600">{userInfo.birth}</span>
+          </div>
+        </div>
       </div>
     </DefaultDiv>
   );

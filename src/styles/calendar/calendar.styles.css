@@ -246,20 +246,18 @@
 //   color: #00c73c;
 // `; */
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 
 @layer utilities {
   .py-all {
     padding: 2.5rem;
   }
-  .text-5lg{
+  .text-5lg {
     font-size: 1.3rem;
   }
-  .mb-20{
+  .mb-20 {
     margin-bottom: 20px;
   }
 }
