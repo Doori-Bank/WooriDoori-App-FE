@@ -24,27 +24,56 @@ interface AchievementDetailDto {
   comment?: string;
 }
 
+// 💡 HistoryView에서 전달받는 항목의 타입 정의 (날짜 포함)
+interface HistoryItem {
+  goalStartDate: string; // "YYYY-MM-DD" 형식 (날짜 정보는 이 필드에서 추출)
+  // ... HistoryView에서 전달하는 다른 필드가 있다면 여기에 추가 ...
+}
+
+
 export default function AchievementDetailView() {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  // 1. 초기 URL 파라미터에서 year, month를 Number 타입으로 추출
+  const historyList = state?.historyList as HistoryItem[] | undefined; // 💡 1. 전체 리스트를 받습니다.
   const initialYear = state?.year as number;
   const initialMonth = state?.month as number;
   const from = state?.from || "home";
 
-  // 2. 현재 조회 중인 연도와 월을 관리하는 상태
-  const [currentYear, setCurrentYear] = useState(initialYear);
-  const [currentMonth, setCurrentMonth] = useState(initialMonth);
+  // 💡 2. 초기 인덱스 계산 (year와 month가 일치하는 항목을 찾습니다.)
+  const getInitialIndex = () => {
+    if (!historyList || historyList.length === 0) return -1;
+    
+    // 리스트에서 처음 진입한 year/month와 일치하는 항목의 인덱스를 찾습니다.
+    return historyList.findIndex(item => {
+      const dateString = item.goalStartDate;
+      const itemYear = Number(dateString?.slice(0, 4));
+      const itemMonth = Number(dateString?.slice(5, 7));
+      return itemYear === initialYear && itemMonth === initialMonth;
+    });
+  };
 
-  // 3. API 응답 DTO로 상태 타입 정의
+  const initialIndex = getInitialIndex();
+  
+  // 💡 3. 현재 인덱스를 관리하는 상태 (이전/다음 버튼 클릭 시 이 값이 변경됨)
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  
+  // 💡 4. 현재 조회할 데이터 항목을 인덱스로부터 추출
+  const currentItem = currentIndex !== -1 && historyList ? historyList[currentIndex] : null;
+
+  // 💡 5. 현재 조회 중인 연도와 월은 현재 항목의 goalStartDate에서 추출
+  const currentYear = currentItem ? Number(currentItem.goalStartDate?.slice(0, 4)) : initialYear;
+  const currentMonth = currentItem ? Number(currentItem.goalStartDate?.slice(5, 7)) : initialMonth;
+
+  // 6. API 응답 DTO로 상태 타입 정의
   const [detail, setDetail] = useState<AchievementDetailDto | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   
-  // 4. API 호출 및 데이터 로드 useEffect
+  // 7. API 호출 및 데이터 로드 useEffect (currentIndex 변경 시 재실행)
   useEffect(() => {
-    if (currentYear && currentMonth) {
+    // 💡 currentIndex가 유효하고, 년/월 정보가 있을 때만 API 호출
+    if (currentIndex !== -1 && currentYear && currentMonth) {
       setLoading(true);
       setDetail(null); // 새로운 월 데이터 로드 시 이전 데이터 초기화
 
@@ -61,63 +90,66 @@ export default function AchievementDetailView() {
         });
     } else {
       setLoading(false);
-      // alert("유효한 조회 월 정보가 없습니다."); // HistoryView에서 year/month를 전달하지 않은 경우
     }
-  }, [currentYear, currentMonth]); // 💡 currentYear, currentMonth가 변경될 때마다 재실행!
+  }, [currentIndex, currentYear, currentMonth]); // 💡 currentIndex가 변경될 때마다 재실행!
 
-  // 5. 이전/다음 월로 이동하는 로직
+  // 8. 이전/다음 데이터 기록으로 이동하는 로직 (인덱스 기반)
   const handleNavigateMonth = (direction: "prev" | "next") => {
-    let newYear = currentYear;
-    let newMonth = currentMonth;
+    if (!historyList || currentIndex === -1) return;
 
+    // HistoryList가 일반적으로 최신순(Index 0)으로 정렬되었다고 가정
     if (direction === "prev") {
-      newMonth -= 1;
-      if (newMonth < 1) {
-        newMonth = 12;
-        newYear -= 1;
+      // '이전 달' 버튼 (과거 기록으로 이동 -> 인덱스 증가)
+      if (currentIndex < historyList.length - 1) {
+        setCurrentIndex(currentIndex + 1);
       }
     } else {
-      newMonth += 1;
-      if (newMonth > 12) {
-        newMonth = 1;
-        newYear += 1;
+      // '다음 달' 버튼 (최신 기록으로 이동 -> 인덱스 감소)
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
       }
     }
-
-    // 💡 상태를 업데이트하여 useEffect를 트리거합니다.
-    setCurrentYear(newYear);
-    setCurrentMonth(newMonth);
   };
 
-  // 6. 네비게이션 핸들러
+  // 9. 네비게이션 핸들러
   const handleBack = () => navigate(-1);
   const handleClose = () => (from === "mypage" ? navigate("/mypage") : navigate("/home"));
 
-  // 7. 스와이프 제스처를 위한 ref와 state (달 이동 기능을 위해 유지)
+  // 10. 스와이프 제스처를 위한 ref와 state (달 이동 기능을 위해 유지)
   const contentRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number>(0);
   const touchEndY = useRef<number>(0);
   const isScrolling = useRef<boolean>(false);
   
-  // 8. 카테고리 매핑 함수 (유지)
+  // ✅ 카테고리 매핑 함수 (유지)
   const getCategoryInfo = (categoryName: string) => {
     const categoryMap: Record<string, { icon: string; color: string }> = {
-      '식비': { icon: img.foodIcon, color: "#FF715B" },
-      '교통/자동차': { icon: img.trafficIcon, color: "#34D1BF" },
-      '편의점': { icon: img.martIcon, color: "#FFC456" },
-      '쇼핑': { icon: img.shoppingIcon, color: "#345BD1" },
-      '주거': { icon: img.residenceIcon, color: "#FFF1D6" },
-      '병원': { icon: img.hospitalIcon, color: "#31BB66" },
-      '이체': { icon: img.transferIcon, color: "#FFF495" },
-      '술/유흥': { icon: img.entertainmentIcon, color: "#FF715B" },
-      '통신': { icon: img.phoneIcon, color: "#FFFFFF" },
-      '교육': { icon: img.educationIcon, color: "#969191" },
-      '기타': { icon: img.etcIcon, color: "#E4EAF0" },
+      'FOOD': { icon: img.foodIcon, color: "#FF715B" },
+      'CAFE': { icon: img.coffeeIcon, color: "#d1a234ff" },
+      'TRANSPORTATION': { icon: img.trafficIcon, color: "#34D1BF" },
+      'CONVENIENCE_STORE': { icon: img.martIcon, color: "#FFC456" },
+      'SHOPPING': { icon: img.shoppingIcon, color: "#345BD1" },
+      'TRAVEL': { icon: img.travelIcon, color: "#d134c7ff" },
+      'HOUSING': { icon: img.residenceIcon, color: "#FFF1D6" },
+      'HOSPITAL': { icon: img.hospitalIcon, color: "#31BB66" },
+      'TRANSFER': { icon: img.transferIcon, color: "#FFF495" },
+      'ALCOHOL_ENTERTAINMENT': { icon: img.entertainmentIcon, color: "#FF715B" },
+      'TELECOM': { icon: img.phoneIcon, color: "#FFFFFF" },
+      'EDUCATION': { icon: img.educationIcon, color: "#969191" },
+      'ETC': { icon: img.etcIcon, color: "#E4EAF0" },
     };
-    return categoryMap[categoryName] || { icon: img.etcIcon, color: "#E4EAF0" };
+    const displayNames: Record<string, string> = {
+        'FOOD': '식비', 'TRANSPORTATION': '교통/자동차', 'CONVENIENCE_STORE': '편의점',
+        'SHOPPING': '쇼핑', 'HOUSING': '주거', 'HOSPITAL': '병원',
+        'TRANSFER': '이체', 'ENTERTAINMENT': '주류/유흥', 'TELECOM': '통신',
+        'EDUCATION': '교육', 'ETC': '기타', 'ALCOHOL_ENTERTAINMENT': '술/유흥', // DTO 키값에 맞춰 추가
+    };
+    const info = categoryMap[categoryName] || { icon: img.etcIcon, color: "#E4EAF0" };
+    return { ...info, displayName: displayNames[categoryName] || categoryName };
   };
 
-  // 9. 데이터 추출 및 계산 (detail 상태 기반)
+
+  // 11. 데이터 추출 및 계산 (detail 상태 기반)
   const achievementRate = detail?.achievementRate ?? 0; // 달성률 (0~100)
   const goalAmount = detail?.goalAmount ?? 0; // 목표 금액
   
@@ -179,7 +211,7 @@ export default function AchievementDetailView() {
   const fmt = (n: number) =>
     n.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
 
-  // 10. 스와이프 제스처 핸들러 (유지)
+  // 12. 스와이프 제스처 핸들러 (인덱스 기반 로직으로 연결)
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
     isScrolling.current = false;
@@ -207,16 +239,16 @@ export default function AchievementDetailView() {
 
     if (Math.abs(diff) > minSwipeDistance) {
       if (diff > 0) {
-        // 위로 스와이프 (다음 월 시도)
+        // 위로 스와이프 (다음 기록 시도: 인덱스 감소)
         handleNavigateMonth("next");
       } else {
-        // 아래로 스와이프 (이전 월 시도)
+        // 아래로 스와이프 (이전 기록 시도: 인덱스 증가)
         handleNavigateMonth("prev");
       }
     }
   };
   
-  // 마우스 드래그 지원 핸들러 (유지)
+  // 마우스 드래그 지원 핸들러 (인덱스 기반 로직으로 연결)
   const handleMouseDown = (e: React.MouseEvent) => {
     touchStartY.current = e.clientY;
     isScrolling.current = false;
@@ -249,34 +281,46 @@ export default function AchievementDetailView() {
 
     if (Math.abs(diff) > minSwipeDistance) {
       if (diff > 0) {
-        // 위로 드래그 (다음 월 시도)
+        // 위로 드래그 (다음 기록 시도: 인덱스 감소)
         handleNavigateMonth("next");
       } else {
-        // 아래로 드래그 (이전 월 시도)
+        // 아래로 드래그 (이전 기록 시도: 인덱스 증가)
         handleNavigateMonth("prev");
       }
     }
     
     touchStartY.current = 0;
   };
+  
+  // 💡 인덱스 기반 버튼 활성화/비활성화 상태
+  const isFirstItem = currentIndex === 0; // 가장 최신 기록 (다음 버튼 비활성화)
+  const isLastItem = historyList && currentIndex === historyList.length - 1; // 가장 오래된 기록 (이전 버튼 비활성화)
 
-  // 11. 로딩/데이터 없음 상태 처리
-  if (loading) {
+
+  // 13. 로딩/데이터 없음 상태 처리
+  if (loading || currentIndex === -1) { // 💡 currentIndex가 -1이면 유효하지 않은 접근으로 간주
     return (
-      <DefaultDiv title="목표 관리" isHeader>
-        <div className="flex justify-center items-center h-full text-[1.6rem] text-gray-500">
-          데이터를 불러오는 중입니다...
+      <DefaultDiv title="목표 관리" isHeader onBack={handleBack} onClose={handleClose}>
+        <div className="flex flex-col justify-center items-center h-full text-[1.6rem] text-gray-500">
+          {loading ? "데이터를 불러오는 중입니다..." : (
+            <>
+              <p>목표 기록을 찾을 수 없거나 데이터가 전달되지 않았습니다. 😭</p>
+              <button className="mt-4 text-blue-500 text-[1.4rem] hover:underline" onClick={handleBack}>
+                뒤로 돌아가기
+              </button>
+            </>
+          )}
         </div>
       </DefaultDiv>
     );
   }
 
-  // year/month가 유효하지 않았거나 API 호출 실패 시 (detail이 null일 경우)
-  if (!currentYear || !currentMonth || !detail) {
+  // API 호출 실패 시 (detail이 null일 경우)
+  if (!detail) {
     return (
       <DefaultDiv title="목표 관리" isHeader onBack={handleBack} onClose={handleClose}>
         <div className="flex flex-col justify-center items-center h-full text-[1.6rem] text-gray-500">
-          <p>{currentMonthDisplay}의 목표 기록을 찾을 수 없습니다. 😭</p>
+          <p>{currentMonthDisplay}의 목표 기록 상세 정보를 로드할 수 없습니다. 😭</p>
           <button className="mt-4 text-blue-500 text-[1.4rem] hover:underline" onClick={handleBack}>
             뒤로 돌아가기
           </button>
@@ -301,7 +345,6 @@ export default function AchievementDetailView() {
       <div 
         ref={contentRef}
         className="flex overflow-y-auto relative flex-col gap-6 px-4 pt-4 pb-24 h-full"
-        // 💡 스와이프/드래그 핸들러는 그대로 유지하여 달 이동 로직을 트리거
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -310,20 +353,22 @@ export default function AchievementDetailView() {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* ✅ 월 선택 (버튼 클릭 로직 추가) */}
+        {/* ✅ 월 선택 (인덱스 기반 로직 적용) */}
         <div className="flex items-center justify-center gap-4 text-gray-600 text-[1.4rem] font-semibold">
           <button
-            onClick={() => handleNavigateMonth("prev")}
-            className="transition hover:text-black"
-            aria-label="이전 달"
+            onClick={() => handleNavigateMonth("prev")} // 인덱스 증가 (과거 기록)
+            disabled={isLastItem}
+            className={`transition ${isLastItem ? "text-gray-300 cursor-default" : "hover:text-black"}`}
+            aria-label="이전 기록"
           >
             ◀
           </button>
           <span className="text-[1.6rem] font-bold text-gray-800">{currentMonthDisplay}</span>
           <button
-            onClick={() => handleNavigateMonth("next")}
-            className="transition hover:text-black"
-            aria-label="다음 달"
+            onClick={() => handleNavigateMonth("next")} // 인덱스 감소 (최신 기록)
+            disabled={isFirstItem}
+            className={`transition ${isFirstItem ? "text-gray-300 cursor-default" : "hover:text-black"}`}
+            aria-label="다음 기록"
           >
             ▶
           </button>
@@ -334,8 +379,9 @@ export default function AchievementDetailView() {
         {/* ✅ 상단: 이번달 목표 / 이번달 달성 */}
           <div className="flex gap-10 justify-center items-center text-center">
             <div className="flex flex-col">
-              <span className="text-gray-500 text-[1.3rem]">이번달 목표</span>
-              <span className="font-extrabold text-[1.6rem]">₩{fmt(goalAmount*1000)}</span>
+              <span className="text-gray-500 text-[1.3rem]">목표 금액</span>
+              {/* goalAmount는 만원 단위로 가정하고 10000을 곱했습니다. */}
+              <span className="font-extrabold text-[1.6rem]">₩{fmt(goalAmount*10000)}</span>
             </div>
             <span className="text-[2rem] font-bold text-gray-400 mt-6">+</span>
             <div className="flex flex-col">
@@ -394,8 +440,8 @@ export default function AchievementDetailView() {
         {/* --- */}
         
         {/* 최근 기록(가장 최근 월)에만 챗봇 버튼 표시 */}
-        {/* 💡 HistoryView에서 받은 초기 month/year와 현재 month/year가 같을 경우에만 표시하도록 변경 */}
-        {currentYear === initialYear && currentMonth === initialMonth && (
+        {/* 💡 초기 월/년도와 현재 월/년도가 일치하고, 현재 인덱스가 최신 기록일 때만 표시 */}
+        {currentYear === initialYear && currentMonth === initialMonth && isFirstItem && (
           <div className="flex sticky right-6 bottom-8 z-40 justify-end">
             <button
               onClick={() => setIsChatModalOpen(true)}

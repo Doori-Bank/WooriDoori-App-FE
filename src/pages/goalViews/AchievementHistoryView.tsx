@@ -150,7 +150,7 @@ export default function AchievementHistoryView() {
   text="목표관리 확인하기"
   onClick={() => {
     const selectedItem = historyList[selected];
-
+    const dateString = selectedItem.goalStartDate;
     // year, month 숫자로 변환
     const year = Number(selectedItem.goalStartDate.slice(0, 4));
     const month = Number(selectedItem.goalStartDate.slice(5, 7));
@@ -160,6 +160,7 @@ export default function AchievementHistoryView() {
         year,
         month,
         from,
+        historyList: historyList,
       },
     });
   }}
