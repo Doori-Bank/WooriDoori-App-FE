@@ -75,10 +75,10 @@ export default function AchievementHistoryView() {
               userName={userName}
             />
           )}
+          <div className="flex-shrink-0 mx-6 border-t border-gray-200"></div>
         </div>
         
         {/* 경계선 */}
-        <div className="flex-shrink-0 mx-6 border-t border-gray-200"></div>
         
         {/* 달성도 카드 목록 - 스크롤 가능 */}
         <div className="overflow-y-auto flex-1 px-6 pt-4 pb-56 min-h-0 -webkit-overflow-scrolling-touch">

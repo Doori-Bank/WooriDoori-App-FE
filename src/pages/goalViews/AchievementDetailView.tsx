@@ -127,19 +127,19 @@ export default function AchievementDetailView() {
   // ✅ 카테고리 매핑 함수 (유지)
   const getCategoryInfo = (categoryName: string) => {
     const categoryMap: Record<string, { icon: string; color: string }> = {
-      'FOOD': { icon: img.foodIcon, color: "#FF715B" },
+      'FOOD': { icon: img.foodIcon, color: "#ff715b" },
       'CAFE': { icon: img.coffeeIcon, color: "#d1a234ff" },
-      'TRANSPORTATION': { icon: img.trafficIcon, color: "#34D1BF" },
-      'CONVENIENCE_STORE': { icon: img.martIcon, color: "#FFC456" },
-      'SHOPPING': { icon: img.shoppingIcon, color: "#345BD1" },
-      'TRAVEL': { icon: img.travelIcon, color: "#d134c7ff" },
+      'TRANSPORTATION': { icon: img.trafficIcon, color: "#A3D8F7" },
+      'CONVENIENCE_STORE': { icon: img.martIcon, color: "#ffdc9c" },
+      'SHOPPING': { icon: img.shoppingIcon, color: "#EDA3FF" },
+      'TRAVEL': { icon: img.travelIcon, color: "#8BD6EF" },
       'HOUSING': { icon: img.residenceIcon, color: "#FFF1D6" },
-      'HOSPITAL': { icon: img.hospitalIcon, color: "#31BB66" },
+      'HOSPITAL': { icon: img.hospitalIcon, color: "#BBFFE0" },
       'TRANSFER': { icon: img.transferIcon, color: "#FFF495" },
-      'ALCOHOL_ENTERTAINMENT': { icon: img.entertainmentIcon, color: "#FF715B" },
-      'TELECOM': { icon: img.phoneIcon, color: "#FFFFFF" },
-      'EDUCATION': { icon: img.educationIcon, color: "#969191" },
-      'ETC': { icon: img.etcIcon, color: "#E4EAF0" },
+      'ALCOHOL_ENTERTAINMENT': { icon: img.entertainmentIcon, color: "#D0C3FF" },
+      'TELECOM': { icon: img.phoneIcon, color: "#ddff56ff" },
+      'EDUCATION': { icon: img.educationIcon, color: "#D0FFC6" },
+      'ETC': { icon: img.etcIcon, color: "#969191" },
     };
     const displayNames: Record<string, string> = {
         'FOOD': '식비', 'CAFE': '카페', 'TRANSPORTATION': '교통/차량', 'CONVENIENCE_STORE': '편의점',

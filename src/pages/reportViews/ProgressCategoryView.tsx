@@ -35,7 +35,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ categories, size, totalPrice,
       if (current < categories.length) {
         setFilledIndex(current);
         onCategoryFill(current);
-        setTimeout(fillNext, 500); // 다음 카테고리로 넘어가기까지의 시간 (0.초)
+        setTimeout(fillNext, 200); // 다음 카테고리로 넘어가기까지의 시간 (0.초)
       }
     };
 
@@ -57,7 +57,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ categories, size, totalPrice,
           cumulative += width;
 
           return (
-            <div
+            <div 
               key={cat.name}
               className={`absolute top-0 h-full transition-all duration-500 ease-in-out ${
                 idx <= filledIndex ? "opacity-100" : "opacity-0"
@@ -87,16 +87,18 @@ const ProgressCategoryView: React.FC<Props> = ({ categoriesList, totalPrice }) =
 
   return (
     <div>
-      <ProgressBar
+      <div className="flex-shrink-0 p-6 bg-white z-10 sticky top-0">
+      <ProgressBar 
         size={300}
         totalPrice={totalPrice}
         categories={categoriesList}
         onCategoryFill={handleCategoryFill}
       />
-
       <hr className="my-10 border-[#E4EAF0] border-[1.5px] rounded-full" />
+      </div>
 
-      <div className="flex flex-col gap-4">
+
+      <div className="flex flex-col gap-4 overflow-y-auto flex-1 px-6 pt-4 pb-56 min-h-0 -webkit-overflow-scrolling-touch">
         {categoriesList.map((element, index) => (
           <div
             key={index}
