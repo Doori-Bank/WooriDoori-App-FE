@@ -7,8 +7,18 @@ interface ProtectedAdminRouteProps {
 }
 
 const ProtectedAdminRoute: React.FC<ProtectedAdminRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAdminAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/admin/login" replace />;
+  try {
+    const { isAuthenticated } = useAdminAuth();
+    
+    if (!isAuthenticated) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    
+    return <>{children}</>;
+  } catch (error) {
+    console.error('ProtectedAdminRoute 에러:', error);
+    return <Navigate to="/admin/login" replace />;
+  }
 };
 
 export default ProtectedAdminRoute;

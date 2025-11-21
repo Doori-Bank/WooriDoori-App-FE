@@ -3,20 +3,23 @@ import { useEffect } from 'react';
 
 const AdminLoginView = () => {
   useEffect(() => {
-    // admin 로그인 페이지 진입 시 다크 모드 강제 활성화
-    document.documentElement.classList.add('dark');
-    return () => {
-      // 페이지를 떠날 때는 원래 상태로 복원하지 않음 (다른 페이지에서도 다크 모드 유지)
-    };
+    // localStorage에서 테마 설정을 읽어서 적용
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null;
+    if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      // 기본값은 다크 모드
+      document.documentElement.classList.add('dark');
+    }
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#000000] flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md">
-        <h1 className="text-4xl font-bold text-white mb-3 text-center">WOORI DOORI</h1>
-        <p className="text-gray-400 text-center mb-10">관리자 로그인</p>
+    <div className="min-h-screen bg-white dark:bg-[#000000] flex items-center justify-center px-6 py-12">
+      <div className="w-full max-w-2xl">
+        <h1 className="text-6xl font-bold text-gray-900 dark:text-white mb-4 text-center">WOORI DOORI</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-12 text-lg">관리자 로그인</p>
         
-        <div className="bg-[#0a0a0a] rounded-lg p-10 shadow-xl border border-[#1a1a1a]">
+        <div className="bg-white dark:bg-[#0a0a0a] rounded-lg p-12 shadow-xl border border-gray-200 dark:border-[#1a1a1a]">
           <LoginForm />
         </div>
       </div>

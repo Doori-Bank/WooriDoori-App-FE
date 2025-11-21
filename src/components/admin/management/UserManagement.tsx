@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAdminHeader } from '@/context/AdminHeaderContext'
-import { getUserList, ApiUser } from '@/lib/adminApi'
+import { getUserList, ApiUser, updateMemberAuthority, getMemberByName, sendCustomNotification, sendDiaryNotification, sendReportNotification, sendAllCustomNotification, sendAllDiaryNotification, sendAllReportNotification } from '@/lib/adminApi'
+import * as XLSX from 'xlsx'
 import { Button } from '@/components/admin/ui/button'
 import { Checkbox } from '@/components/admin/ui/checkbox'
 import { Input } from '@/components/admin/ui/input'
@@ -25,28 +26,13 @@ interface User {
   id: number
   username: string
   password: string
-  nickname: string
   name: string
   phone: string
   birthdate: string
-  gender: string
+  authority: string
   status: string
 }
 
-const getGenderLabel = (gender: string): string => {
-  switch (gender) {
-    case '1':
-      return '남성'
-    case '2':
-      return '여성'
-    case '3':
-      return '기타'
-    case '4':
-      return '미지정'
-    default:
-      return '미지정'
-  }
-}
 
 const formatBirthdate = (birthdate: string): string => {
   // YYYYMMDD 형식인 경우
@@ -70,21 +56,20 @@ const formatBirthdate = (birthdate: string): string => {
 // API 응답을 User 형식으로 변환
 const convertApiUserToUser = (apiUser: ApiUser): User => {
   // birthDate (YYYYMMDD)를 birthdate (YYMMDD)로 변환
-  let birthdate = apiUser.birthDate
-  if (birthdate.length === 8) {
+  let birthdate = apiUser.birthDate || ''
+  if (birthdate && birthdate.length === 8) {
     birthdate = birthdate.substring(2) // YYYYMMDD → YYMMDD
   }
   
   return {
     id: apiUser.id,
-    username: apiUser.memberId,
+    username: apiUser.memberId || '',
     password: '', // API에서 제공하지 않음
-    nickname: '', // API에서 제공하지 않음
-    name: apiUser.memberName,
-    phone: apiUser.phone,
+    name: apiUser.memberName || '',
+    phone: apiUser.phone || '',
     birthdate: birthdate,
-    gender: '4', // API에서 제공하지 않음, 기본값 '미지정'
-    status: apiUser.status,
+    authority: apiUser.authority || 'USER',
+    status: apiUser.status || 'ABLE', // 기본값 설정
   }
 }
 
@@ -100,18 +85,22 @@ export function UserManagement() {
   const [editForm, setEditForm] = useState<Partial<User>>({})
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
-  // 생성 모달 상태 및 폼
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [createForm, setCreateForm] = useState<Omit<User, 'id'>>({
-    username: '',
-    password: '',
-    nickname: '',
-    name: '',
-    phone: '',
-    birthdate: '',
-    gender: '4',
-    status: 'ABLE',
-  })
+  // 검색 상태 (memberId는 integer)
+  const [searchMemberId, setSearchMemberId] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+
+  // 알림 전송 상태
+  const [isNotificationDialogOpen, setIsNotificationDialogOpen] = useState(false)
+  const [notificationUser, setNotificationUser] = useState<User | null>(null)
+  const [notificationType, setNotificationType] = useState<'custom' | 'diary' | 'report'>('custom')
+  const [customMessage, setCustomMessage] = useState('')
+  const [isSendingNotification, setIsSendingNotification] = useState(false)
+
+  // 전체 알림 전송 상태
+  const [isAllNotificationDialogOpen, setIsAllNotificationDialogOpen] = useState(false)
+  const [allNotificationType, setAllNotificationType] = useState<'custom' | 'diary' | 'report'>('custom')
+  const [allCustomMessage, setAllCustomMessage] = useState('')
+  const [isSendingAllNotification, setIsSendingAllNotification] = useState(false)
 
   const handleSort = () => {
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
@@ -139,16 +128,47 @@ export function UserManagement() {
     setIsEditDialogOpen(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editingUser && editForm) {
+      // 권한이 변경된 경우 API 호출
+      if (editForm.authority && editForm.authority !== editingUser.authority) {
+        try {
+          const result = await updateMemberAuthority(
+            editingUser.username,
+            editForm.authority as 'USER' | 'ADMIN'
+          );
+
+          if (result.success) {
+            // 로컬 상태 업데이트
+            setUsers(users.map(user => 
+              user.id === editingUser.id 
+                ? { ...user, ...editForm } 
+                : user
+            ));
+            setIsEditDialogOpen(false);
+            setEditingUser(null);
+            setEditForm({});
+            
+            // 목록 새로고침
+            fetchUsers();
+          } else {
+            setError(result.error || '권한 변경에 실패했습니다.');
+          }
+        } catch (error) {
+          console.error('권한 변경 에러:', error);
+          setError('권한 변경 중 오류가 발생했습니다.');
+        }
+      } else {
+        // 권한 변경이 아닌 경우 로컬 상태만 업데이트
       setUsers(users.map(user => 
         user.id === editingUser.id 
           ? { ...user, ...editForm } 
           : user
-      ))
-      setIsEditDialogOpen(false)
-      setEditingUser(null)
-      setEditForm({})
+        ));
+        setIsEditDialogOpen(false);
+        setEditingUser(null);
+        setEditForm({});
+      }
     }
   }
 
@@ -183,25 +203,149 @@ export function UserManagement() {
     }
   }
 
-  const handleCreate = () => {
-    setIsCreateDialogOpen(true)
+  // 특정 회원 조회 함수 (memberName은 string)
+  const handleSearch = async () => {
+    const memberName = searchMemberId.trim()
+    if (!memberName) {
+      setError('회원 이름을 입력해주세요.')
+      return
+    }
+
+    try {
+      setIsSearching(true)
+      setError(null)
+      const response = await getMemberByName(memberName)
+      
+      if (response.statusCode === 200) {
+        const convertedUser = convertApiUserToUser(response.resultData)
+        setUsers([convertedUser])
+      } else {
+        setError(response.resultMsg || '회원을 찾을 수 없습니다.')
+        setUsers([])
+      }
+    } catch (err: any) {
+      console.error('회원 조회 에러:', err)
+      
+      const errorMessage = 
+        err?.response?.data?.errorResultMsg ||
+        err?.response?.data?.resultMsg ||
+        err?.message ||
+        '회원을 찾을 수 없습니다.'
+      
+      setError(errorMessage)
+      setUsers([])
+    } finally {
+      setIsSearching(false)
+    }
   }
 
-  const handleCreateSave = () => {
-    const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1
-    const newUser: User = { id: newId, ...createForm }
-    setUsers(prev => [...prev, newUser])
-    setIsCreateDialogOpen(false)
-    setCreateForm({
-      username: '',
-      password: '',
-      nickname: '',
-      name: '',
-      phone: '',
-      birthdate: '',
-      gender: '4',
-      status: 'ABLE',
-    })
+  // 검색 초기화 함수
+  const handleResetSearch = () => {
+    setSearchMemberId('')
+    setError(null)
+    fetchUsers()
+  }
+
+  // 알림 전송 핸들러
+  const handleSendNotification = (user: User) => {
+    setNotificationUser(user)
+    setNotificationType('custom')
+    setCustomMessage('')
+    setIsNotificationDialogOpen(true)
+    setError(null)
+  }
+
+  const handleNotificationSend = async () => {
+    if (!notificationUser) {
+      setError('사용자 정보가 없습니다.')
+      return
+    }
+
+    // 커스텀 알림의 경우 메시지 검증
+    if (notificationType === 'custom' && !customMessage.trim()) {
+      setError('알림 메시지를 입력해주세요.')
+      return
+    }
+
+    try {
+      setIsSendingNotification(true)
+      setError(null)
+
+      let result
+      if (notificationType === 'custom') {
+        result = await sendCustomNotification({
+          memberId: notificationUser.username,
+          message: customMessage,
+        })
+      } else if (notificationType === 'diary') {
+        result = await sendDiaryNotification({
+          memberId: notificationUser.username,
+        })
+      } else {
+        result = await sendReportNotification({
+          memberId: notificationUser.username,
+        })
+      }
+
+      if (result.success) {
+        setIsNotificationDialogOpen(false)
+        setNotificationUser(null)
+        setCustomMessage('')
+        alert('알림이 전송되었습니다.')
+      } else {
+        setError(result.error || '알림 전송에 실패했습니다.')
+      }
+    } catch (err: any) {
+      console.error('알림 전송 에러:', err)
+      setError('알림 전송 중 오류가 발생했습니다.')
+    } finally {
+      setIsSendingNotification(false)
+    }
+  }
+
+  // 전체 알림 전송 핸들러
+  const handleSendAllNotification = () => {
+    setAllNotificationType('custom')
+    setAllCustomMessage('')
+    setIsAllNotificationDialogOpen(true)
+    setError(null)
+  }
+
+  const handleAllNotificationSend = async () => {
+    // 커스텀 알림의 경우 메시지 검증
+    if (allNotificationType === 'custom' && !allCustomMessage.trim()) {
+      setError('알림 메시지를 입력해주세요.')
+      return
+    }
+
+    try {
+      setIsSendingAllNotification(true)
+      setError(null)
+
+      let result
+      if (allNotificationType === 'custom') {
+        result = await sendAllCustomNotification({
+          message: allCustomMessage,
+        })
+      } else if (allNotificationType === 'diary') {
+        result = await sendAllDiaryNotification()
+      } else {
+        result = await sendAllReportNotification()
+      }
+
+      if (result.success) {
+        setIsAllNotificationDialogOpen(false)
+        setAllCustomMessage('')
+        alert('전체 알림이 전송되었습니다.')
+      } else {
+        setError(result.error || '전체 알림 전송에 실패했습니다.')
+      }
+    } catch (err: any) {
+      console.error('전체 알림 전송 에러:', err)
+      setError('전체 알림 전송 중 오류가 발생했습니다.')
+    } finally {
+      setIsSendingAllNotification(false)
+    }
   }
 
   const handleExport = () => {
@@ -210,40 +354,26 @@ export function UserManagement() {
       ? users.filter(u => selectedUsers.includes(u.id))
       : users
 
-    // CSV 헤더
-    const headers = ['ID', '사용자명', '닉네임', '이름', '성별', '전화번호', '생년월일', '상태']
-    
-    // CSV 데이터 행 생성
-    const csvRows = [
-      headers.join(','),
-      ...dataToExport.map(user => [
-        user.id,
-        `"${user.username}"`,
-        `"${user.nickname}"`,
-        `"${user.name}"`,
-        `"${getGenderLabel(user.gender)}"`,
-        `"${user.phone}"`,
-        `"${formatBirthdate(user.birthdate)}"`,
-        `"${user.status}"`
-      ].join(','))
-    ]
+    // 엑셀 데이터 준비
+    const excelData = dataToExport.map(user => ({
+      ID: user.id,
+      권한: user.authority,
+      사용자명: user.username,
+      이름: user.name,
+      전화번호: user.phone,
+      생년월일: formatBirthdate(user.birthdate),
+      상태: user.status,
+    }))
 
-    // CSV 문자열 생성
-    const csvContent = csvRows.join('\n')
+    // 워크시트 생성
+    const ws = XLSX.utils.json_to_sheet(excelData)
     
-    // BOM 추가 (Excel에서 한글 깨짐 방지)
-    const BOM = '\uFEFF'
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+    // 워크북 생성
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, '사용자 목록')
     
-    // 다운로드 링크 생성
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `사용자_${new Date().toISOString().split('T')[0]}.csv`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    // 엑셀 파일 다운로드
+    XLSX.writeFile(wb, `사용자_${new Date().toISOString().split('T')[0]}.xlsx`)
   }
 
   // 전체 사용자 조회 API 호출
@@ -253,15 +383,63 @@ export function UserManagement() {
       setError(null)
       const response = await getUserList()
       
-      if (response.statusCode === 200 && response.resultMsg === 'SUCCESS') {
-        const convertedUsers = response.resultData.map(convertApiUserToUser)
+      console.log('API 응답 전체:', response)
+      console.log('resultData 타입:', typeof response.resultData)
+      console.log('resultData가 배열인가?', Array.isArray(response.resultData))
+      console.log('resultData 길이:', response.resultData?.length)
+      console.log('resultData 내용:', response.resultData)
+      
+      // statusCode가 200이면 성공으로 간주 (resultMsg는 다양할 수 있음)
+      if (response.statusCode === 200) {
+        // resultData가 배열이고 비어있지 않은지 확인
+        if (Array.isArray(response.resultData) && response.resultData.length > 0) {
+          try {
+            const convertedUsers = response.resultData.map((user, index) => {
+              try {
+                return convertApiUserToUser(user)
+              } catch (err) {
+                console.error(`사용자 ${index} 변환 실패:`, user, err)
+                // 기본값으로 사용자 객체 생성
+                return {
+                  id: user.id || 0,
+                  username: user.memberId || '',
+                  password: '',
+                  name: user.memberName || '',
+                  phone: user.phone || '',
+                  birthdate: user.birthDate || '',
+                  authority: user.authority || 'USER',
+                  status: user.status || 'ABLE',
+                }
+              }
+            })
+            console.log('변환된 사용자 수:', convertedUsers.length)
+            console.log('변환된 사용자:', convertedUsers)
         setUsers(convertedUsers)
+          } catch (err) {
+            console.error('사용자 변환 중 에러:', err)
+            setError('사용자 데이터 변환 중 오류가 발생했습니다.')
+            setUsers([])
+          }
+        } else {
+          console.log('resultData가 빈 배열이거나 배열이 아닙니다')
+          setUsers([])
+        }
       } else {
-        setError('사용자 목록을 불러오는데 실패했습니다.')
+        const errorMsg = response.resultMsg || '사용자 목록을 불러오는데 실패했습니다.'
+        setError(errorMsg)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching users:', err)
-      setError('사용자 목록을 불러오는데 실패했습니다.')
+      console.error('에러 상세:', err?.response?.data)
+      
+      // 에러 응답에서 상세 메시지 추출
+      const errorMessage = 
+        err?.response?.data?.errorResultMsg ||
+        err?.response?.data?.resultMsg ||
+        err?.message ||
+        '사용자 목록을 불러오는데 실패했습니다.'
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -274,7 +452,6 @@ export function UserManagement() {
   useEffect(() => {
     setActions({
       onExport: handleExport,
-      onCreate: handleCreate,
       onRefresh: fetchUsers,
     })
 
@@ -289,86 +466,68 @@ export function UserManagement() {
 
   if (isLoading) {
     return (
-      <div className="w-full flex items-center justify-center py-12">
+      <div className="flex justify-center items-center py-12 w-full">
         <p className="text-gray-400">로딩 중...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="w-full flex items-center justify-center py-12">
-        <p className="text-red-400">{error}</p>
       </div>
     )
   }
 
   return (
     <div className="w-full">
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-[#1a1a1a] text-gray-900 dark:text-white">
-          <DialogHeader>
-            <DialogTitle className="text-gray-900 dark:text-white">사용자 추가</DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-400">새 사용자를 등록하세요.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 py-2">
-            <div className="grid gap-2">
-              <Label htmlFor="c_username" className="text-gray-700 dark:text-gray-300">사용자명</Label>
-              <Input id="c_username" value={createForm.username} onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })} className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
+      {error && (
+        <div className="p-4 mb-4 rounded-lg border bg-red-900/20 border-red-500/50">
+          <p className="text-sm text-red-400">{error}</p>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_password" className="text-gray-700 dark:text-gray-300">패스워드</Label>
-              <Input id="c_password" type="password" value={createForm.password} onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })} className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
+      )}
+      
+      {/* 검색창 및 전체 알림 버튼 */}
+      <div className="mb-6 p-4 bg-[#0a0a0a] rounded-lg border border-[#1a1a1a]">
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <Label htmlFor="search-member-id" className="block mb-2 text-sm font-medium text-white">
+              회원 검색 (회원 이름)
+            </Label>
+              <Input
+              id="search-member-id"
+              type="text"
+              placeholder="회원 이름을 입력하세요 (예: 김두리)"
+              value={searchMemberId}
+              onChange={(e) => setSearchMemberId(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch()
+                }
+              }}
+              className="bg-[#1a1a1a] border-[#2a2a2a] text-white h-12 text-base placeholder:text-gray-500"
+            />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_nickname" className="text-gray-700 dark:text-gray-300">닉네임</Label>
-              <Input id="c_nickname" value={createForm.nickname} onChange={(e) => setCreateForm({ ...createForm, nickname: e.target.value })} className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_name" className="text-gray-700 dark:text-gray-300">이름</Label>
-              <Input id="c_name" value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_phone" className="text-gray-700 dark:text-gray-300">전화번호</Label>
-              <Input id="c_phone" value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })} className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_birthdate" className="text-gray-700 dark:text-gray-300">생년월일 (YYMMDD)</Label>
-              <Input id="c_birthdate" value={createForm.birthdate} onChange={(e) => setCreateForm({ ...createForm, birthdate: e.target.value })} placeholder="YYMMDD" className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a]" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_gender" className="text-gray-700 dark:text-gray-300">성별</Label>
-              <Select value={createForm.gender} onValueChange={(v) => setCreateForm({ ...createForm, gender: v })}>
-                <SelectTrigger className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectValue placeholder="성별 선택" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectItem value="1">남성</SelectItem>
-                  <SelectItem value="2">여성</SelectItem>
-                  <SelectItem value="3">기타</SelectItem>
-                  <SelectItem value="4">미지정</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="c_status" className="text-gray-700 dark:text-gray-300">상태</Label>
-              <Select value={createForm.status} onValueChange={(v) => setCreateForm({ ...createForm, status: v })}>
-                <SelectTrigger className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectValue placeholder="상태 선택" />
-                </SelectTrigger>
-                <SelectContent className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectItem value="ABLE">ABLE</SelectItem>
-                  <SelectItem value="DISABLE">DISABLE</SelectItem>
-                </SelectContent>
-              </Select>
+          <Button
+            onClick={handleSearch}
+            disabled={isSearching || !searchMemberId.trim()}
+            className="px-6 h-12 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSearching ? '검색 중...' : '검색'}
+          </Button>
+          {searchMemberId && (
+            <Button
+              onClick={handleResetSearch}
+              variant="outline"
+              className="h-12 px-6 border-[#2a2a2a] hover:bg-[#1a1a1a] bg-transparent text-white"
+            >
+              초기화
+            </Button>
+          )}
+          <Button
+            onClick={handleSendAllNotification}
+            className="px-6 h-12 text-white bg-green-600 hover:bg-green-700"
+          >
+            <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            전체 알림
+          </Button>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsCreateDialogOpen(false)} className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">취소</Button>
-            <Button onClick={handleCreateSave} className="bg-blue-600 hover:bg-blue-700 text-white">저장</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-[#1a1a1a] text-gray-900 dark:text-white">
           <DialogHeader>
@@ -394,15 +553,6 @@ export function UserManagement() {
                 type="password"
                 value={editForm.password || ''}
                 onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
-                className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="nickname" className="text-gray-700 dark:text-gray-300">닉네임</Label>
-              <Input
-                id="nickname"
-                value={editForm.nickname || ''}
-                onChange={(e) => setEditForm({ ...editForm, nickname: e.target.value })}
                 className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white"
               />
             </div>
@@ -435,19 +585,17 @@ export function UserManagement() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="gender" className="text-gray-700 dark:text-gray-300">성별</Label>
+              <Label htmlFor="authority" className="text-gray-700 dark:text-gray-300">권한</Label>
               <Select
-                value={editForm.gender || ''}
-                onValueChange={(value: string) => setEditForm({ ...editForm, gender: value })}
+                value={editForm.authority || ''}
+                onValueChange={(value: string) => setEditForm({ ...editForm, authority: value })}
               >
                 <SelectTrigger className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectValue placeholder="성별 선택" />
+                  <SelectValue placeholder="권한 선택" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
-                  <SelectItem value="1">남성</SelectItem>
-                  <SelectItem value="2">여성</SelectItem>
-                  <SelectItem value="3">기타</SelectItem>
-                  <SelectItem value="4">미지정</SelectItem>
+                  <SelectItem value="USER">USER</SelectItem>
+                  <SelectItem value="ADMIN">ADMIN</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -477,7 +625,7 @@ export function UserManagement() {
             </Button>
             <Button
               onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="text-white bg-blue-600 hover:bg-blue-700"
             >
               저장
             </Button>
@@ -489,15 +637,15 @@ export function UserManagement() {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-gray-200 dark:border-[#1a1a1a]">
-              <th className="w-12 px-4 py-3 text-left">
+              <th className="px-4 py-3 w-12 text-left">
                 <Checkbox
                   checked={selectedUsers.length === users.length && users.length > 0}
                   onCheckedChange={toggleAll}
                   className="border-gray-300 dark:border-gray-600"
                 />
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">
-                <button onClick={handleSort} className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">
+                <button onClick={handleSort} className="flex gap-1 items-center transition-colors hover:text-gray-900 dark:hover:text-white">
                   ID
                   <svg
                     className={`w-4 h-4 transition-transform ${sortOrder === 'asc' ? '' : 'rotate-180'}`}
@@ -509,18 +657,24 @@ export function UserManagement() {
                   </svg>
                 </button>
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">사용자명</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">닉네임</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">이름</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">성별</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">전화번호</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">생년월일</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-black dark:text-gray-400">상태</th>
-              <th className="px-4 py-3 text-right text-sm font-medium text-black dark:text-gray-400"></th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">권한</th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">사용자명</th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">이름</th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">전화번호</th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">생년월일</th>
+              <th className="px-4 py-3 text-sm font-medium text-left text-black dark:text-gray-400">상태</th>
+              <th className="px-4 py-3 text-sm font-medium text-right text-black dark:text-gray-400"></th>
             </tr>
           </thead>
           <tbody>
-            {sortedUsers.map((user) => (
+            {sortedUsers.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                  사용자 데이터가 없습니다.
+                </td>
+              </tr>
+            ) : (
+              sortedUsers.map((user) => (
               <tr key={user.id} className="border-b border-gray-200 dark:border-[#1a1a1a] hover:bg-gray-50 dark:hover:bg-[#0f0f0f] transition-colors">
                 <td className="px-4 py-3">
                   <Checkbox
@@ -530,15 +684,25 @@ export function UserManagement() {
                   />
                 </td>
                 <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.id}</td>
+                <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.authority}</td>
                 <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.username}</td>
-                <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.nickname}</td>
                 <td className="px-4 py-3 text-sm text-black dark:text-white">{user.name}</td>
-                <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{getGenderLabel(user.gender)}</td>
                 <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.phone}</td>
                 <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{formatBirthdate(user.birthdate)}</td>
                 <td className="px-4 py-3 text-sm text-black dark:text-gray-300">{user.status}</td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex gap-2 justify-end items-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-[#1a1a1a] gap-1.5"
+                      onClick={() => handleSendNotification(user)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                      </svg>
+                      알림
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -564,10 +728,176 @@ export function UserManagement() {
                   </div>
                 </td>
               </tr>
-            ))}
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* 알림 전송 다이얼로그 */}
+      <Dialog open={isNotificationDialogOpen} onOpenChange={setIsNotificationDialogOpen}>
+        <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-[#1a1a1a] text-gray-900 dark:text-white">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">알림 전송</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              {notificationUser?.name} ({notificationUser?.username})님에게 알림을 전송합니다.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="notification_type" className="text-gray-700 dark:text-gray-300">알림 유형</Label>
+              <Select
+                value={notificationType}
+                onValueChange={(value: 'custom' | 'diary' | 'report') => {
+                  setNotificationType(value)
+                  if (value !== 'custom') {
+                    setCustomMessage('')
+                  }
+                }}
+              >
+                <SelectTrigger className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
+                  <SelectValue placeholder="알림 유형 선택" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
+                  <SelectItem value="custom">커스텀 알림</SelectItem>
+                  <SelectItem value="diary">일기 알림</SelectItem>
+                  <SelectItem value="report">리포트 알림</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {notificationType === 'custom' && (
+              <div className="grid gap-2">
+                <Label htmlFor="custom_message" className="text-gray-700 dark:text-gray-300">알림 메시지 *</Label>
+                <Input
+                  id="custom_message"
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  placeholder="알림 메시지를 입력하세요"
+                  className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white"
+                />
+              </div>
+            )}
+            {notificationType === 'diary' && (
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  일기 작성 알림을 전송합니다.
+                </p>
+              </div>
+            )}
+            {notificationType === 'report' && (
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-300">
+                  리포트 알림을 전송합니다.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsNotificationDialogOpen(false)
+                setNotificationUser(null)
+                setCustomMessage('')
+                setError(null)
+              }}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              disabled={isSendingNotification}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleNotificationSend}
+              className="text-white bg-blue-600 hover:bg-blue-700"
+              disabled={isSendingNotification}
+            >
+              {isSendingNotification ? '전송 중...' : '전송'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 전체 알림 전송 다이얼로그 */}
+      <Dialog open={isAllNotificationDialogOpen} onOpenChange={setIsAllNotificationDialogOpen}>
+        <DialogContent className="bg-white dark:bg-[#0a0a0a] border-gray-200 dark:border-[#1a1a1a] text-gray-900 dark:text-white">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">전체 알림 전송</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              모든 사용자에게 알림을 전송합니다.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="all_notification_type" className="text-gray-700 dark:text-gray-300">알림 유형</Label>
+              <Select
+                value={allNotificationType}
+                onValueChange={(value: 'custom' | 'diary' | 'report') => {
+                  setAllNotificationType(value)
+                  if (value !== 'custom') {
+                    setAllCustomMessage('')
+                  }
+                }}
+              >
+                <SelectTrigger className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
+                  <SelectValue placeholder="알림 유형 선택" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white">
+                  <SelectItem value="custom">커스텀 알림</SelectItem>
+                  <SelectItem value="diary">일기 알림</SelectItem>
+                  <SelectItem value="report">리포트 알림</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {allNotificationType === 'custom' && (
+              <div className="grid gap-2">
+                <Label htmlFor="all_custom_message" className="text-gray-700 dark:text-gray-300">알림 메시지 *</Label>
+                <Input
+                  id="all_custom_message"
+                  value={allCustomMessage}
+                  onChange={(e) => setAllCustomMessage(e.target.value)}
+                  placeholder="알림 메시지를 입력하세요"
+                  className="bg-white dark:bg-[#1a1a1a] border-gray-300 dark:border-[#2a2a2a] text-gray-900 dark:text-white"
+                />
+              </div>
+            )}
+            {allNotificationType === 'diary' && (
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  모든 사용자에게 일기 작성 알림을 전송합니다.
+                </p>
+              </div>
+            )}
+            {allNotificationType === 'report' && (
+              <div className="p-3 bg-green-50 rounded-lg border border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-300">
+                  모든 사용자에게 리포트 알림을 전송합니다.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsAllNotificationDialogOpen(false)
+                setAllCustomMessage('')
+                setError(null)
+              }}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              disabled={isSendingAllNotification}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleAllNotificationSend}
+              className="text-white bg-green-600 hover:bg-green-700"
+              disabled={isSendingAllNotification}
+            >
+              {isSendingAllNotification ? '전송 중...' : '전체 전송'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

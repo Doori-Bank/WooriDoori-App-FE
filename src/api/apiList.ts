@@ -6,10 +6,16 @@ export const apiList = {
   // 로그인 API
   login: async (memberId: string, password: string) => {
     try {
+      const baseURL = import.meta.env.VITE_API_BASE_URL;
+      console.log("로그인 요청 - baseURL:", baseURL);
+      console.log("로그인 요청 - memberId:", memberId);
+      
       const response = await axiosInstance.post("/auth/login", { 
         id: memberId, 
         password: password
       });
+      
+      console.log("로그인 응답:", response.data);
       
       // 백엔드 응답 구조: { statusCode, resultMsg, resultData: { name, tokens: { accessToken, refreshToken } } }
       const resultData = response.data.resultData;
@@ -32,6 +38,15 @@ export const apiList = {
       }
     } catch (err: any) {
       console.error("로그인 에러:", err);
+      console.error("에러 상세:", {
+        message: err?.message,
+        status: err?.response?.status,
+        statusText: err?.response?.statusText,
+        url: err?.config?.url,
+        baseURL: err?.config?.baseURL,
+        fullURL: err?.config?.baseURL + err?.config?.url,
+        data: err?.response?.data,
+      });
       
       // 백엔드 에러 응답 구조: { statusCode, errorName, errorResultMsg }
       const errorName = err?.response?.data?.errorName;

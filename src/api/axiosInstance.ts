@@ -7,7 +7,7 @@ const { getCookies, setCookies, removeCookies } = useCookieManager();
 
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
   // withCredentials: true,
@@ -35,8 +35,15 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 
 // 요청 인터셉터
 axiosInstance.interceptors.request.use((config) => {
-  const { accessToken: token } = getCookies();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  // 로그인, 회원가입 등 인증이 필요 없는 API는 토큰을 추가하지 않음
+  const isAuthApi = config.url?.includes('/auth/login') || 
+                    config.url?.includes('/auth/signup') ||
+                    config.url?.includes('/auth/reissue');
+  
+  if (!isAuthApi) {
+    const { accessToken: token } = getCookies();
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 

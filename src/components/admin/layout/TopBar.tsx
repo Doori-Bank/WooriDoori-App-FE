@@ -36,8 +36,6 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
     theme: '테마',
     darkMode: '다크 모드',
     lightMode: '라이트 모드',
-    notifications: '알림',
-    emailNotifications: '이메일 알림 받기',
     cancel: '취소',
     save: '저장',
   }
@@ -89,7 +87,7 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
           <div className="grid gap-6 py-4">
             <div className="grid gap-3">
               <Label className="text-gray-700 dark:text-gray-300">{t.theme}</Label>
-              <div className="flex items-center gap-4">
+              <div className="flex gap-4 items-center">
                 <button
                   onClick={() => {
                     document.documentElement.classList.add('dark')
@@ -120,16 +118,6 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
                 </button>
               </div>
             </div>
-            {/* 언어 선택 제거 (한국어 고정) */}
-            <div className="grid gap-3">
-              <Label className="text-gray-700 dark:text-gray-300">{t.notifications}</Label>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t.emailNotifications}</span>
-                <button className="relative w-11 h-6 bg-gray-200 dark:bg-[#1a1a1a] rounded-full border border-gray-300 dark:border-[#2a2a2a]">
-                  <span className="absolute left-1 top-1 w-4 h-4 bg-gray-400 dark:bg-gray-600 rounded-full transition-transform"></span>
-                </button>
-              </div>
-            </div>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-[#1a1a1a]">
             <Button
@@ -141,7 +129,7 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
             </Button>
             <Button
               onClick={() => setIsSettingsOpen(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="text-white bg-blue-600 hover:bg-blue-700"
             >
               {t.save}
             </Button>
@@ -150,7 +138,7 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
       </Dialog>
 
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-white dark:bg-[#0a0a0a] border-b border-gray-200 dark:border-[#1a1a1a]">
-      <div className="flex items-center gap-4">
+      <div className="flex gap-4 items-center">
         <button
           onClick={onMenuClick}
           className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] p-2 rounded transition-colors"
@@ -161,38 +149,42 @@ export function TopBar({ onMenuClick, title, titleIcon: TitleIcon, showActionBut
         </button>
 
         {title && (
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center">
             {TitleIcon ? (
               <TitleIcon className="w-5 h-5 text-gray-900 dark:text-white" />
             ) : (
               <ShoppingBag className="w-5 h-5 text-gray-900 dark:text-white" />
             )}
-            <span className="text-gray-900 dark:text-white font-semibold">{title}</span>
+            <span className="font-semibold text-gray-900 dark:text-white">{title}</span>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2 items-center">
         {showActionButtons && (
           <>
-            <button
-              onClick={onCreate}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              CREATE
-            </button>
-            <button
-              onClick={onExport}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              EXPORT
-            </button>
+            {onCreate && (
+              <button
+                onClick={onCreate}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                CREATE
+              </button>
+            )}
+            {onExport && (
+              <button
+                onClick={onExport}
+                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#1a1a1a] px-3 py-1.5 rounded text-sm transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                EXPORT
+              </button>
+            )}
           </>
         )}
         <button
