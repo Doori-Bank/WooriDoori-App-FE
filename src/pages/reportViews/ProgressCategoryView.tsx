@@ -87,7 +87,7 @@ const ProgressCategoryView: React.FC<Props> = ({ categoriesList, totalPrice }) =
 
   return (
     <div>
-      <div className="flex-shrink-0 p-6 bg-white z-10 sticky top-0">
+      <div className="flex-shrink-0 p-6 bg-white z-10 sticky top-10">
       <ProgressBar 
         size={300}
         totalPrice={totalPrice}
