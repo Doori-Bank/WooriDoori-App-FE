@@ -577,7 +577,7 @@ const CalendarView = () => {
         {/* 결제 내역 리스트 영역 (별도 스크롤) */}
         <div 
           ref={scrollRef}
-          className="overflow-y-auto overscroll-contain flex-1 px-5 pb-32"
+          className="overflow-y-auto overscroll-contain flex-1 px-5 pb-32 pt-4"
         >
           {isLoading && paymentDataState.length === 0 ? (
             // 로딩 상태

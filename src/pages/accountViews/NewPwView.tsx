@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { img } from "@/assets/img";
 import DefaultButton from "@/components/button/DefaultButton";
 import DefaultDiv from "@/components/default/DefaultDiv";
@@ -6,8 +7,12 @@ import Title1 from "@/components/title/Title1";
 import InputBox from "@/components/input/InputBox";
 import ConfirmModal from "@/components/modal/ConfirmModal";
 import ChoiceModal from "@/components/modal/ChoiceModal";
+import { useApi } from "@/hooks/useApi";
+import { apiList } from "@/api/apiList";
 
 const NewPwView = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [tempPw, setTempPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
@@ -15,17 +20,34 @@ const NewPwView = () => {
   // 각 입력창별 오류 메시지
   const [newPwError, setNewPwError] = useState("");
   const [confirmPwError, setConfirmPwError] = useState("");
+  const [tempPwError, setTempPwError] = useState("");
+  const [apiError, setApiError] = useState("");
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showChoiceModal, setShowChoiceModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const changePasswordApi = useApi(apiList.changePassword);
+
+  // URL 파라미터에서 memberId 가져오기
+  const searchParams = new URLSearchParams(location.search);
+  const memberId = searchParams.get("id") || "";
 
   // 비밀번호 유효성 검사 (영문 또는 숫자, 10자 이상)
   const isValidPassword = (pw: string) => /^[A-Za-z0-9]{10,}$/.test(pw);
 
-
   // 확인 버튼
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     let hasError = false;
+    setApiError("");
+
+    // 임시 비밀번호 체크
+    if (!tempPw.trim()) {
+      setTempPwError("임시 비밀번호를 입력해주세요.");
+      hasError = true;
+    } else {
+      setTempPwError("");
+    }
 
     // 새 비밀번호 유효성 체크
     if (!isValidPassword(newPw)) {
@@ -42,15 +64,28 @@ const NewPwView = () => {
       setConfirmPwError("");
     }
 
+    if (!memberId) {
+      setApiError("회원 정보를 찾을 수 없습니다. 다시 시도해주세요.");
+      hasError = true;
+    }
+
     if (hasError) return;
 
-    // 오류 없으면 모달 표시
-    setShowConfirmModal(true);
+    // 비밀번호 변경 API 호출
+    setIsLoading(true);
+    const result = await changePasswordApi.call(memberId, tempPw, newPw);
+    setIsLoading(false);
+
+    if (result?.success) {
+      setShowConfirmModal(true);
+    } else {
+      setApiError(result?.resultMsg || "비밀번호 변경에 실패했습니다.");
+    }
   };
 
   const handleConfirmModalConfirm = () => {
     setShowConfirmModal(false);
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   const handleChoiceModalConfirm = () => {
@@ -81,8 +116,13 @@ const NewPwView = () => {
             type="password"
             placeholder="임시비밀번호를 입력해주세요"
             value={tempPw}
-            onChange={(e) => setTempPw(e.target.value)}
+            isError={!!tempPwError}
+            onChange={(e) => {
+              setTempPw(e.target.value);
+              setTempPwError("");
+            }}
           />
+          {tempPwError && <p className="text-red-500 mt-2">{tempPwError}</p>}
         </div>
         <div className="h-4" />
 
@@ -118,6 +158,13 @@ const NewPwView = () => {
           />
           {confirmPwError && <p className="text-red-500 mt-2">{confirmPwError}</p>}
         </div>
+
+        {/* API 에러 메시지 */}
+        {apiError && (
+          <div className="mt-4">
+            <p className="text-red-500 text-center">{apiError}</p>
+          </div>
+        )}
       </div>
 
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[32rem] bg-white py-10 pb-[4rem]">
@@ -128,9 +175,10 @@ const NewPwView = () => {
               onClick={() => setShowChoiceModal(true)}
             />
             <DefaultButton
-              text="확인"
+              text={isLoading ? "처리 중..." : "확인"}
               className="flex-[1.5]"
               onClick={handleConfirm}
+              disabled={isLoading}
             />
           </div>
         </div>

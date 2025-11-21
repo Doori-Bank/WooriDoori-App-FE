@@ -55,19 +55,6 @@ interface CategoryChartData {
   icon: string;
 }
 
-const DEFAULT_CATEGORY_SOURCE: CategorySpend[] = [
-  { rank: "top1", category: "FOOD", totalPrice: 400000 },
-  { rank: "top2", category: "TRANSPORTATION", totalPrice: 300000 },
-  { rank: "top3", category: "SHOPPING", totalPrice: 200000 },
-  { rank: "top4", category: "EDUCATION", totalPrice: 100000 },
-  { rank: "top5", category: "ETC", totalPrice: 80000 },
-];
-
-const DEFAULT_CARD_BANNERS = [
-  { url: "", src: img.cardBanner },
-  { url: "", src: img.cardBanner2 },
-  { url: "", src: img.cardBanner3 },
-];
 
 const mapCategorySpendToChart = (items: CategorySpend[]): CategoryChartData[] =>
   items.map((item) => {
@@ -85,19 +72,15 @@ const HomeView = () => {
   const { notifications } = useNotificationStore();
   const { userInfo, isLoggedIn } = useUserStore();
   const [homeData, setHomeData] = useState<MainResponse | null>(null);
-  const [cardRecommendData, setCardRecommendData] = useState<CardRecommendApiResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // 초기 로딩 상태
 
   // 사용자 이름 가져오기
   const userName = isLoggedIn && userInfo?.name ? userInfo.name : null;
   const dooriTaget = { src: img.doori_basic, title: "흠...어디 한번 볼까?" };
-  const fallbackTotalPrice = DEFAULT_CATEGORY_SOURCE.reduce(
-    (sum, item) => sum + (item.totalPrice ?? 0),
-    0
-  );
-  const totalPrice = homeData?.totalPaidMoney ?? fallbackTotalPrice;
-  const goalPercent = homeData?.goalPercent ?? 80;
-  const fullDate = homeData?.fullDate ?? 30;
-  const duringDate = homeData?.duringDate ?? 28;
+  const totalPrice = homeData?.totalPaidMoney ?? 0;
+  const goalPercent = homeData?.goalPercent ?? 0;
+  const fullDate = homeData?.fullDate ?? 0;
+  const duringDate = homeData?.duringDate ?? 0;
   // 백엔드에서 계산한 예상 남은 일수 사용, 없으면 기본값 계산
   const remainDays = homeData?.remainingDays ?? Math.max(fullDate - duringDate, 0);
   const target =
@@ -105,9 +88,7 @@ const HomeView = () => {
       ? `${homeData.goalMoney.toLocaleString()}만원 쓰기`
       : "목표를 설정해주세요";
 
-  const categorySource = homeData?.paidPriceOfCategory?.length
-    ? homeData.paidPriceOfCategory
-    : DEFAULT_CATEGORY_SOURCE;
+  const categorySource = homeData?.paidPriceOfCategory ?? [];
   const categoryChartData = mapCategorySpendToChart(categorySource).slice(0, 5);
   const donutCategories = categoryChartData.map(({ name, value, color }) => ({
     name,
@@ -128,12 +109,12 @@ const HomeView = () => {
   }));
   // 카드 추천 API에서 받은 배너 URL 사용
   const cardBannerItems =
-    cardRecommendData.length > 0
-      ? cardRecommendData.map((card, index) => ({
+    homeData?.cardRecommend && homeData.cardRecommend.length > 0
+      ? homeData.cardRecommend.map((card) => ({
           url: "",
-          src: card.cardBannerUrl || DEFAULT_CARD_BANNERS[index % DEFAULT_CARD_BANNERS.length].src,
+          src: card.cardBannerUrl || img.cardBanner,
         }))
-      : DEFAULT_CARD_BANNERS;
+      : [];
   const currentMonthLabel = `${new Date().getMonth() + 1}월`;
 
   const messages = ["안녕하세요!", "오늘 하루도 화이팅!", "두리와 함께!"];
@@ -142,6 +123,7 @@ const HomeView = () => {
   useEffect(() => {
     let isMounted = true;
     const fetchMainData = async () => {
+      setIsLoading(true);
       try {
         const response = await apiList.getMain();
         if (isMounted) {
@@ -149,6 +131,10 @@ const HomeView = () => {
         }
       } catch (error) {
         console.error("메인 데이터 조회 실패:", error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
     fetchMainData();
@@ -185,6 +171,15 @@ const HomeView = () => {
 
   return (
     <DefaultDiv style={{ backgroundColor: '#FBFBFB' }} isBottomNav={true}>
+      {/* 로딩 오버레이 */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-white/80 flex items-center justify-center z-50">
+          <div className="bg-white rounded-full p-6 shadow-lg">
+            <div className="w-12 h-12 border-4 border-[#4C8B73] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        </div>
+      )}
+
       {/* 해더 */}
       <header className="flex justify-between items-center">
         <img src={img.wooridoori_logo} alt="우리두리" width={80} />
@@ -275,7 +270,7 @@ const HomeView = () => {
             <h3 className="font-bold text-[1.6rem]">카테고리별 사용 금액 TOP 5</h3>
           </div>
           <BorderBox>
-            {
+            {topCategoryItems.length > 0 ? (
               topCategoryItems.map((element, index) => {
                 return (
                   <div key={index} onClick={() => navigate(`/category-top5/${index}`)} className="cursor-pointer">
@@ -287,7 +282,12 @@ const HomeView = () => {
                   </div>
                 )
               })
-            }
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12">
+                <p className="text-[1.4rem] text-[#858585] mb-6">이번달 소비가 없습니다!</p>
+                <img src={img.doori_nothing} alt="두리" width={250} />
+              </div>
+            )}
           </BorderBox>
         </div>
 
@@ -303,13 +303,15 @@ const HomeView = () => {
           </div>
 
           <div>
-            {cardBannerItems.map((element, index) => {
-              return (
-                <div key={index} onClick={() => navigate('/card-recommend')} className="block mt-6 cursor-pointer">
-                  <img src={element.src} alt={`카드배너${index + 1}`} height={88} />
-                </div>
-              )
-            })}
+            {cardBannerItems.length > 0 ? (
+              cardBannerItems.map((element, index) => {
+                return (
+                  <div key={index} onClick={() => navigate('/card-recommend')} className="block mt-6 cursor-pointer">
+                    <img src={element.src} alt={`카드배너${index + 1}`} height={88} />
+                  </div>
+                )
+              })
+            ) : null}
           </div>
         </div>
       </main>

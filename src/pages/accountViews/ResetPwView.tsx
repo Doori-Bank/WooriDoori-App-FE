@@ -6,8 +6,10 @@ import DefaultDiv from "@/components/default/DefaultDiv";
 import InputBox from "@/components/input/InputBox";
 import Title1 from "@/components/title/Title1";
 import { useState } from "react";
-import axiosInstance from "@/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { useApi } from "@/hooks/useApi";
+import { apiList } from "@/api/apiList";
+
 
 const ResetPwView = () => {
   const navigate = useNavigate();
@@ -15,6 +17,9 @@ const ResetPwView = () => {
   const [name, setName] = useState("");
   const [id, setId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const requestTemporaryPasswordApi = useApi(apiList.requestTemporaryPassword);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const isFormValid = name.trim().length > 0 && emailRegex.test(id.trim());

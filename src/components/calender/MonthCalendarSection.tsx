@@ -45,7 +45,7 @@ const MonthCalendarSection: React.FC<MonthCalendarSectionProps> = ({
       </div>
 
       {/* 캘린더 */}
-      <div ref={calendarStickyRef} className="bg-white pt-2 pb-5">
+      <div ref={calendarStickyRef} className="bg-white pt-2 rounded-b-2xl shadow-[1px_5px_1px_-1px_rgba(0,0,0,0.1)]">
         {/* 요일 헤더 */}
         <div className="grid grid-cols-7 gap-1 mb-3">
           {['일', '월', '화', '수', '목', '금', '토'].map((day, idx) => (
@@ -72,7 +72,7 @@ const MonthCalendarSection: React.FC<MonthCalendarSectionProps> = ({
               <div
                 key={idx}
                 onClick={() => onDateClick(day)}
-                className={`flex flex-col items-center justify-start pt-2 rounded-3xl relative cursor-${day ? 'pointer' : 'default'} overflow-hidden transition-all duration-500 ease-in-out ${
+                className={`flex flex-col items-center justify-start rounded-3xl relative cursor-${day ? 'pointer' : 'default'} overflow-hidden transition-all duration-500 ease-in-out ${
                   isSelected ? 'shadow-xl' : 'bg-transparent'
                 } ${shouldShow ? `${dateHeight} opacity-100` : 'h-0 opacity-0 pt-0'}`}
               >

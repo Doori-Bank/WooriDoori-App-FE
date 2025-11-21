@@ -56,6 +56,7 @@ import doori_writing from './doori/doori_writing.png';
 import doori_basic from './doori/doori_basic.png';
 import doori_favicon from './doori/favicon.png';
 import doori_bubbole from './doori/doori_bubbole.png';
+import doori_nothing from './doori/doori_nothing.png';
 
 import DeleteIcon from './delete.png';
 import EditIcon from './edit.png';
@@ -106,7 +107,7 @@ export const img ={
     doori_cool, doori_counting_coins, doori_crying, doori_facepalm, doori_frustrated, doori_ghost,
     doori_drawing, doori_face1, doori_face2, doori_face3, doori_face4, doori_face5, 
     doori_heart, doori_normal, doori_pouting, doori_question, doori_report, doori_thinking, 
-    doori_wallet, doori_writing,doori_basic, goindol,cardExample,
+    doori_wallet, doori_writing,doori_basic, doori_nothing, goindol,cardExample,
     
     wooridoori_logo, woori_logo, signUp, alarmOn, alarmOff,
     
