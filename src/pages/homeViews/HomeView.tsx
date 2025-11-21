@@ -25,18 +25,6 @@ interface CardRecommendItem {
   cardBannerUrl?: string | null;
 }
 
-interface CardRecommendApiResponse {
-  id: number;
-  cardName: string;
-  cardUrl: string;
-  cardBannerUrl: string;
-  cardBenef: string;
-  cardType: 'CREDIT' | 'CHECK';
-  cardSvc: string;
-  annualFee1: string;
-  annualFee2: string;
-}
-
 interface MainResponse {
   fullDate?: number;
   duringDate?: number;
@@ -107,7 +95,6 @@ const HomeView = () => {
     percentage:
       categoryTotalValue > 0 ? `${Math.round((cat.value / categoryTotalValue) * 100)}%` : "-",
   }));
-  // 카드 추천 API에서 받은 배너 URL 사용
   const cardBannerItems =
     homeData?.cardRecommend && homeData.cardRecommend.length > 0
       ? homeData.cardRecommend.map((card) => ({
@@ -138,25 +125,6 @@ const HomeView = () => {
       }
     };
     fetchMainData();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  // 카드 추천 API 호출
-  useEffect(() => {
-    let isMounted = true;
-    const fetchCardRecommend = async () => {
-      try {
-        const result = await apiList.cardRecommend();
-        if (isMounted && result?.success && result.data?.cards) {
-          setCardRecommendData(result.data.cards || []);
-        }
-      } catch (error) {
-        console.error("카드 추천 조회 실패:", error);
-      }
-    };
-    fetchCardRecommend();
     return () => {
       isMounted = false;
     };
@@ -288,7 +256,7 @@ const HomeView = () => {
                 <img src={img.doori_nothing} alt="두리" width={250} />
               </div>
             )}
-          </BorderBox>
+          </BorderBox> 
         </div>
 
         {/* 카드 추천 */}
