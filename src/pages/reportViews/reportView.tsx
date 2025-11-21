@@ -3,17 +3,17 @@ import ReportLayout from "@/components/report/ReportLayout";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProgressDonet from "@/components/Progress/ProgressDonet";
-import { img } from "@/assets/img";
 import ProgressCategoryView from "./ProgressCategoryView";
 import FallingRockScoreView from './FallingRockScoreView';
 import { apiList } from "@/api/apiList";
 import { useUserStore } from "@/stores/useUserStore";
+import { getCategoryMeta } from "@/utils/categoryMeta";
 
 // 백엔드 DTO (ReportResponseDto) 기반 TypeScript 인터페이스 정의
 interface ReportDto {
   goalAmount: number;                     // 이번 달 목표 금액
   actualSpending: number;                 // 실제 지출
-  goalScore: number;                       // 목표 점수
+  goalScore: number;                      // 목표 점수
   categorySpending: Record<string, number>; // 카테고리별 소비
 }
 
@@ -37,34 +37,6 @@ const ReportView = () => {
     return titleMap[page] || "";
   };
 
-  // ===================== 카테고리 매핑 =====================
-  // ✅ 카테고리 매핑 함수 (유지)
-  const getCategoryInfo = (categoryName: string) => {
-    const categoryMap: Record<string, { icon: string; color: string }> = {
-      'FOOD': { icon: img.foodIcon, color: "#ff715b" },
-      'CAFE': { icon: img.coffeeIcon, color: "#d1a234ff" },
-      'TRANSPORTATION': { icon: img.trafficIcon, color: "#A3D8F7" },
-      'CONVENIENCE_STORE': { icon: img.martIcon, color: "#ffdc9c" },
-      'SHOPPING': { icon: img.shoppingIcon, color: "#EDA3FF" },
-      'TRAVEL': { icon: img.travelIcon, color: "#8BD6EF" },
-      'HOUSING': { icon: img.residenceIcon, color: "#FFF1D6" },
-      'HOSPITAL': { icon: img.hospitalIcon, color: "#BBFFE0" },
-      'TRANSFER': { icon: img.transferIcon, color: "#FFF495" },
-      'ALCOHOL_ENTERTAINMENT': { icon: img.entertainmentIcon, color: "#D0C3FF" },
-      'TELECOM': { icon: img.phoneIcon, color: "#ddff56ff" },
-      'EDUCATION': { icon: img.educationIcon, color: "#D0FFC6" },
-      'ETC': { icon: img.etcIcon, color: "#969191" },
-    };
-    const displayNames: Record<string, string> = {
-        'FOOD': '식비', 'CAFE': '카페', 'TRANSPORTATION': '교통/차량', 'CONVENIENCE_STORE': '편의점',
-        'SHOPPING': '쇼핑', 'TRAVEL': '여행', 'HOUSING': '주거', 'HOSPITAL': '병원',
-        'TRANSFER': '이체', 'ALCOHOL_ENTERTAINMENT': '주류/유흥', 'TELECOM': '통신',
-        'EDUCATION': '교육', 'ETC': '기타',  // DTO 키값에 맞춰 추가
-    };
-    const info = categoryMap[categoryName] || { icon: img.etcIcon, color: "#E4EAF0" };
-    return { ...info, displayName: displayNames[categoryName] || categoryName };
-  };
-
   // ===================== DTO → categoriesList 변환 =====================
   const convertToCategoriesList = (dto: ReportDto) => {
     if (!dto?.categorySpending) return [];
@@ -73,9 +45,16 @@ const ReportView = () => {
     const totalAmount = Object.values(categoryObj).reduce((acc, val) => acc + val, 0);
 
     return Object.entries(categoryObj).map(([categoryName, amount]) => {
-      const { icon, color, displayName } = getCategoryInfo(categoryName);
+      const meta = getCategoryMeta(categoryName);
       const percent = totalAmount === 0 ? "0%" : ((amount / totalAmount) * 100).toFixed(2) + "%";
-      return { name: displayName, value: amount, color, percent, src: icon };
+
+      return {
+        name: meta.label,
+        value: amount,
+        color: meta.color,
+        percent,
+        src: meta.icon,
+      };
     });
   };
 
@@ -93,7 +72,7 @@ const ReportView = () => {
         setMonth(new Date().getMonth() + 1); // 현재 달로 세팅
       } catch (error) {
         console.error("월 데이터 불러오기 실패:", error);
-        setMonth(new Date().getMonth()); // 실패 시 이전 달
+        setMonth(new Date().getMonth());
       }
     };
     fetchReportData();
@@ -112,7 +91,7 @@ const ReportView = () => {
 
   // ===================== 렌더링 페이지 =====================
   const renderPage = () => {
-    if (!reportData) return null; // 데이터 없으면 렌더링 X
+    if (!reportData) return null; // 데이터 없으면 렌더링 안 함
 
     const categoriesList = convertToCategoriesList(reportData);
 

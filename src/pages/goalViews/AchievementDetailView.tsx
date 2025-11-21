@@ -10,6 +10,7 @@ import "@/styles/goal/gaugePointerAnimations.css";
 import "@/styles/home/animations.css";
 import { apiList } from "@/api/apiList";
 import { useUserStore } from "@/stores/useUserStore";
+import { getCategoryMeta } from "@/utils/categoryMeta";
 
 // 백엔드 DTO (DashboardResponseDto) 기반 TypeScript 인터페이스 정의
 type TopCategorySpending = Record<string, number>;
@@ -125,32 +126,14 @@ export default function AchievementDetailView() {
   const isScrolling = useRef<boolean>(false);
   
   // ✅ 카테고리 매핑 함수 (유지)
-  const getCategoryInfo = (categoryName: string) => {
-    const categoryMap: Record<string, { icon: string; color: string }> = {
-      'FOOD': { icon: img.foodIcon, color: "#ff715b" },
-      'CAFE': { icon: img.coffeeIcon, color: "#d1a234ff" },
-      'TRANSPORTATION': { icon: img.trafficIcon, color: "#A3D8F7" },
-      'CONVENIENCE_STORE': { icon: img.martIcon, color: "#ffdc9c" },
-      'SHOPPING': { icon: img.shoppingIcon, color: "#EDA3FF" },
-      'TRAVEL': { icon: img.travelIcon, color: "#8BD6EF" },
-      'HOUSING': { icon: img.residenceIcon, color: "#FFF1D6" },
-      'HOSPITAL': { icon: img.hospitalIcon, color: "#BBFFE0" },
-      'TRANSFER': { icon: img.transferIcon, color: "#FFF495" },
-      'ALCOHOL_ENTERTAINMENT': { icon: img.entertainmentIcon, color: "#D0C3FF" },
-      'TELECOM': { icon: img.phoneIcon, color: "#ddff56ff" },
-      'EDUCATION': { icon: img.educationIcon, color: "#D0FFC6" },
-      'ETC': { icon: img.etcIcon, color: "#969191" },
+const getCategoryInfo = (categoryName: string) => {
+    const meta = getCategoryMeta(categoryName);
+    return {
+      icon: meta.icon,
+      color: meta.color,
+      displayName: meta.label,
     };
-    const displayNames: Record<string, string> = {
-        'FOOD': '식비', 'CAFE': '카페', 'TRANSPORTATION': '교통/차량', 'CONVENIENCE_STORE': '편의점',
-        'SHOPPING': '쇼핑', 'TRAVEL': '여행', 'HOUSING': '주거', 'HOSPITAL': '병원',
-        'TRANSFER': '이체', 'ALCOHOL_ENTERTAINMENT': '주류/유흥', 'TELECOM': '통신',
-        'EDUCATION': '교육', 'ETC': '기타',  // DTO 키값에 맞춰 추가
-    };
-    const info = categoryMap[categoryName] || { icon: img.etcIcon, color: "#E4EAF0" };
-    return { ...info, displayName: displayNames[categoryName] || categoryName };
   };
-
 
   // 11. 데이터 추출 및 계산 (detail 상태 기반)
   const achievementRate = detail?.achievementRate ?? 0; // 달성률 (0~100)
