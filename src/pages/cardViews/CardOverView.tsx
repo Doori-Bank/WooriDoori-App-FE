@@ -7,7 +7,9 @@ import { apiList } from '@/api/apiList';
 interface CardItem {
   id: number;
   cardName: string;
-  cardUrl: string;
+  cardUrl: string; // 카드 신청 링크
+  cardImageUrl?: string; // 카드 이미지 URL (tbl_file의 file_path)
+  cardImageFileId?: number; // 카드 이미지 파일 ID
   cardBenef: string;
   cardType: 'CREDIT' | 'CHECK';
   cardSvc: string;
@@ -132,7 +134,7 @@ const CardRecommendView: React.FC = () => {
                   {/* 카드 이미지 */}
                   <div className="flex flex-shrink-0 justify-center items-center w-36 h-36">
                     <img
-                      src={card.cardUrl || img.wooriCard}
+                      src={card.cardImageUrl || card.cardUrl || img.wooriCard}
                       alt={card.cardName}
                       className="object-contain w-48 h-48"
                       onError={(e) => {

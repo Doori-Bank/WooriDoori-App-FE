@@ -45,7 +45,7 @@ const CardAddComplete: React.FC = () => {
       // 등록된 카드 정보를 state에 저장 (화면 표시용)
       setRegisteredCard({
         cardName: card.cardName || '[우리] 우리체크카드',
-        cardImage: card.cardUrl || img.cardExample,
+        cardImage: card.cardImageUrl || card.cardUrl || img.cardExample,
         cardAlias: card.cardAlias,
       });
       
@@ -60,7 +60,7 @@ const CardAddComplete: React.FC = () => {
         title: card.cardAlias || card.cardName || cardData.nickname || '새 카드',
         cardName: card.cardName || '[우리] 우리체크카드',
         cardNum: cardNumFormatted,
-        cardImage: card.cardUrl || img.cardExample,
+        cardImage: card.cardImageUrl || card.cardUrl || img.cardExample,
         benefits: card.cardBenefit || '가맹점 0.1% 할인, 온라인 0.1% 할인, 교통비 0.1% 할인',
         isEdit: false
       };
@@ -164,7 +164,7 @@ const CardAddComplete: React.FC = () => {
         // 등록된 카드 정보를 state에 저장 (화면 표시용)
         setRegisteredCard({
           cardName: card.cardName || '[우리] 우리체크카드',
-          cardImage: card.cardUrl || img.cardExample,
+          cardImage: card.cardImageUrl || card.cardUrl || img.cardExample,
           cardAlias: card.cardAlias,
         });
         
@@ -180,7 +180,7 @@ const CardAddComplete: React.FC = () => {
           title: card.cardAlias || card.cardName || cardData.nickname || '새 카드',
           cardName: card.cardName || '[우리] 우리체크카드',
           cardNum: cardNumFormatted,
-          cardImage: card.cardUrl || img.cardExample,
+          cardImage: card.cardImageUrl || card.cardUrl || img.cardExample,
           benefits: card.cardBenefit || '가맹점 0.1% 할인, 온라인 0.1% 할인, 교통비 0.1% 할인',
           isEdit: false
         };

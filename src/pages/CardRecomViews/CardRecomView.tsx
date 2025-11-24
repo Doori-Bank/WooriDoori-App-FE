@@ -10,7 +10,9 @@ import { apiList } from '@/api/apiList';
 interface CardItem {
   id: number;
   cardName: string;
-  cardUrl: string;
+  cardUrl: string; // 카드 신청 링크
+  cardImageUrl?: string; // 카드 이미지 URL (tbl_file의 file_path)
+  cardImageFileId?: number; // 카드 이미지 파일 ID
   cardBenef: string;
   cardType: 'CREDIT' | 'CHECK';
   cardSvc: string;
@@ -107,7 +109,7 @@ const CardRecomView = () => {
                     rank={1} 
                     buttonOnClick={() => { }} 
                     buttonText="" 
-                    cardImageSrc={cards[0].cardUrl || img.testCard} 
+                    cardImageSrc={cards[0].cardImageUrl || cards[0].cardUrl || img.testCard} 
                     subtitle={cards[0].cardBenef} 
                     title={cards[0].cardName} 
                   />
@@ -120,7 +122,7 @@ const CardRecomView = () => {
               {cards.slice(1).map((card, index) => (
                 <CardRankItem 
                   key={card.id}
-                  imageSrc={card.cardUrl || img.testCard} 
+                  imageSrc={card.cardImageUrl || card.cardUrl || img.testCard} 
                   rank={index + 2} 
                   subtitle='' 
                   title={card.cardName} 

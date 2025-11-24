@@ -9,7 +9,9 @@ import { getCategoryMeta } from '@/utils/categoryMeta';
 interface CardItem {
   id: number;
   cardName: string;
-  cardUrl: string;
+  cardUrl: string; // 카드 신청 링크
+  cardImageUrl?: string; // 카드 이미지 URL (tbl_file의 file_path)
+  cardImageFileId?: number; // 카드 이미지 파일 ID
   cardBenef: string;
   cardType: 'CREDIT' | 'CHECK';
   cardSvc: string;
@@ -50,9 +52,28 @@ const CardDetailView: React.FC = () => {
     }
   }, [cardData, id]);
 
-  const handleApply = () => {
-    // 신청하기 버튼 클릭 시 처리 (외부 링크 또는 모달 등)
-    alert('카드 신청 기능은 준비 중입니다.');
+  const handleApply = async () => {
+    try {
+      // 카드 목록 조회
+      const result = await apiList.card.getCardList();
+      
+      if (result?.success && result.data && card) {
+        // 현재 카드 ID로 해당 카드 찾기
+        const foundCard = result.data.find((c: CardItem) => c.id === card.id);
+        
+        if (foundCard && foundCard.cardUrl) {
+          // cardUrl이 있으면 새 창에서 열기
+          window.open(foundCard.cardUrl, '_blank');
+        } else {
+          alert('카드 신청 링크를 찾을 수 없습니다.');
+        }
+      } else {
+        alert('카드 정보를 불러오는데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('카드 신청 링크 조회 실패:', error);
+      alert('카드 신청 링크를 불러오는데 실패했습니다.');
+    }
   };
 
   // 혜택 텍스트를 파싱하여 카테고리와 내용 분리
@@ -165,11 +186,11 @@ const CardDetailView: React.FC = () => {
     >
       <div className="flex flex-col pb-24">
         {/* 카드 이미지 */}
-        <div className="flex justify-center items-center py-6 mb-6">
+        <div className="flex justify-center items-center py-7 mb-6">
           <img
-            src={card.cardUrl || img.wooriCard}
+            src={card.cardImageUrl || card.cardUrl || img.wooriCard}
             alt={card.cardName}
-            className="object-contain w-full max-w-[340px] h-auto drop-shadow-xl"
+            className="object-contain w-full max-w-[250px] h-auto drop-shadow-xl"
             onError={(e) => {
               (e.target as HTMLImageElement).src = img.wooriCard;
             }}
