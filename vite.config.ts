@@ -7,6 +7,15 @@ import path from 'path'
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: 'html-transform',
+      transformIndexHtml(html) {
+        return html.replace(
+          /%VITE_GOOGLE_ANALYTICS_ID%/g,
+          process.env.VITE_GOOGLE_ANALYTICS_ID || 'G-X6DSJQQLMZ'
+        );
+      },
+    },
     VitePWA({
       registerType: 'prompt',
       includeAssets: ['favicon.png', 'favicon.ico'],
