@@ -7,41 +7,50 @@ import NotificationTab from './NotificationTabs';
 import { OneBtnModal } from '@/components/modal/OneBtnModal';
 import ToggleSwiitchBtn from '@/components/button/ToggleSwitchBtn';
 import { useNotificationStore } from '@/stores/useNotificationStore';
+import { isNotificationEnabled } from '@/utils/notificationSettings';
+
+type TabType = 'system' | 'diary';
 
 const NotificationView: React.FC = () => {
   const { notifications: storeNotifications, removeNotification, markAsRead } = useNotificationStore();
+  const [selectedTab, setSelectedTab] = useState<TabType>('system');
   const [isAlarmOn, setIsAlarmOn] = useState(true);
   const [isOpenModal, setIsOpenModal] = useState(false);
 
-  const [settingAlarmList, setSettingAlarmList] = useState([{ title: '시스템 알림', isOn: true }, { title: '일기 알림', isOn: true }]);
+  const [settingAlarmList, setSettingAlarmList] = useState([
+    { title: '시스템 알림', isOn: true },
+    { title: '일기 알림', isOn: true }
+  ]);
 
-
-  // 함수 -=========================================================================
-  const openModal = () => {
-    return (
-      <OneBtnModal 
-        isOpen={isOpenModal}
-        onConfirm={checkAlramStatus}
-        message={
-          <div>
-            {settingAlarmList.map((element, index) => {
-              return <ToggleSwiitchBtn
-                key={index}
-                label={element.title}
-                onChange={(e) => {
-                  const newList = [...settingAlarmList];
-                  newList[index] = { ...newList[index], isOn: e };
-                  setSettingAlarmList(newList);
-                }}
-                checked={element.isOn}
-                className={index === 0 ? 'mb-10 mt-5' : 'mb-5'}
-              />
-            })}
-          </div>
-        } />
-    )
+  // 탭 변경 시 호출
+  const handleTabChange = (tabLabel: '시스템 알림' | '일기 알림') => {
+    setSelectedTab(tabLabel === '시스템 알림' ? 'system' : 'diary');
   };
 
+  // 모달창
+  const openModal = () => (
+    <OneBtnModal 
+      isOpen={isOpenModal}
+      onConfirm={checkAlramStatus}
+      message={
+        <div>
+          {settingAlarmList.map((element, index) => (
+            <ToggleSwiitchBtn
+              key={index}
+              label={element.title}
+              onChange={(e) => {
+                const newList = [...settingAlarmList];
+                newList[index] = { ...newList[index], isOn: e };
+                setSettingAlarmList(newList);
+              }}
+              checked={element.isOn}
+              className={index === 0 ? 'mb-10 mt-5' : 'mb-5'}
+            />
+          ))}
+        </div>
+      }
+    />
+  );
 
   // 알림 삭제
   const handleDelete = (id: string) => {
@@ -49,10 +58,16 @@ const NotificationView: React.FC = () => {
   };
 
   // 알림 설정 표시 여부 판단
-  const checkAlramStatus = () =>{
+  const checkAlramStatus = () => {
     setIsAlarmOn(settingAlarmList[0].isOn);
     setIsOpenModal(!isOpenModal);
-  }
+  };
+
+  // 탭별 필터링
+  const filteredNotifications = storeNotifications.filter((n) => {
+    if (selectedTab === 'diary') return n.type === 'diary';
+    return n.type !== 'diary';
+  });
 
   return (
     <>
@@ -67,31 +82,25 @@ const NotificationView: React.FC = () => {
             src={isAlarmOn ? img.alarmOn : img.alarmOff}
             alt='소비일기' width={40}
             onClick={() => { setIsOpenModal(!isOpenModal) }}
-          />}
+          />
+        }
         onBack={() => { window.history.back(); }}
       >
-
-        <NotificationTab />
-
+        {/* 탭 */}
+        <NotificationTab onChange={handleTabChange} />
 
         {/* 메인 컨텐츠 */}
         <div className="flex-1 py-5 h-full">
-
-          {/* 알림 목록 */}
-          {storeNotifications.length > 0 && (
-            storeNotifications.map((notification) => {
-              return (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onDelete={handleDelete}
-                  onMarkAsRead={markAsRead}
-                />
-              );
-            })
-          )}
-
-          {storeNotifications.length === 0 && (
+          {filteredNotifications.length > 0 ? (
+            filteredNotifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                notification={notification}
+                onDelete={handleDelete}
+                onMarkAsRead={markAsRead}
+              />
+            ))
+          ) : (
             <div className="flex flex-col gap-5 justify-center items-center h-full">
               <img
                 src={img.doori_normal}
@@ -99,7 +108,7 @@ const NotificationView: React.FC = () => {
                 className="w-[10rem] h-[10rem] object-contain"
               />
               <p className="text-[1.4rem] text-gray-400 dark:text-gray-400 text-center">
-                알림이 없습니다.
+                {selectedTab === 'diary' ? '일기 알림이 없습니다.' : '시스템 알림이 없습니다.'}
               </p>
             </div>
           )}
@@ -113,4 +122,3 @@ const NotificationView: React.FC = () => {
 };
 
 export default NotificationView;
-

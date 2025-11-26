@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { img } from "@/assets/img";
 import CardRankItem from '@/components/card/CardRankItem';
 import { apiList } from '@/api/apiList';
+import { useUserStore } from "@/stores/useUserStore";
 
 interface CardItem {
   id: number;
@@ -21,9 +22,10 @@ interface CardItem {
 }
 
 const CardRecomView = () => {
+  const { userInfo, isLoggedIn } = useUserStore();
+  const userName = isLoggedIn && userInfo?.name ? userInfo.name : "사용자";
   const navigate = useNavigate();
   const location = useLocation();
-  const name = "석기";
   
   // 리포트에서 전달받은 월 정보 (예: 10)
   const reportMonth = location.state?.month as number | undefined;
@@ -77,7 +79,7 @@ const CardRecomView = () => {
   };
 
   return (
-    <ReportLayout mainText={`${name}님 소비에 딱 맞는 카드`} showClose={false}  onBack={()=>window.history.back()} buttonText={"확인"} 
+    <ReportLayout mainText={`${userName}님 소비에 딱 맞는 카드`} showClose={false}  onBack={()=>window.history.back()} buttonText={"확인"} 
       onButtonClick={ onClick}>
       <div className='w-full'>
         {isLoading ? (

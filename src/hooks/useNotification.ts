@@ -35,7 +35,7 @@ export const useNotification = () => {
       console.log("✅ SSE 연결 성공");
     };
 
-    // 일반 메시지 이벤트
+    //일반 메시지 이벤트
     eventSource.onmessage = (event) => {
       console.log("📨 SSE 메시지:", event.data);
       handleNotification("알림", event.data);
@@ -43,11 +43,6 @@ export const useNotification = () => {
 
     eventSource.addEventListener("connect", (event: MessageEvent) => {
       console.log("🔗 SSE 연결 이벤트:", event.data);
-    });
-
-    eventSource.addEventListener("message", (event: MessageEvent) => {
-      console.log("📬 SSE 메시지 이벤트:", event.data);
-      handleNotification("알림", event.data);
     });
 
     // 리포트 알림 이벤트 (소문자)
@@ -181,8 +176,8 @@ export const useNotification = () => {
         navigator.serviceWorker.ready.then((registration) => {
           registration.showNotification(title, {
             body: message,
-            icon: "/favicon.ico",
-            badge: "/favicon.ico",
+            icon: "/favicon.png",
+            badge: "/favicon.png",
             tag: `notification-${Date.now()}`, // 중복 알림 방지
             requireInteraction: false,
             data: {
@@ -194,14 +189,14 @@ export const useNotification = () => {
           // Service Worker 실패 시 일반 Notification 사용
           new Notification(title, {
             body: message,
-            icon: "/favicon.ico",
+            icon: "/favicon.png",
           });
         });
       } else {
         // Service Worker를 지원하지 않는 경우 일반 Notification 사용
         new Notification(title, {
           body: message,
-          icon: "/favicon.ico",
+          icon: "/favicon.png",
         });
       }
     } else {
