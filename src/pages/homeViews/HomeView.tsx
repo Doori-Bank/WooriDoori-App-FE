@@ -241,7 +241,7 @@ const HomeView = () => {
             {topCategoryItems.length > 0 ? (
               topCategoryItems.map((element, index) => {
                 return (
-                  <div key={index} onClick={() => navigate(`/category-top5/${index}`)} className="cursor-pointer">
+                  <div key={index} onClick={() => navigate(`/category-top5/${element.label.replace(/\//g, "-")}`)} className="cursor-pointer">
                     <div className={`flex items-center gap-6 ${index != topCategoryItems.length - 1 ? 'border-b border-gray-100' : ''}`}>
                       <p className={`text-[1.5rem] font-bold pl-4
                         ${index == 0 ? 'text-[#FF0000]' : index == topCategoryItems.length - 1 ? 'text-[#138FEF]' : 'text-[#4A4A4A]'}`}>TOP {index + 1}</p>

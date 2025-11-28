@@ -25,7 +25,7 @@ const FallingRockScoreView: React.FC<FallingRockScoreViewProps> = ({ score }) =>
   /** 점수별 돌 이미지 및 위치 지정 **/
   const rockData = () => {
     if (score >= 80) {
-      return { src: img.emeraldIcon, top: "18%", width: "50%" };
+      return { src: img.emeraldIcon, top: "22%", width: "50%" };
     } else if (score >= 60) {
       return { src: img.goldIcon, top: "14%", width: "48%" };
     } else if (score >= 40) {
@@ -33,27 +33,15 @@ const FallingRockScoreView: React.FC<FallingRockScoreViewProps> = ({ score }) =>
     } else if (score >= 20) {
       return { src: img.copperIcon2, top: "7%", width: "85%" };
     } else {
-      return { src: img.stoneIcon, top: "5%", width: "90%" };
+      return { src: img.stoneIcon, top: "15%", width: "90%" };
     }
   };
 
   const { src, top, width } = rockData();
 
   return (
-    <div className="relative flex flex-col items-center justify-center h-[400px] overflow-hidden">
-      {/* 돌 이미지 */}
-      <img
-        src={src}
-        alt="rock"
-        className={`absolute rock-fall ${isRockDown ? "rock-landed" : ""}`}
-        style={{
-          top,
-          left: "0",
-          width,
-          transform: "translate(0%, 0)",
-        }}
-        onAnimationEnd={() => setIsRockDown(true)}
-      />
+    <div className="h-full relative flex flex-col items-center justify-center h-[400px] overflow-hidden">
+
 
       {/* 점수 텍스트 */}
       {isRockDown && (
@@ -65,13 +53,30 @@ const FallingRockScoreView: React.FC<FallingRockScoreViewProps> = ({ score }) =>
         </div>
       )}
 
-      {/* 저울 영역 */}
-      <img
-        src={img.scaleIcon}
-        alt="저울"
-        width={95}
-        className="absolute bottom-[1rem]"
-      />
+
+      <div className="relative flex flex-col items-center justify-center">
+        {/* 돌 이미지 */}
+        <img
+          src={src}
+          alt="rock"
+          className={`absolute rock-fall ${isRockDown ? "rock-landed" : ""}`}
+          style={{
+            top,
+            left: "0",
+            width,
+            transform: "translate(0%, 0)",
+          }}
+          onAnimationEnd={() => setIsRockDown(true)}
+        />
+
+        {/* 저울 영역 */}
+        <img
+          src={img.scaleIcon}
+          alt="저울"
+          width={95}
+          className="absolute -bottom-[8rem]"
+        />
+      </div>
     </div>
   );
 };

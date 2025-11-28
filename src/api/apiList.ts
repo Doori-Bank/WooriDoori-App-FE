@@ -118,6 +118,19 @@ export const apiList = {
     }
   },
 
+  getFranchiseList: async (category : string) => {
+    try{
+      const response = await axiosInstance.get(`/franchise/${category}`,{
+      params : {category}
+    });
+    return response.data.resultData;
+    }catch(err){
+      console.log(`Err 발생 /franchise/${category}:`+ err);
+      return [];
+    }
+  },
+
+
   // 소비 내역 API
   // 월별 소비 내역 조회
   getMonthlySpendings: async (targetDate: string) => {

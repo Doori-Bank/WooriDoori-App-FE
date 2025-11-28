@@ -43,7 +43,7 @@ const ReportLayout = ({
             isMainTitle={false}
         >
             {/* ✅ 본문 */}
-            <main className={`flex flex-col px-0 ${isMainTextCenter ? 'items-center text-center' : 'text-left'}`}>
+            <main className={`flex flex-col h-full px-0 ${isMainTextCenter ? 'items-center text-center' : 'text-left'}`}>
                 {/* 메인 문구 */}
                 <div className="flex-shrink-0 mt-10 mb-20">
                     <h1 className="text-[1.9rem] font-semibold text-gray-900 leading-snug whitespace-pre-line">
@@ -52,7 +52,7 @@ const ReportLayout = ({
                 </div>
 
                 {/* 중앙 컨텐츠 (그래프, 이미지 등) - 스크롤 가능 */}
-                <div className="overflow-y-auto flex-1 pb-44 w-full">
+                <div className="overflow-y-auto h-full flex-1 pb-44 w-full">
                     {children}
                 </div>
 

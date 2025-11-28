@@ -37,7 +37,8 @@
 .bubble-img {
   width: 60%;
   height: 60%;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 /* 초기: 아래에서 위로 등장 */
