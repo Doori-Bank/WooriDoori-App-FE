@@ -50,7 +50,7 @@ const Bubble: React.FC<BubbleProps> = ({ src, size, top, left, delay = 0, name }
       }}
     >
     {src? <img src={src} alt="bubble-icon" width={size - 30} height={size - 30} className="bubble-img" /> : null} 
-    <p className={`absolute text-center top-0 text-gray-500`} style={{fontSize: `${delay >= 1 ?delay*3:1.2}rem`}}>{name}</p> 
+    {/* <p className={`absolute text-center top-0 text-gray-500`} style={{fontSize: `${delay >= 1 ?delay*3:1.2}rem`}}>{name}</p>  */}
     </div>
   );
 };
