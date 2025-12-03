@@ -57,14 +57,17 @@ const CardRecomView = () => {
   const onClick = () => {
     // 리포트의 월 정보를 "YYYY.MM" 형식으로 변환
     if (reportMonth) {
-      const currentYear = new Date().getFullYear();
-      const monthString = reportMonth.toString().padStart(2, '0');
-      const monthKey = `${currentYear}.${monthString}`;
-      
+      const now = new Date();
+      const fakeHistoryList = [{
+        goalStartDate: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`
+      }];
+
       navigate("/achievement/detail", {
         state: {
-          data: { month: monthKey },
-          from: "report"
+          year: now.getFullYear(),
+          month: now.getMonth() + 1,
+          from: "report",
+          historyList: fakeHistoryList
         }
       });
     } else {
